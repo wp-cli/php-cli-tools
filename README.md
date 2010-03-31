@@ -28,7 +28,7 @@ Progress Indicators
 Usage
 -----
 
-See `test.php` for examples.
+See `example.php` for examples.
 
 
 Todo
