@@ -140,16 +140,15 @@ function choose($question, $choices= 'yn', $default = 'n') {
  * or objects with a `__toString()` method.
  *
  * @param array   $items    The list of items the user can choose from.
- * @param string  $default  The *value* of the default item. `array_search` is
- *                          used to find the proper index.
+ * @param string  $default  The index of the default item.
  * @param string  $title    The message displayed to the user when prompted.
- * @return string  The *value* of the chosen item.
+ * @return string  The index of the chosen item.
  */
 function menu($items, $default = false, $title = 'Choose an item') {
 	$map = array_values($items);
 
-	if ($default && strpos($title, '[') === false && in_array($default, $items)) {
-		$title  .= ' ['.$default.']';
+	if ($default && strpos($title, '[') === false && isset($items[$default])) {
+		$title  .= ' ['.$items[$default].']';
 	}
 
 	foreach ($map as $idx => $item) {
@@ -164,7 +163,7 @@ function menu($items, $default = false, $title = 'Choose an item') {
 		if (is_numeric($line)) {
 			$line--;
 			if (isset($map[$line])) {
-				return $map[$line];
+				return array_search($map[$line], $items);
 			}
 
 			if ($line < 0 || $line >= count($map)) {
