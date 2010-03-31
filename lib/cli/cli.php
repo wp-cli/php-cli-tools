@@ -108,23 +108,24 @@ function prompt($question, $default = false, $marker = ':') {
  * Presents a user with a multiple choice question, useful for 'yes/no' type
  * questions (which this function defaults too).
  *
- * @param string  $valid    A string of characters allowed as a response. Case
- *                          is ignored.
- * @param string  $default  The default choice. NULL if a default is not allowed.
+ * @param string  $question  The question to ask the user.
+ * @param string  $valid     A string of characters allowed as a response. Case
+ *                           is ignored.
+ * @param string  $default   The default choice. NULL if a default is not allowed.
  * @return string  The users choice.
  */
-function choose($question, $valid = 'yn', $default = 'n') {
-	if (!is_string($valid)) {
-		$valid = join('', $valid);
+function choose($question, $choices= 'yn', $default = 'n') {
+	if (!is_string($choice)) {
+		$choice = join('', $choice);
 	}
 
-	$valid = str_ireplace($default, strtoupper($default), strtolower($valid));
-	$valids = trim(join('/', preg_split('//', $valid)), '/');
+	$choice = str_ireplace($default, strtoupper($default), strtolower($choice));
+	$choices = trim(join('/', preg_split('//', $choice)), '/');
 
 	while (true) {
-		$line = prompt(sprintf('%s? [%s]', $question, $valids), $default, '');
+		$line = prompt(sprintf('%s? [%s]', $question, $choices), $default, '');
 
-		if (stripos($valid, $line) !== false) {
+		if (stripos($choice, $line) !== false) {
 			return strtolower($line);
 		}
 		if (!empty($default)) {
@@ -144,7 +145,7 @@ function choose($question, $valid = 'yn', $default = 'n') {
  * @param string  $title    The message displayed to the user when prompted.
  * @return string  The *value* of the chosen item.
  */
-function menu($items, $default = null, $title = 'Choose an item') {
+function menu($items, $default = false, $title = 'Choose an item') {
 	$map = array_values($items);
 
 	if ($default && strpos($title, '[') === false && in_array($default, $items)) {
