@@ -21,6 +21,9 @@ class Spinner extends \cli\Notify {
 				break;
 		}
 
-		\cli\out('%s %s', $this->_message, $char);
+		$speed = number_format(round($this->speed()));
+		$elapsed = $this->formatTime($this->elapsed());
+
+		\cli\out_padded('%s %s  (%s, %s/s)', $this->_message, $char, $elapsed, $speed);
 	}
 }

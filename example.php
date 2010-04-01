@@ -45,10 +45,10 @@ $data = array(
 	array('Kirestin', 'Stephens',   'Fitchburg',        'AB'),
 );
 
-function test_notify(\cli\Notify $notify, $cycle = 100, $sleep = 10) {
+function test_notify(\cli\Notify $notify, $cycle = 1000000, $sleep = null) {
 	for ($i = 0; $i <= $cycle; $i++) {
 		$notify->tick();
-		usleep($sleep);
+		if ($sleep) usleep($sleep);
 	}
 	$notify->finish();
 }
@@ -84,7 +84,8 @@ while (true) {
 		test_notify(new \cli\notify\Spinner('  \cli\notify\Spinner cycles through a set of characters to emulate a spinner'));
 		break;
 	case 'progress_bar':
-		test_notify(new \cli\progress\Bar('  \cli\progress\Bar displays a progress bar', 100));
+		test_notify(new \cli\progress\Bar('  \cli\progress\Bar displays a progress bar', 1000000));
+		test_notify(new \cli\progress\Bar('  It sizes itself dynamically', 1000000));
 		break;
 	case 'table':
 		$table = new \cli\Table();

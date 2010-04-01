@@ -19,6 +19,16 @@ abstract class Progress extends \cli\Notify {
 		return str_pad(number_format($this->_current), $size);
 	}
 
+	public function estimated() {
+		$speed = $this->speed();
+		if (!$this->elapsed()) {
+			return 0;
+		}
+
+		$estimated = round($this->_total / $speed);
+		return $estimated;
+	}
+
 	public function finish() {
 		$this->_current = $this->_total;
 		parent::finish();
@@ -39,7 +49,7 @@ abstract class Progress extends \cli\Notify {
 	}
 
 	public function percent() {
-		return floor(($this->_current / $this->_total) * 100);
+		return ($this->_current / $this->_total);
 	}
 
 	public function total() {

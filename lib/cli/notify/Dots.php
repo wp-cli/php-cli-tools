@@ -21,6 +21,10 @@ class Dots extends \cli\Notify {
 		} else {
 			$dots = str_repeat('.', $this->_iteration++ % $this->_dots);
 		}
-		\cli\out('%s%-'.$this->_dots.'s', $this->_message, $dots);
+
+		$speed = number_format(round($this->speed()));
+		$elapsed = $this->formatTime($this->elapsed());
+
+		\cli\out_padded('%s%-'.$this->_dots.'s  (%s, %s/s)', $this->_message, $dots, $elapsed, $speed);
 	}
 }
