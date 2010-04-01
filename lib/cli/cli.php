@@ -29,6 +29,12 @@ function out($msg) {
 	fwrite(STDOUT, call_user_func_array('sprintf', $args));
 }
 
+function out_padded($msg) {
+	$args = func_get_args();
+	$msg = call_user_func_array('sprintf', $args);
+	\cli\out(str_pad($msg, \cli\Shell::columns()));
+}
+
 /**
  * Prints a message to `STDOUT` with a newline appended. See `\cli\out` for
  * more documentation.

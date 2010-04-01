@@ -11,6 +11,7 @@ Function List
 -------------
 
  * `\cli\out($msg, ...)`
+ * `\cli\out_padded($msg, ...)`
  * `\cli\err($msg, ...)`
  * `\cli\line($msg = '', ...)`
  * `\cli\input()`
