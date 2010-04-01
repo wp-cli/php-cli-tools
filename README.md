@@ -25,6 +25,16 @@ Progress Indicators
  * `\cli\notifier\Spinner($msg, $interval = 100)`
  * `\cli\progress\Bar($msg, $total, $interval = 100)`
 
+Tabular Display
+---------------
+
+ * `\cli\Table::__construct(array $headers = null, array $rows = null)`
+ * `\cli\Table::setHeaders(array $headers)`
+ * `\cli\Table::setRows(array $rows)`
+ * `\cli\Table::addRow(array $row)`
+ * `\cli\Table::sort($column)`
+ * `\cli\Table::display()`
+
 Usage
 -----
 
