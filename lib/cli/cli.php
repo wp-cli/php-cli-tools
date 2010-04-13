@@ -2,18 +2,23 @@
 
 namespace cli;
 
-spl_autoload_register(function($class) {
-	// Only attempt to load classes in our namespace
-	if (substr($class, 0, 4) !== 'cli\\') {
-		return;
-	}
+/**
+ * Registers a basic auto loader for the `cli` namespace.
+ */
+function register_autoload() {
+	spl_autoload_register(function($class) {
+		// Only attempt to load classes in our namespace
+		if (substr($class, 0, 4) !== 'cli\\') {
+			return;
+		}
 
-	$base = dirname(__DIR__).DIRECTORY_SEPARATOR;
-	$path = $base.str_replace('\\', DIRECTORY_SEPARATOR, $class).'.php';
-	if (is_file($path)) {
-		require_once $path;
-	}
-});
+		$base = dirname(__DIR__).DIRECTORY_SEPARATOR;
+		$path = $base.str_replace('\\', DIRECTORY_SEPARATOR, $class).'.php';
+		if (is_file($path)) {
+			require_once $path;
+		}
+	});
+}
 
 /**
  * Shortcut for printing to `STDOUT`. The message and parameters are passed

@@ -5,6 +5,7 @@ if (php_sapi_name() != 'cli') {
 }
 
 require 'lib/cli/cli.php';
+\cli\register_autoload();
 
 $menu = array(
 	'out_out' => 'cli\out Example',
