@@ -1,4 +1,16 @@
 <?php
+/**
+ * PHP Command Line Tools
+ *
+ * LICENSE
+ *
+ * This source file is subject to the new BSD license that is bundled
+ * with this package in the file LICENSE.
+ *
+ * @author    James Logsdon <dwarf@girsbrain.org>
+ * @copyright 2010 James Logsdom (http://girsbrain.org)
+ * @license   New BSD License
+ */
 
 namespace cli;
 
@@ -24,8 +36,7 @@ function register_autoload() {
  * Shortcut for printing to `STDOUT`. The message and parameters are passed
  * through `sprintf` before output.
  *
- * @param string  $msg  The message to output in `printf` format. With no string,
- *                      a newline is printed.
+ * @param string  $msg  The message to output in `printf` format.
  * @param mixed   ...   Any extra parameters are passed on to `printf`.
  * @return void
  */
@@ -34,6 +45,14 @@ function out($msg) {
 	fwrite(STDOUT, call_user_func_array('sprintf', $args));
 }
 
+/**
+ * Pads `$msg` to the width of the shell before passing to `cli\out`.
+ *
+ * @param string  $msg  The message to pad and pass on.
+ * @param mixed   ...   Any extra parameters are passed on to `sprintf`.
+ * @return void
+ * @see cli\out()
+ */
 function out_padded($msg) {
 	$args = func_get_args();
 	$msg = call_user_func_array('sprintf', $args);
@@ -44,7 +63,7 @@ function out_padded($msg) {
  * Prints a message to `STDOUT` with a newline appended. See `\cli\out` for
  * more documentation.
  *
- * @see cli\out
+ * @see cli\out()
  */
 function line($msg = '') {
 	$args = func_get_args();
@@ -75,7 +94,7 @@ function err($msg = '') {
  *                         If none is given, all input up to the first newline
  *                         is accepted.
  * @return string  The input with whitespace trimmed.
- * @throws \Exception
+ * @throws \Exception  Thrown if ctrl-D (EOT) is sent as input.
  */
 function input($format = null) {
 	if ($format) {
@@ -100,6 +119,7 @@ function input($format = null) {
  * @param string  $marker    A string to append to the question and default value
  *                           on display.
  * @return string  The users input.
+ * @see cli\input()
  */
 function prompt($question, $default = false, $marker = ':') {
 	if ($default && strpos($question, '[') === false) {
@@ -124,6 +144,7 @@ function prompt($question, $default = false, $marker = ':') {
  *                           is ignored.
  * @param string  $default   The default choice. NULL if a default is not allowed.
  * @return string  The users choice.
+ * @see cli\prompt()
  */
 function choose($question, $choices= 'yn', $default = 'n') {
 	if (!is_string($choice)) {
@@ -154,6 +175,9 @@ function choose($question, $choices= 'yn', $default = 'n') {
  * @param string  $default  The index of the default item.
  * @param string  $title    The message displayed to the user when prompted.
  * @return string  The index of the chosen item.
+ * @see cli\line()
+ * @see cli\input()
+ * @see cli\err()
  */
 function menu($items, $default = false, $title = 'Choose an item') {
 	$map = array_values($items);
