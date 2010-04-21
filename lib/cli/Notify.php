@@ -2,14 +2,12 @@
 /**
  * PHP Command Line Tools
  *
- * LICENSE
- *
- * This source file is subject to the new BSD license that is bundled
+ * This source file is subject to the MIT license that is bundled
  * with this package in the file LICENSE.
  *
  * @author    James Logsdon <dwarf@girsbrain.org>
  * @copyright 2010 James Logsdom (http://girsbrain.org)
- * @license   New BSD License
+ * @license   http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 
 namespace cli;
@@ -67,6 +65,10 @@ abstract class Notify {
 	 * @return int  The elapsed time in seconds.
 	 */
 	public function elapsed() {
+		if (!$this->_start) {
+			return 0;
+		}
+
 		$elapsed = time() - $this->_start;
 		return $elapsed;
 	}

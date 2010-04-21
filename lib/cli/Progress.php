@@ -2,14 +2,12 @@
 /**
  * PHP Command Line Tools
  *
- * LICENSE
- *
- * This source file is subject to the new BSD license that is bundled
+ * This source file is subject to the MIT license that is bundled
  * with this package in the file LICENSE.
  *
  * @author    James Logsdon <dwarf@girsbrain.org>
  * @copyright 2010 James Logsdom (http://girsbrain.org)
- * @license   New BSD License
+ * @license   http://www.opensource.org/licenses/mit-license.php The MIT License
  */
 
 namespace cli;
@@ -36,7 +34,7 @@ abstract class Progress extends \cli\Notify {
 		parent::__construct($msg, $interval);
 		$this->_total = (int)$total;
 
-		if ($this->_total <= 0) {
+		if ($this->_total < 0) {
 			throw new \InvalidArgumentException('Maximum value out of range, must be positive.');
 		}
 	}
@@ -73,7 +71,7 @@ abstract class Progress extends \cli\Notify {
 	 */
 	public function estimated() {
 		$speed = $this->speed();
-		if (!$this->elapsed()) {
+		if (!$speed || !$this->elapsed()) {
 			return 0;
 		}
 
@@ -106,6 +104,10 @@ abstract class Progress extends \cli\Notify {
 	 * @return float  The percent completed.
 	 */
 	public function percent() {
+		if ($this->_total == 0) {
+			return 1;
+		}
+
 		return ($this->_current / $this->_total);
 	}
 }
