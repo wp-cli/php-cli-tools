@@ -43,6 +43,15 @@ table rendered for visual display.
 You can also explicitly set the renderer used by calling `\cli\Table::setRenderer()` and giving it an instance of one
 of the concrete `\cli\table\Renderer` classes.
 
+Argument Parser
+---------------
+
+Argument parsing uses a simple framework for taking a list of command line arguments,
+usually straight from `$_SERVER['argv']`, and parses the input against a set of
+defined rules.
+
+Check `example_args.php` for an example.
+
 Usage
 -----
 
