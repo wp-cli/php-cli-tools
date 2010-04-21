@@ -98,5 +98,3 @@ while (true) {
 
 	\cli\line();
 }
-
-?>
