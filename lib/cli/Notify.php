@@ -109,7 +109,7 @@ abstract class Notify {
 	public function formatTime($time) {
 		$minutes = $time / 60;
 		$seconds = $time % 60;
-		return floor($time / 60).':'.str_pad($time % 60, 2, 0, STR_PAD_LEFT);
+		return floor($time / 60) . ':' . str_pad($time % 60, 2, 0, STR_PAD_LEFT);
 	}
 
 	/**

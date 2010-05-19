@@ -22,8 +22,8 @@ function register_autoload() {
 			return;
 		}
 
-		$base = dirname(__DIR__).DIRECTORY_SEPARATOR;
-		$path = $base.str_replace('\\', DIRECTORY_SEPARATOR, $class).'.php';
+		$base = dirname(__DIR__) . DIRECTORY_SEPARATOR;
+		$path = $base . str_replace('\\', DIRECTORY_SEPARATOR, $class) . '.php';
 		if (is_file($path)) {
 			require_once $path;
 		}
@@ -31,29 +31,60 @@ function register_autoload() {
 }
 
 /**
+ * Handles rendering strings. If extra scalar arguments are given after the `$msg`
+ * the string will be rendered with `sprintf`. If the second argument is an `array`
+ * then each key in the array will be the placeholder name. Placeholders are of the
+ * format {:key}.
+ *
+ * @param string   $msg  The message to render.
+ * @param mixed    ...   Either scalar arguments or a single array argument.
+ * @return string  The rendered string.
+ */
+function render($msg) {
+	$args = func_get_args();
+
+	// No string replacement is needed
+	if (count($args) == 1) {
+		return $msg;
+	}
+
+	// If the first argument is not an array just pass to sprintf
+	if (!is_array($args[1])) {
+		return call_user_func_array('sprintf', $args);
+	}
+
+	// Here we do named replacement so formatting strings are more understandable
+	foreach ($args[1] as $key => $value) {
+		$msg = str_replace('{:' . $key . '}', $value, $msg);
+	}
+	return $msg;
+}
+
+/**
  * Shortcut for printing to `STDOUT`. The message and parameters are passed
  * through `sprintf` before output.
  *
  * @param string  $msg  The message to output in `printf` format.
- * @param mixed   ...   Any extra parameters are passed on to `printf`.
+ * @param mixed   ...   Either scalar arguments or a single array argument.
  * @return void
+ * @see \cli\render()
  */
 function out($msg) {
 	$args = func_get_args();
-	fwrite(STDOUT, call_user_func_array('sprintf', $args));
+	fwrite(STDOUT, call_user_func_array('\\cli\\render', $args));
 }
 
 /**
  * Pads `$msg` to the width of the shell before passing to `cli\out`.
  *
  * @param string  $msg  The message to pad and pass on.
- * @param mixed   ...   Any extra parameters are passed on to `sprintf`.
+ * @param mixed   ...   Either scalar arguments or a single array argument.
  * @return void
  * @see cli\out()
  */
 function out_padded($msg) {
 	$args = func_get_args();
-	$msg = call_user_func_array('sprintf', $args);
+	$msg = call_user_func_array('\\cli\\render', $args);
 	\cli\out(str_pad($msg, \cli\Shell::columns()));
 }
 
@@ -65,7 +96,7 @@ function out_padded($msg) {
  */
 function line($msg = '') {
 	$args = func_get_args();
-	$args[0] = "{$msg}\n";
+	$args[0] .= "\n";
 	call_user_func_array('\\cli\\out', $args);
 }
 
@@ -75,13 +106,13 @@ function line($msg = '') {
  *
  * @param string  $msg  The message to output in `printf` format. With no string,
  *                      a newline is printed.
- * @param mixed   ...   Any extra parameters are passed on to `printf`.
+ * @param mixed   ...   Either scalar arguments or a single array argument.
  * @return void
  */
 function err($msg = '') {
 	$args = func_get_args();
-	$args[0] = "{$msg}\n";
-	fwrite(STDERR, call_user_func_array('sprintf', $args));
+	$args[0] .= "\n";
+	fwrite(STDERR, call_user_func_array('\\cli\\render', $args));
 }
 
 /**
@@ -96,7 +127,7 @@ function err($msg = '') {
  */
 function input($format = null) {
 	if ($format) {
-		fscanf(STDIN, $format."\n", $line);
+		fscanf(STDIN, $format . "\n", $line);
 	} else {
 		$line = fgets(STDIN);
 	}
@@ -121,7 +152,7 @@ function input($format = null) {
  */
 function prompt($question, $default = false, $marker = ':') {
 	if ($default && strpos($question, '[') === false) {
-		$question .= ' ['.$default.']';
+		$question .= ' [' . $default . ']';
 	}
 
 	while (true) {
@@ -149,7 +180,9 @@ function choose($question, $choice = 'yn', $default = 'n') {
 		$choice = join('', $choice);
 	}
 
+	// Make every choice character lowercase except the default
 	$choice = str_ireplace($default, strtoupper($default), strtolower($choice));
+	// Seperate each choice with a forward-slash
 	$choices = trim(join('/', preg_split('//', $choice)), '/');
 
 	while (true) {
@@ -181,7 +214,7 @@ function menu($items, $default = false, $title = 'Choose an item') {
 	$map = array_values($items);
 
 	if ($default && strpos($title, '[') === false && isset($items[$default])) {
-		$title  .= ' ['.$items[$default].']';
+		$title  .= ' [' . $items[$default] . ']';
 	}
 
 	foreach ($map as $idx => $item) {

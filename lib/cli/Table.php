@@ -78,7 +78,7 @@ class Table {
 	public function display() {
 		$borderStr = '+';
 		foreach ($this->_headers as $column => $header) {
-			$borderStr .= '-'.str_repeat('-', $this->_width[$column]).'-+';
+			$borderStr .= '-' . str_repeat('-', $this->_width[$column]) . '-+';
 		}
 
 		\cli\line($borderStr);
@@ -101,7 +101,7 @@ class Table {
 	protected function renderRow(array $row) {
 		$render = '|';
 		foreach ($row as $column => $val) {
-			$render .= ' '.str_pad($val, $this->_width[$column]).' |';
+			$render .= ' ' . str_pad($val, $this->_width[$column]) . ' |';
 		}
 		return $render;
 	}
@@ -113,7 +113,7 @@ class Table {
 	 */
 	public function sort($column) {
 		if (!isset($this->_headers[$column])) {
-			trigger_error('No column with index '.$column, E_USER_NOTICE);
+			trigger_error('No column with index ' . $column, E_USER_NOTICE);
 			return;
 		}
 

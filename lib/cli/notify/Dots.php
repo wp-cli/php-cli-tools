@@ -16,8 +16,9 @@ namespace cli\notify;
  * A Notifer that displays a string of periods.
  */
 class Dots extends \cli\Notify {
-	protected $_iteration;
 	protected $_dots;
+	protected $_format = '{:msg}{:dots}  ({:elapsed}, {:speed}/s)';
+	protected $_iteration;
 
 	/**
 	 * Instatiates a Notification object.
@@ -46,15 +47,16 @@ class Dots extends \cli\Notify {
 	 * @see cli\Notify::speed()
 	 */
 	public function display($finish = false) {
-		if ($finish) {
-			$dots = str_repeat('.', $this->_dots);
-		} else {
-			$dots = str_repeat('.', $this->_iteration++ % $this->_dots);
+		$repeat = $this->_dots;
+		if (!$finish) {
+			$repeat = $this->_iteration++ % $repeat;
 		}
 
+		$msg = $this->_message;
+		$dots = str_pad(str_repeat('.', $repeat), $this->_dots);
 		$speed = number_format(round($this->speed()));
 		$elapsed = $this->formatTime($this->elapsed());
 
-		\cli\out_padded('%s%-'.$this->_dots.'s  (%s, %s/s)', $this->_message, $dots, $elapsed, $speed);
+		\cli\out_padded($this->_format, compact('msg', 'dots', 'speed', 'elapsed'));
 	}
 }

@@ -20,6 +20,11 @@ namespace cli\progress;
  *   ^MSG  PER% [=======================            ]  00:00 / 00:00$
  */
 class Bar extends \cli\Progress {
+	protected $_bars = '=>';
+	protected $_formatMessage = '{:msg}  {:percent}% [';
+	protected $_formatTiming = '] {:elapsed} / {:estimated}';
+	protected $_format = '{:msg}{:bar}{:timing}';
+
 	/**
 	 * Prints the progress bar to the screen with percent complete, elapsed time
 	 * and estimated total time.
@@ -34,20 +39,23 @@ class Bar extends \cli\Progress {
 	 * @see cli\Shell::columns()
 	 */
 	public function display($finish = false) {
-		$percent = $this->percent();
-		$message = sprintf('%s  %-3s%% [', $this->_message, floor($percent * 100));
+		$_percent = $this->percent();
 
-		$elapsed   = $this->formatTime($this->elapsed());
+		$percent = str_pad(floor($_percent * 100), 3);;
+		$msg = $this->_message;
+		$msg = \cli\render($this->_formatMessage, compact('msg', 'percent'));
+
 		$estimated = $this->formatTime($this->estimated());
-		$timing    = sprintf(']  %-'.strlen($estimated).'s / %s', $elapsed, $estimated);
+		$elapsed   = str_pad($this->formatTime($this->elapsed()), strlen($estimated));
+		$timing    = \cli\render($this->_formatTiming, compact('elapsed', 'estimated'));
 
 		$size = \cli\Shell::columns();
-		$size -= strlen($message);
-		$size -= strlen($timing);
+		$size -= strlen($msg . $timing);
 
-		$bar = str_repeat('=', floor($percent * $size)).'>';
+		$bar = str_repeat($this->_bars[0], floor($_percent * $size)) . $this->_bars[1];
+		// substr is needed to trim off the bar cap at 100%
 		$bar = substr(str_pad($bar, $size, ' '), 0, $size);
 
-		\cli\out('%s%s%s', $message, $bar, $timing);
+		\cli\out($this->_format, compact('msg', 'bar', 'timing'));
 	}
 }
