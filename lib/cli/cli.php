@@ -95,7 +95,8 @@ function out_padded($msg) {
  * @see cli\out()
  */
 function line($msg = '') {
-	$args = func_get_args();
+	// func_get_args is empty if no args are passed even with the default above.
+	$args = array_merge(func_get_args(), array(''));
 	$args[0] .= "\n";
 	call_user_func_array('\\cli\\out', $args);
 }
@@ -110,7 +111,8 @@ function line($msg = '') {
  * @return void
  */
 function err($msg = '') {
-	$args = func_get_args();
+	// func_get_args is empty if no args are passed even with the default above.
+	$args = array_merge(func_get_args(), array(''));
 	$args[0] .= "\n";
 	fwrite(STDERR, call_user_func_array('\\cli\\render', $args));
 }
