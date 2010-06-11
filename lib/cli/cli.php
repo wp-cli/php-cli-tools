@@ -45,19 +45,19 @@ function render($msg) {
 
 	// No string replacement is needed
 	if (count($args) == 1) {
-		return $msg;
+		return Colors::colorize($msg);
 	}
 
 	// If the first argument is not an array just pass to sprintf
 	if (!is_array($args[1])) {
-		return call_user_func_array('sprintf', $args);
+		return Colors::colorize(call_user_func_array('sprintf', $args));
 	}
 
 	// Here we do named replacement so formatting strings are more understandable
 	foreach ($args[1] as $key => $value) {
 		$msg = str_replace('{:' . $key . '}', $value, $msg);
 	}
-	return $msg;
+	return Colors::colorize($msg);
 }
 
 /**

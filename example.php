@@ -15,6 +15,7 @@ $menu = array(
 	'notify_spinner' => 'cli\notify\Spinner Example',
 	'progress_bar' => 'cli\progress\Bar Example',
 	'table' => 'cli\Table Example',
+	'colors' => 'cli\Colors example',
 	'quit' => 'Quit',
 );
 $headers = array('First Name', 'Last Name', 'City', 'State');
@@ -96,6 +97,9 @@ while (true) {
 		$table->setHeaders($headers);
 		$table->setRows($data);
 		$table->display();
+		break;
+	case 'colors':
+	    \cli\line('  %C%5All output is run through %Y%6\cli\Colors::colorize%C%5 before display%n');
 		break;
 	}
 
