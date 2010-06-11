@@ -92,16 +92,16 @@ class Colors {
 			'%w' => array('color' => 'grey'),
 			'%k' => array('color' => 'black'),
 			'%n' => array('color' => 'reset'),
-			'%Y' => array('color' => 'yellow', 'style' => 'light'),
-			'%G' => array('color' => 'green', 'style' => 'light'),
-			'%B' => array('color' => 'blue', 'style' => 'light'),
-			'%R' => array('color' => 'red', 'style' => 'light'),
-			'%P' => array('color' => 'magenta', 'style' => 'light'),
-			'%M' => array('color' => 'magenta', 'style' => 'light'),
-			'%C' => array('color' => 'cyan', 'style' => 'light'),
-			'%W' => array('color' => 'grey', 'style' => 'light'),
-			'%K' => array('color' => 'black', 'style' => 'light'),
-			'%N' => array('color' => 'reset', 'style' => 'light'),
+			'%Y' => array('color' => 'yellow', 'style' => 'bright'),
+			'%G' => array('color' => 'green', 'style' => 'bright'),
+			'%B' => array('color' => 'blue', 'style' => 'bright'),
+			'%R' => array('color' => 'red', 'style' => 'bright'),
+			'%P' => array('color' => 'magenta', 'style' => 'bright'),
+			'%M' => array('color' => 'magenta', 'style' => 'bright'),
+			'%C' => array('color' => 'cyan', 'style' => 'bright'),
+			'%W' => array('color' => 'grey', 'style' => 'bright'),
+			'%K' => array('color' => 'black', 'style' => 'bright'),
+			'%N' => array('color' => 'reset', 'style' => 'bright'),
 			'%3' => array('background' => 'yellow'),
 			'%2' => array('background' => 'green'),
 			'%4' => array('background' => 'blue'),
@@ -113,8 +113,8 @@ class Colors {
 			'%F' => array('style' => 'blink'),
 			'%U' => array('style' => 'underline'),
 			'%8' => array('style' => 'inverse'),
-			'%9' => array('style' => 'bold'),
-			'%_' => array('style' => 'bold')
+			'%9' => array('style' => 'bright'),
+			'%_' => array('style' => 'bright')
 		);
 
 		if (!$colored) {

@@ -154,13 +154,13 @@ function input($format = null) {
  * @return string  The users input.
  * @see cli\input()
  */
-function prompt($question, $default = false, $marker = ':') {
+function prompt($question, $default = false, $marker = ': ') {
 	if ($default && strpos($question, '[') === false) {
 		$question .= ' [' . $default . ']';
 	}
 
 	while (true) {
-		printf('%s%s ', $question, $marker);
+		\cli\out($question . $marker);
 		$line = input();
 
 		if (!empty($line)) return $line;
