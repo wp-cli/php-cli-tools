@@ -49,8 +49,10 @@ function render($msg) {
 	}
 
 	// If the first argument is not an array just pass to sprintf
-	if (!is_array($args[1])) {
-		return Colors::colorize(call_user_func_array('sprintf', $args));
+    if (!is_array($args[1])) {
+        // Colorize the message first so sprintf doesn't bitch at us
+        $args[0] = Colors::colorize($args[0]);
+		return call_user_func_array('sprintf', $args);
 	}
 
 	// Here we do named replacement so formatting strings are more understandable
