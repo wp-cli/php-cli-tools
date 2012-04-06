@@ -129,4 +129,27 @@ class Colors {
 
 		return str_replace('% ', '%', $string);
 	}
+
+	/**
+	 * Return the length of the string without color codes.
+	 *
+	 * @param string  $string  the string to measure
+	 */
+	static public function length($string) {
+		return strlen(self::colorize($string, false));
+	}
+
+	/**
+	 * Pad the string to a certain display length.
+	 *
+	 * @param string  $string  the string to pad
+	 * @param integer  $length  the display length
+	 */
+	static public function pad($string, $length) {
+		$real_length = strlen($string);
+		$show_length = self::length($string);
+		$length  += $real_length - $show_length;
+
+		return str_pad($string, $length);
+	}
 }

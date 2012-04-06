@@ -61,7 +61,7 @@ class Table {
 	 */
 	protected function checkRow(array $row) {
 		foreach ($row as $column => $str) {
-			$width = strlen($str);
+			$width = Colors::length($str);
 			if (!isset($this->_width[$column]) || $width > $this->_width[$column]) {
 				$this->_width[$column] = $width;
 			}
@@ -101,7 +101,7 @@ class Table {
 	protected function renderRow(array $row) {
 		$render = '|';
 		foreach ($row as $column => $val) {
-			$render .= ' ' . str_pad($val, $this->_width[$column]) . ' |';
+			$render .= ' ' . Colors::pad($val, $this->_width[$column]) . ' |';
 		}
 		return $render;
 	}
