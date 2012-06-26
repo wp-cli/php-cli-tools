@@ -225,4 +225,12 @@ class Streams {
 		}
 	}
 
+	public static function setStream( $whichStream, $stream ) {
+		if( !is_resource( $stream ) || get_resource_type( $stream ) !== 'stream' )
+			throw new \Exception( 'Invalid resource type!' );
+		if( property_exists( __CLASS__, $whichStream ) ) {
+			self::${$whichStream} = $stream;
+		}
+	}
+
 }
