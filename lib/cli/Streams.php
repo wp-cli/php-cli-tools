@@ -51,7 +51,7 @@ class Streams {
 	 */
 	public static function out( $msg ) {
 		$args = func_get_args();
-		fwrite( self::$out, call_user_func_array( array( '\\cli\\Streams', 'render' ), $args ) );
+		fwrite( static::$out, call_user_func_array( array( '\\cli\\Streams', 'render' ), $args ) );
 	}
 
 	/**
@@ -94,7 +94,7 @@ class Streams {
 		// func_get_args is empty if no args are passed even with the default above.
 		$args = array_merge( func_get_args(), array( '' ) );
 		$args[0] .= "\n";
-		fwrite( self::$err, call_user_func_array( array( '\\cli\\Streams', 'render' ), $args ) );
+		fwrite( static::$err, call_user_func_array( array( '\\cli\\Streams', 'render' ), $args ) );
 	}
 
 	/**
@@ -109,9 +109,9 @@ class Streams {
 	 */
 	public static function input( $format = null ) {
 		if( $format ) {
-			fscanf( self::$in, $format . "\n", $line );
+			fscanf( static::$in, $format . "\n", $line );
 		} else {
-			$line = fgets( self::$in );
+			$line = fgets( static::$in );
 		}
 
 		if( $line === false ) {
@@ -207,7 +207,7 @@ class Streams {
 		\cli\Streams::line();
 
 		while( true ) {
-			fwrite( self::$out, sprintf( '%s: ', $title ) );
+			fwrite( static::$out, sprintf( '%s: ', $title ) );
 			$line = \cli\Streams::input();
 
 			if( is_numeric( $line ) ) {
@@ -229,7 +229,7 @@ class Streams {
 		if( !is_resource( $stream ) || get_resource_type( $stream ) !== 'stream' )
 			throw new \Exception( 'Invalid resource type!' );
 		if( property_exists( __CLASS__, $whichStream ) ) {
-			self::${$whichStream} = $stream;
+			static::${$whichStream} = $stream;
 		}
 	}
 
