@@ -231,6 +231,9 @@ class Streams {
 		if( property_exists( __CLASS__, $whichStream ) ) {
 			static::${$whichStream} = $stream;
 		}
+		register_shutdown_function( function() use ($stream) {
+			fclose( $stream );
+		} );
 	}
 
 }
