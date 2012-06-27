@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PHP Command Line Tools
  *
@@ -16,18 +17,18 @@ namespace cli;
  * Registers a basic auto loader for the `cli` namespace.
  */
 function register_autoload() {
-	spl_autoload_register(function($class) {
-		// Only attempt to load classes in our namespace
-		if (substr($class, 0, 4) !== 'cli\\') {
-			return;
-		}
+	spl_autoload_register( function($class) {
+				// Only attempt to load classes in our namespace
+				if( substr( $class, 0, 4 ) !== 'cli\\' ) {
+					return;
+				}
 
-		$base = dirname(__DIR__) . DIRECTORY_SEPARATOR;
-		$path = $base . str_replace('\\', DIRECTORY_SEPARATOR, $class) . '.php';
-		if (is_file($path)) {
-			require_once $path;
-		}
-	});
+				$base = dirname( __DIR__ ) . DIRECTORY_SEPARATOR;
+				$path = $base . str_replace( '\\', DIRECTORY_SEPARATOR, $class ) . '.php';
+				if( is_file( $path ) ) {
+					require_once $path;
+				}
+			} );
 }
 
 /**
@@ -40,26 +41,9 @@ function register_autoload() {
  * @param mixed    ...   Either scalar arguments or a single array argument.
  * @return string  The rendered string.
  */
-function render($msg) {
+function render( $msg ) {
 	$args = func_get_args();
-
-	// No string replacement is needed
-	if (count($args) == 1) {
-		return Colors::colorize($msg);
-	}
-
-	// If the first argument is not an array just pass to sprintf
-    if (!is_array($args[1])) {
-        // Colorize the message first so sprintf doesn't bitch at us
-        $args[0] = Colors::colorize($args[0]);
-		return call_user_func_array('sprintf', $args);
-	}
-
-	// Here we do named replacement so formatting strings are more understandable
-	foreach ($args[1] as $key => $value) {
-		$msg = str_replace('{:' . $key . '}', $value, $msg);
-	}
-	return Colors::colorize($msg);
+	return call_user_func_array( array( '\\cli\\Streams', 'render' ), $args );
 }
 
 /**
@@ -71,9 +55,9 @@ function render($msg) {
  * @return void
  * @see \cli\render()
  */
-function out($msg) {
+function out( $msg ) {
 	$args = func_get_args();
-	fwrite(STDOUT, call_user_func_array('\\cli\\render', $args));
+	call_user_func_array( array( '\\cli\\Streams', 'out' ), $args );
 }
 
 /**
@@ -84,10 +68,9 @@ function out($msg) {
  * @return void
  * @see cli\out()
  */
-function out_padded($msg) {
+function out_padded( $msg ) {
 	$args = func_get_args();
-	$msg = call_user_func_array('\\cli\\render', $args);
-	\cli\out(str_pad($msg, \cli\Shell::columns()));
+	call_user_func_array( array( '\\cli\\Streams', 'out_padded' ), $args );
 }
 
 /**
@@ -96,11 +79,14 @@ function out_padded($msg) {
  *
  * @see cli\out()
  */
-function line($msg = '') {
+function line( $msg = '' ) {
 	// func_get_args is empty if no args are passed even with the default above.
-	$args = array_merge(func_get_args(), array(''));
-	$args[0] .= "\n";
-	call_user_func_array('\\cli\\out', $args);
+	$args = func_get_args();
+	if( $args ) {
+		call_user_func_array( array( '\\cli\Streams', 'line' ), $args );
+	} else {
+		\cli\Streams::line();
+	}
 }
 
 /**
@@ -112,11 +98,14 @@ function line($msg = '') {
  * @param mixed   ...   Either scalar arguments or a single array argument.
  * @return void
  */
-function err($msg = '') {
+function err( $msg = '' ) {
 	// func_get_args is empty if no args are passed even with the default above.
-	$args = array_merge(func_get_args(), array(''));
-	$args[0] .= "\n";
-	fwrite(STDERR, call_user_func_array('\\cli\\render', $args));
+	$args = func_get_args();
+	if( $args ) {
+		call_user_func_array( array( '\\cli\Streams', 'err' ), $args );
+	} else {
+		\cli\Streams::err();
+	}
 }
 
 /**
@@ -129,18 +118,8 @@ function err($msg = '') {
  * @return string  The input with whitespace trimmed.
  * @throws \Exception  Thrown if ctrl-D (EOT) is sent as input.
  */
-function input($format = null) {
-	if ($format) {
-		fscanf(STDIN, $format . "\n", $line);
-	} else {
-		$line = fgets(STDIN);
-	}
-
-	if ($line === false) {
-		throw new \Exception('Caught ^D during input');
-	}
-
-	return trim($line);
+function input( $format = null ) {
+	return \cli\Streams::input( $format );
 }
 
 /**
@@ -154,18 +133,8 @@ function input($format = null) {
  * @return string  The users input.
  * @see cli\input()
  */
-function prompt($question, $default = false, $marker = ': ') {
-	if ($default && strpos($question, '[') === false) {
-		$question .= ' [' . $default . ']';
-	}
-
-	while (true) {
-		\cli\out($question . $marker);
-		$line = input();
-
-		if (!empty($line)) return $line;
-		if ($default !== false) return $default;
-	}
+function prompt( $question, $default = false, $marker = ': ' ) {
+	return \cli\Streams::prompt( $question, $default, $marker );
 }
 
 /**
@@ -179,26 +148,8 @@ function prompt($question, $default = false, $marker = ': ') {
  * @return string  The users choice.
  * @see cli\prompt()
  */
-function choose($question, $choice = 'yn', $default = 'n') {
-	if (!is_string($choice)) {
-		$choice = join('', $choice);
-	}
-
-	// Make every choice character lowercase except the default
-	$choice = str_ireplace($default, strtoupper($default), strtolower($choice));
-	// Seperate each choice with a forward-slash
-	$choices = trim(join('/', preg_split('//', $choice)), '/');
-
-	while (true) {
-		$line = prompt(sprintf('%s? [%s]', $question, $choices), $default, '');
-
-		if (stripos($choice, $line) !== false) {
-			return strtolower($line);
-		}
-		if (!empty($default)) {
-			return strtolower($default);
-		}
-	}
+function choose( $question, $choice = 'yn', $default = 'n' ) {
+	return \cli\Streams::choose( $question, $choice, $default );
 }
 
 /**
@@ -214,33 +165,6 @@ function choose($question, $choice = 'yn', $default = 'n') {
  * @see cli\input()
  * @see cli\err()
  */
-function menu($items, $default = false, $title = 'Choose an item') {
-	$map = array_values($items);
-
-	if ($default && strpos($title, '[') === false && isset($items[$default])) {
-		$title  .= ' [' . $items[$default] . ']';
-	}
-
-	foreach ($map as $idx => $item) {
-		line('  %d. %s', $idx + 1, (string)$item);
-	}
-	line();
-
-	while (true) {
-		fwrite(STDOUT, sprintf('%s: ', $title));
-		$line = input();
-
-		if (is_numeric($line)) {
-			$line--;
-			if (isset($map[$line])) {
-				return array_search($map[$line], $items);
-			}
-
-			if ($line < 0 || $line >= count($map)) {
-				err('Invalid menu selection: out of range');
-			}
-		} else if (isset($default)) {
-			return $default;
-		}
-	}
+function menu( $items, $default = false, $title = 'Choose an item' ) {
+	return \cli\Streams::menu( $items, $default, $title );
 }
