@@ -236,9 +236,10 @@ class Streams {
 	 * Any custom streams will be closed for you on shutdown, so please don't close stream
 	 * resources used with this method.
 	 * 
-	 * @param string $whichStream
-	 * @param resource $stream
-	 * @throws \Exception An exception is thrown if $stream is not a resource of the 'stream' type.
+	 * @param string    $whichStream  The stream property to update
+	 * @param resource  $stream       The new stream resource to use
+	 * @return void
+	 * @throws \Exception Thrown if $stream is not a resource of the 'stream' type.
 	 */
 	public static function setStream( $whichStream, $stream ) {
 		if( !is_resource( $stream ) || get_resource_type( $stream ) !== 'stream' ) {
