@@ -225,9 +225,25 @@ class Streams {
 		}
 	}
 
+	/**
+	 * Sets one of the streams (input, output, or error) to a `stream` type resource.
+	 * 
+	 * Valid $whichStream values are:
+	 *    - 'in'   (default: STDIN)
+	 *    - 'out'  (default: STDOUT)
+	 *    - 'err'  (default: STDERR)
+	 * 
+	 * Any custom streams will be closed for you on shutdown, so please don't close stream
+	 * resources used with this method.
+	 * 
+	 * @param string $whichStream
+	 * @param resource $stream
+	 * @throws \Exception An exception is thrown if $stream is not a resource of the 'stream' type.
+	 */
 	public static function setStream( $whichStream, $stream ) {
-		if( !is_resource( $stream ) || get_resource_type( $stream ) !== 'stream' )
+		if( !is_resource( $stream ) || get_resource_type( $stream ) !== 'stream' ) {
 			throw new \Exception( 'Invalid resource type!' );
+		}
 		if( property_exists( __CLASS__, $whichStream ) ) {
 			static::${$whichStream} = $stream;
 		}
