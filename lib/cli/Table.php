@@ -21,6 +21,18 @@ class Table {
 	protected $_rows = array();
 
 	/**
+	 * Checks whether the output of the current script is a TTY or a pipe / redirect
+	 *
+	 * Returns true if STDOUT output is being redirected to a pipe or a file; false is
+	 * output is being sent directly to the terminal.
+	 *
+	 * @return 	bool
+	 */
+	protected function isPiped() {
+		return ( function_exists( 'posix_isatty' ) && !posix_isatty( STDOUT ) );
+	}
+
+	/**
 	 * Initializes the `Table` class.
 	 *
 	 * There are 3 ways to instantiate this class:
@@ -73,12 +85,25 @@ class Table {
 	/**
 	 * Output the table to `STDOUT` using `cli\line()`.
 	 *
+	 * If STDOUT is a pipe or redirected to a file, should output simple
+	 * tab-separated text. Otherwise, renders table with ASCII table borders
+	 *
+	 * @uses cli\Table::isPiped() Determine what format to output
+	 *
 	 * @see cli\Table::renderRow()
 	 */
 	public function display() {
 		$borderStr = '+';
 		foreach ($this->_headers as $column => $header) {
 			$borderStr .= '-' . str_repeat('-', $this->_width[$column]) . '-+';
+		}
+
+		if ( $this->isPiped() ) {
+			\cli\line($this->renderPipedRow($this->_headers));
+			foreach ($this->_rows as $row) {
+				\cli\line($this->renderPipedRow($row));
+			}
+			exit;
 		}
 
 		\cli\line($borderStr);
@@ -104,6 +129,16 @@ class Table {
 			$render .= ' ' . str_pad($val, $this->_width[$column]) . ' |';
 		}
 		return $render;
+	}
+
+	/**
+	 * Renders a row for piped output.
+	 *
+	 * @param array  $row  The table row.
+	 * @return string  The formatted table row.
+	 */
+	protected function renderPipedRow(array $row) {
+		return implode( "\t", array_values( $row ) );
 	}
 
 	/**
