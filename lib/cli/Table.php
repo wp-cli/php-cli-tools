@@ -103,7 +103,7 @@ class Table {
 			foreach ($this->_rows as $row) {
 				\cli\line($this->renderPipedRow($row));
 			}
-			exit;
+			return;
 		}
 
 		\cli\line($borderStr);
