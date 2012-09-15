@@ -16,21 +16,10 @@ namespace cli;
  * The `Table` class is used to display data in a tabular format.
  */
 class Table {
+	protected $_renderer;
 	protected $_headers = array();
 	protected $_width = array();
 	protected $_rows = array();
-
-	/**
-	 * Checks whether the output of the current script is a TTY or a pipe / redirect
-	 *
-	 * Returns true if STDOUT output is being redirected to a pipe or a file; false is
-	 * output is being sent directly to the terminal.
-	 *
-	 * @return 	bool
-	 */
-	protected function isPiped() {
-		return ( function_exists( 'posix_isatty' ) && !posix_isatty( STDOUT ) );
-	}
 
 	/**
 	 * Initializes the `Table` class.
@@ -64,6 +53,24 @@ class Table {
 			$this->setHeaders($headers);
 			$this->setRows($rows);
 		}
+
+		if (\cli\Shell::isPiped()) {
+			$this->setRenderer(new \cli\table\Tabular());
+		} else {
+			$this->setRenderer(new \cli\table\Ascii());
+		}
+	}
+
+	/**
+	 * Sets the renderer used by this table.
+	 *
+	 * @param cli\table\Renderer  $renderer  The renderer to use for output.
+	 * @see   cli\table\Renderer
+	 * @see   cli\table\Standard
+	 * @see   cli\table\Tabular
+	 */
+	public function setRenderer(\cli\table\Renderer $renderer) {
+		$this->_renderer = $renderer;
 	}
 
 	/**
@@ -88,57 +95,29 @@ class Table {
 	 * If STDOUT is a pipe or redirected to a file, should output simple
 	 * tab-separated text. Otherwise, renders table with ASCII table borders
 	 *
-	 * @uses cli\Table::isPiped() Determine what format to output
+	 * @uses cli\Shell::isPiped() Determine what format to output
 	 *
 	 * @see cli\Table::renderRow()
 	 */
 	public function display() {
-		$borderStr = '+';
-		foreach ($this->_headers as $column => $header) {
-			$borderStr .= '-' . str_repeat('-', $this->_width[$column]) . '-+';
-		}
+		$this->_renderer->setWidths($this->_width);
+		$border = $this->_renderer->border();
 
-		if ( $this->isPiped() ) {
-			\cli\line($this->renderPipedRow($this->_headers));
-			foreach ($this->_rows as $row) {
-				\cli\line($this->renderPipedRow($row));
-			}
-			return;
+		if (isset($border)) {
+			\cli\line($border);
 		}
-
-		\cli\line($borderStr);
-		\cli\line($this->renderRow($this->_headers));
-		\cli\line($borderStr);
+		\cli\line($this->_renderer->row($this->_headers));
+		if (isset($border)) {
+			\cli\line($border);
+		}
 
 		foreach ($this->_rows as $row) {
-			\cli\line($this->renderRow($row));
+			\cli\line($this->_renderer->row($row));
 		}
 
-		\cli\line($borderStr);
-	}
-
-	/**
-	 * Renders a row for output.
-	 *
-	 * @param array  $row  The table row.
-	 * @return string  The formatted table row.
-	 */
-	protected function renderRow(array $row) {
-		$render = '|';
-		foreach ($row as $column => $val) {
-			$render .= ' ' . Colors::pad($val, $this->_width[$column]) . ' |';
+		if (isset($border)) {
+			\cli\line($border);
 		}
-		return $render;
-	}
-
-	/**
-	 * Renders a row for piped output.
-	 *
-	 * @param array  $row  The table row.
-	 * @return string  The formatted table row.
-	 */
-	protected function renderPipedRow(array $row) {
-		return implode( "\t", array_values( $row ) );
 	}
 
 	/**

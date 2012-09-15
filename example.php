@@ -60,6 +60,14 @@ function test_notify(\cli\Notify $notify, $cycle = 1000000, $sleep = null) {
 	$notify->finish();
 }
 
+if (\cli\Shell::isPiped()) {
+	$table = new \cli\Table();
+	$table->setHeaders($headers);
+	$table->setRows($data);
+	$table->display();
+	exit;
+}
+
 while (true) {
 	$choice = \cli\menu($menu, null, 'Choose an example');
 	\cli\line();

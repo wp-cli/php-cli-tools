@@ -32,12 +32,16 @@ Tabular Display
  * `\cli\Table::__construct(array $headers = null, array $rows = null)`
  * `\cli\Table::setHeaders(array $headers)`
  * `\cli\Table::setRows(array $rows)`
+ * `\cli\Table::setRenderer(\cli\table\Renderer $renderer)`
  * `\cli\Table::addRow(array $row)`
  * `\cli\Table::sort($column)`
  * `\cli\Table::display()`
 
 The display function will detect if output is piped and, if it is, render a tab delimited table instead of the ASCII
 table rendered for visual display.
+
+You can also explicitly set the renderer used by calling `\cli\Table::setRenderer()` and giving it an instance of one
+of the concrete `\cli\table\Renderer` classes.
 
 Usage
 -----
