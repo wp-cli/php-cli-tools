@@ -36,6 +36,9 @@ Tabular Display
  * `\cli\Table::sort($column)`
  * `\cli\Table::display()`
 
+The display function will detect if output is piped and, if it is, render a tab delimited table instead of the ASCII
+table rendered for visual display.
+
 Usage
 -----
 
