@@ -11,12 +11,7 @@
  *
  */
 
-if (php_sapi_name() != 'cli') {
-	die('Must run from command line');
-}
-
-require 'lib/cli/cli.php';
-\cli\register_autoload();
+require 'common.php';
 
 $strict = in_array('--strict', $_SERVER['argv']);
 $arguments = new \cli\Arguments(compact('strict'));
