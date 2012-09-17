@@ -37,7 +37,7 @@ class InvalidArguments extends \InvalidArgumentException {
 
 	private function _generateMessage() {
 		return 'unknown argument' .
-			(count($this->arguments) > 1) ? 's' : '') .
+			(count($this->arguments) > 1 ? 's' : '') .
 			': ' . join($this->arguments, ', ');
 	}
 }
