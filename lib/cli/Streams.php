@@ -20,16 +20,17 @@ class Streams {
 	 */
 	public static function render( $msg ) {
 		$args = func_get_args();
+		$colorize = ( posix_isatty( static::$out ) );
 
 		// No string replacement is needed
 		if( count( $args ) == 1 ) {
-			return Colors::colorize( $msg );
+			return Colors::colorize( $msg, $colorize );
 		}
 
 		// If the first argument is not an array just pass to sprintf
 		if( !is_array( $args[1] ) ) {
 			// Colorize the message first so sprintf doesn't bitch at us
-			$args[0] = Colors::colorize( $args[0] );
+			$args[0] = Colors::colorize( $args[0], $colorize );
 			return call_user_func_array( 'sprintf', $args );
 		}
 
@@ -37,7 +38,7 @@ class Streams {
 		foreach( $args[1] as $key => $value ) {
 			$msg = str_replace( '{:' . $key . '}', $value, $msg );
 		}
-		return Colors::colorize( $msg );
+		return Colors::colorize( $msg, $colorize );
 	}
 
 	/**
@@ -227,15 +228,15 @@ class Streams {
 
 	/**
 	 * Sets one of the streams (input, output, or error) to a `stream` type resource.
-	 * 
+	 *
 	 * Valid $whichStream values are:
 	 *    - 'in'   (default: STDIN)
 	 *    - 'out'  (default: STDOUT)
 	 *    - 'err'  (default: STDERR)
-	 * 
+	 *
 	 * Any custom streams will be closed for you on shutdown, so please don't close stream
 	 * resources used with this method.
-	 * 
+	 *
 	 * @param string    $whichStream  The stream property to update
 	 * @param resource  $stream       The new stream resource to use
 	 * @return void
