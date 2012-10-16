@@ -139,7 +139,7 @@ class Streams {
 
 		while( true ) {
 			\cli\Streams::out( $question . $marker );
-			$line = \cli\Streams::line();
+			$line = \cli\Streams::input();
 
 			if( !empty( $line ) )
 				return $line;
@@ -227,15 +227,15 @@ class Streams {
 
 	/**
 	 * Sets one of the streams (input, output, or error) to a `stream` type resource.
-	 * 
+	 *
 	 * Valid $whichStream values are:
 	 *    - 'in'   (default: STDIN)
 	 *    - 'out'  (default: STDOUT)
 	 *    - 'err'  (default: STDERR)
-	 * 
+	 *
 	 * Any custom streams will be closed for you on shutdown, so please don't close stream
 	 * resources used with this method.
-	 * 
+	 *
 	 * @param string    $whichStream  The stream property to update
 	 * @param resource  $stream       The new stream resource to use
 	 * @return void
