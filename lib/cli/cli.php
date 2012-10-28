@@ -83,7 +83,7 @@ function line( $msg = '' ) {
 	// func_get_args is empty if no args are passed even with the default above.
 	$args = func_get_args();
 	if( $args ) {
-		call_user_func_array( array( '\\cli\Streams', 'line' ), $args );
+		call_user_func_array( array( '\\cli\\Streams', 'line' ), $args );
 	} else {
 		\cli\Streams::line();
 	}
@@ -102,7 +102,7 @@ function err( $msg = '' ) {
 	// func_get_args is empty if no args are passed even with the default above.
 	$args = func_get_args();
 	if( $args ) {
-		call_user_func_array( array( '\\cli\Streams', 'err' ), $args );
+		call_user_func_array( array( '\\cli\\Streams', 'err' ), $args );
 	} else {
 		\cli\Streams::err();
 	}
