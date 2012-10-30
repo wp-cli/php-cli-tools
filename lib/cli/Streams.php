@@ -142,8 +142,8 @@ class Streams {
 		}
 
 		while( true ) {
-			\cli\Streams::out( $question . $marker );
-			$line = \cli\Streams::input();
+			self::out( $question . $marker );
+			$line = self::input();
 
 			if( !empty( $line ) )
 				return $line;
@@ -174,7 +174,7 @@ class Streams {
 		$choices = trim( join( '/', preg_split( '//', $choice ) ), '/' );
 
 		while( true ) {
-			$line = \cli\Streams::prompt( sprintf( '%s? [%s]', $question, $choices ), $default, '' );
+			$line = self::prompt( sprintf( '%s? [%s]', $question, $choices ), $default, '' );
 
 			if( stripos( $choice, $line ) !== false ) {
 				return strtolower( $line );
@@ -206,13 +206,13 @@ class Streams {
 		}
 
 		foreach( $map as $idx => $item ) {
-			\cli\Streams::line( '  %d. %s', $idx + 1, (string)$item );
+			self::line( '  %d. %s', $idx + 1, (string)$item );
 		}
-		\cli\Streams::line();
+		self::line();
 
 		while( true ) {
 			fwrite( static::$out, sprintf( '%s: ', $title ) );
-			$line = \cli\Streams::input();
+			$line = self::input();
 
 			if( is_numeric( $line ) ) {
 				$line--;
@@ -221,7 +221,7 @@ class Streams {
 				}
 
 				if( $line < 0 || $line >= count( $map ) ) {
-					\cli\Streams::err( 'Invalid menu selection: out of range' );
+					self::err( 'Invalid menu selection: out of range' );
 				}
 			} else if( isset( $default ) ) {
 				return $default;
