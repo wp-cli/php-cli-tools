@@ -8,6 +8,11 @@ class Streams {
 	protected static $in = STDIN;
 	protected static $err = STDERR;
 
+	static function _call( $func, $args ) {
+		$method = __CLASS__ . '::' . $func;
+		return call_user_func_array( $method, $args );
+	}
+
 	/**
 	 * Handles rendering strings. If extra scalar arguments are given after the `$msg`
 	 * the string will be rendered with `sprintf`. If the second argument is an `array`
@@ -50,8 +55,7 @@ class Streams {
 	 * @see \cli\render()
 	 */
 	public static function out( $msg ) {
-		$args = func_get_args();
-		fwrite( static::$out, call_user_func_array( array( '\\cli\\Streams', 'render' ), $args ) );
+		fwrite( static::$out, self::_call( 'render', func_get_args() ) );
 	}
 
 	/**
@@ -63,9 +67,8 @@ class Streams {
 	 * @see cli\out()
 	 */
 	public static function out_padded( $msg ) {
-		$args = func_get_args();
-		$msg = call_user_func_array( array( '\\cli\\Streams', 'render' ), $args );
-		\cli\Streams::out( str_pad( $msg, \cli\Shell::columns() ) );
+		$msg = self::_call( 'render', func_get_args() );
+		self::out( str_pad( $msg, \cli\Shell::columns() ) );
 	}
 
 	/**
@@ -78,7 +81,8 @@ class Streams {
 		// func_get_args is empty if no args are passed even with the default above.
 		$args = array_merge( func_get_args(), array( '' ) );
 		$args[0] .= "\n";
-		call_user_func_array( array( '\\cli\\Streams', 'out' ), $args );
+
+		self::_call( 'out', $args );
 	}
 
 	/**
@@ -94,7 +98,7 @@ class Streams {
 		// func_get_args is empty if no args are passed even with the default above.
 		$args = array_merge( func_get_args(), array( '' ) );
 		$args[0] .= "\n";
-		fwrite( static::$err, call_user_func_array( array( '\\cli\\Streams', 'render' ), $args ) );
+		fwrite( static::$err, self::_call( 'render', $args ) );
 	}
 
 	/**

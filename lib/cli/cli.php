@@ -42,8 +42,7 @@ function register_autoload() {
  * @return string  The rendered string.
  */
 function render( $msg ) {
-	$args = func_get_args();
-	return call_user_func_array( array( '\\cli\\Streams', 'render' ), $args );
+	return \cli\Streams::_call( 'render', func_get_args() );
 }
 
 /**
@@ -56,8 +55,7 @@ function render( $msg ) {
  * @see \cli\render()
  */
 function out( $msg ) {
-	$args = func_get_args();
-	call_user_func_array( array( '\\cli\\Streams', 'out' ), $args );
+	\cli\Streams::_call( 'out', func_get_args() );
 }
 
 /**
@@ -69,8 +67,7 @@ function out( $msg ) {
  * @see cli\out()
  */
 function out_padded( $msg ) {
-	$args = func_get_args();
-	call_user_func_array( array( '\\cli\\Streams', 'out_padded' ), $args );
+	\cli\Streams::_call( 'out_padded', func_get_args() );
 }
 
 /**
@@ -80,13 +77,7 @@ function out_padded( $msg ) {
  * @see cli\out()
  */
 function line( $msg = '' ) {
-	// func_get_args is empty if no args are passed even with the default above.
-	$args = func_get_args();
-	if( $args ) {
-		call_user_func_array( array( '\\cli\\Streams', 'line' ), $args );
-	} else {
-		\cli\Streams::line();
-	}
+	\cli\Streams::_call( 'line', func_get_args() );
 }
 
 /**
@@ -99,13 +90,7 @@ function line( $msg = '' ) {
  * @return void
  */
 function err( $msg = '' ) {
-	// func_get_args is empty if no args are passed even with the default above.
-	$args = func_get_args();
-	if( $args ) {
-		call_user_func_array( array( '\\cli\\Streams', 'err' ), $args );
-	} else {
-		\cli\Streams::err();
-	}
+	\cli\Streams::_call( 'err', func_get_args() );
 }
 
 /**
