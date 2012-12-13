@@ -1,5 +1,5 @@
 {
-    "name":        "jlogsdon/cli",
+    "name":        "wp-cli/php-cli-tools",
     "type":        "library",
     "description": "Console utilities for PHP",
     "keywords":    ["console", "cli"],
