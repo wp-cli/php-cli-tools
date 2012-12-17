@@ -18,7 +18,6 @@ namespace cli;
 class Arguments implements \ArrayAccess {
 	protected $_flags = array();
 	protected $_options = array();
-	protected $_enableHelp = true;
 	protected $_strict = false;
 	protected $_input = array();
 	protected $_invalid = array();
@@ -36,13 +35,11 @@ class Arguments implements \ArrayAccess {
 	 */
 	public function __construct($options = array()) {
 		$options += array(
-			'help'   => true,
 			'strict' => false,
 			'input'  => array_slice($_SERVER['argv'], 1)
 		);
 
 		$this->_input = $options['input'];
-		$this->setHelp($options['help']);
 		$this->setStrict($options['strict']);
 
 		if (isset($options['flags'])) {
@@ -63,6 +60,10 @@ class Arguments implements \ArrayAccess {
 			$this->parse();
 		}
 		return $this->_parsed;
+	}
+
+	public function getHelpScreen() {
+		return new \cli\arguments\HelpScreen($this);
 	}
 
 	/**
@@ -99,7 +100,9 @@ class Arguments implements \ArrayAccess {
 			$offset = $offset->key;
 		}
 
-		return $this->_parsed[$offset];
+		if (isset($this->_parsed[$offset])) {
+			return $this->_parsed[$offset];
+		}
 	}
 
 	/**
@@ -264,22 +267,6 @@ class Arguments implements \ArrayAccess {
 	}
 
 	/**
-	 * Enable or disable the generated help screen. If enabled, the flags `-h`
-	 * and `--help` will halt execution of the script and display a help screen
-	 * generated from the descriptions of each flag and option.
-	 *
-	 * *Note: with this option active, you cannot add the flags `-h` or
-	 * `--help`; they will be ignored.*
-	 *
-	 * @param bool  $help  True to enable, false to disable.
-	 * @return $this
-	 */
-	public function setHelp($help) {
-		$this->_enableHelp = (bool)$help;
-		return $this;
-	}
-
-	/**
 	 * Get a flag by primary matcher or any defined aliases.
 	 *
 	 * @param mixed  $flag  Either a string representing the flag or an
@@ -306,6 +293,14 @@ class Arguments implements \ArrayAccess {
 				return $settings;
 			}
 		}
+	}
+
+	public function getFlags() {
+		return $this->_flags;
+	}
+
+	public function hasFlags() {
+		return !empty($this->_flags);
 	}
 
 	/**
@@ -358,6 +353,14 @@ class Arguments implements \ArrayAccess {
 				return $settings;
 			}
 		}
+	}
+
+	public function getOptions() {
+		return $this->_options;
+	}
+
+	public function hasOptions() {
+		return !empty($this->_options);
 	}
 
 	/**

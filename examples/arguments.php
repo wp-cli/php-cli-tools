@@ -17,15 +17,21 @@ $strict = in_array('--strict', $_SERVER['argv']);
 $arguments = new \cli\Arguments(compact('strict'));
 
 $arguments->addFlag(array('verbose', 'v'), 'Turn on verbose output');
-$arguments->addFlag('version', 'Turn on verbose output');
+$arguments->addFlag('version', 'Display the version');
 $arguments->addFlag(array('quiet', 'q'), 'Disable all output');
+$arguments->addFlag(array('help', 'h'), 'Show this help screen');
 
 $arguments->addOption(array('cache', 'C'), array(
-	'default'     => __DIR__,
-	'description' => 'Set the cache directory. Defaults to the current directory'));
+	'default'     => getcwd(),
+	'description' => 'Set the cache directory'));
 $arguments->addOption(array('name', 'n'), array(
-	'default'     => null, 
-	'description' => 'Set a name.'));
+	'default'     => 'James',
+	'description' => 'Set a name with a really long description and a default so we can see what line wrapping looks like which is probably a goo idea'));
 
 $arguments->parse();
+if ($arguments['help']) {
+	echo $arguments->getHelpScreen();
+	echo "\n\n";
+}
+
 echo $arguments->asJSON() . "\n";
