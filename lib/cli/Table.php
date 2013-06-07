@@ -61,6 +61,14 @@ class Table {
 		}
 	}
 
+	public function resetTable()
+	{
+		$this->_headers = array();
+		$this->_width = array();
+		$this->_rows = array();
+		return $this;
+	}
+
 	/**
 	 * Sets the renderer used by this table.
 	 *
