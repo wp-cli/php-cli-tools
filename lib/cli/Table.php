@@ -18,6 +18,7 @@ namespace cli;
 class Table {
 	protected $_renderer;
 	protected $_headers = array();
+	protected $_footers = array();
 	protected $_width = array();
 	protected $_rows = array();
 
@@ -36,7 +37,7 @@ class Table {
 	 * @param array  $headers  Headers used in this table. Optional.
 	 * @param array  $rows     The rows of data for this table. Optional.
 	 */
-	public function __construct(array $headers = null, array $rows = null) {
+	public function __construct(array $headers = null, array $rows = null, array $footers = null) {
 		if (!empty($headers)) {
 			// If all the rows is given in $headers we use the keys from the
 			// first row for the header values
@@ -52,6 +53,10 @@ class Table {
 
 			$this->setHeaders($headers);
 			$this->setRows($rows);
+		}
+
+		if (!empty($footers)) {
+			$this->setFooters($footers);
 		}
 
 		if (\cli\Shell::isPiped()) {
@@ -126,6 +131,14 @@ class Table {
 		if (isset($border)) {
 			\cli\line($border);
 		}
+
+		if ($this->_footers) {
+			\cli\line($this->_renderer->row($this->_footers));
+			if (isset($border)) {
+				\cli\line($border);
+			}
+		}
+
 	}
 
 	/**
@@ -152,6 +165,16 @@ class Table {
 	public function setHeaders(array $headers) {
 		$this->_headers = $this->checkRow($headers);
 	}
+
+	/**
+	 * Set the footers of the table.
+	 *
+	 * @param array  $footers  An array of strings containing column footers names.
+	 */
+	public function setFooters(array $footers) {
+		$this->_footers = $this->checkRow($footers);
+	}
+
 
 	/**
 	 * Add a row to the table.
