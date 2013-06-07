@@ -71,6 +71,7 @@ class Table {
 		$this->_headers = array();
 		$this->_width = array();
 		$this->_rows = array();
+		$this->_footers = array();
 		return $this;
 	}
 
