@@ -8,6 +8,11 @@ class Streams {
 	protected static $in = STDIN;
 	protected static $err = STDERR;
 
+	static function _call( $func, $args ) {
+		$method = __CLASS__ . '::' . $func;
+		return call_user_func_array( $method, $args );
+	}
+
 	/**
 	 * Handles rendering strings. If extra scalar arguments are given after the `$msg`
 	 * the string will be rendered with `sprintf`. If the second argument is an `array`
@@ -50,8 +55,7 @@ class Streams {
 	 * @see \cli\render()
 	 */
 	public static function out( $msg ) {
-		$args = func_get_args();
-		fwrite( static::$out, call_user_func_array( array( '\\cli\\Streams', 'render' ), $args ) );
+		fwrite( static::$out, self::_call( 'render', func_get_args() ) );
 	}
 
 	/**
@@ -63,9 +67,8 @@ class Streams {
 	 * @see cli\out()
 	 */
 	public static function out_padded( $msg ) {
-		$args = func_get_args();
-		$msg = call_user_func_array( array( '\\cli\\Streams', 'render' ), $args );
-		\cli\Streams::out( str_pad( $msg, \cli\Shell::columns() ) );
+		$msg = self::_call( 'render', func_get_args() );
+		self::out( str_pad( $msg, \cli\Shell::columns() ) );
 	}
 
 	/**
@@ -78,7 +81,8 @@ class Streams {
 		// func_get_args is empty if no args are passed even with the default above.
 		$args = array_merge( func_get_args(), array( '' ) );
 		$args[0] .= "\n";
-		call_user_func_array( array( '\\cli\\Streams', 'out' ), $args );
+
+		self::_call( 'out', $args );
 	}
 
 	/**
@@ -94,7 +98,7 @@ class Streams {
 		// func_get_args is empty if no args are passed even with the default above.
 		$args = array_merge( func_get_args(), array( '' ) );
 		$args[0] .= "\n";
-		fwrite( static::$err, call_user_func_array( array( '\\cli\\Streams', 'render' ), $args ) );
+		fwrite( static::$err, self::_call( 'render', $args ) );
 	}
 
 	/**
@@ -138,8 +142,8 @@ class Streams {
 		}
 
 		while( true ) {
-			\cli\Streams::out( $question . $marker );
-			$line = \cli\Streams::input();
+			self::out( $question . $marker );
+			$line = self::input();
 
 			if( !empty( $line ) )
 				return $line;
@@ -170,7 +174,7 @@ class Streams {
 		$choices = trim( join( '/', preg_split( '//', $choice ) ), '/' );
 
 		while( true ) {
-			$line = \cli\Streams::prompt( sprintf( '%s? [%s]', $question, $choices ), $default, '' );
+			$line = self::prompt( sprintf( '%s? [%s]', $question, $choices ), $default, '' );
 
 			if( stripos( $choice, $line ) !== false ) {
 				return strtolower( $line );
@@ -202,13 +206,13 @@ class Streams {
 		}
 
 		foreach( $map as $idx => $item ) {
-			\cli\Streams::line( '  %d. %s', $idx + 1, (string)$item );
+			self::line( '  %d. %s', $idx + 1, (string)$item );
 		}
-		\cli\Streams::line();
+		self::line();
 
 		while( true ) {
 			fwrite( static::$out, sprintf( '%s: ', $title ) );
-			$line = \cli\Streams::input();
+			$line = self::input();
 
 			if( is_numeric( $line ) ) {
 				$line--;
@@ -217,7 +221,7 @@ class Streams {
 				}
 
 				if( $line < 0 || $line >= count( $map ) ) {
-					\cli\Streams::err( 'Invalid menu selection: out of range' );
+					self::err( 'Invalid menu selection: out of range' );
 				}
 			} else if( isset( $default ) ) {
 				return $default;
