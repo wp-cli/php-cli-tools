@@ -25,16 +25,17 @@ class Streams {
 	 */
 	public static function render( $msg ) {
 		$args = func_get_args();
+		$colorize = ( posix_isatty( static::$out ) );
 
 		// No string replacement is needed
 		if( count( $args ) == 1 ) {
-			return Colors::colorize( $msg );
+			return Colors::colorize( $msg, $colorize );
 		}
 
 		// If the first argument is not an array just pass to sprintf
 		if( !is_array( $args[1] ) ) {
 			// Colorize the message first so sprintf doesn't bitch at us
-			$args[0] = Colors::colorize( $args[0] );
+			$args[0] = Colors::colorize( $args[0], $colorize );
 			return call_user_func_array( 'sprintf', $args );
 		}
 
@@ -42,7 +43,7 @@ class Streams {
 		foreach( $args[1] as $key => $value ) {
 			$msg = str_replace( '{:' . $key . '}', $value, $msg );
 		}
-		return Colors::colorize( $msg );
+		return Colors::colorize( $msg, $colorize );
 	}
 
 	/**
