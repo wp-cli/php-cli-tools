@@ -28,14 +28,35 @@ abstract class Progress extends \cli\Notify {
 	 * @param string  $msg       The text to display next to the Notifier.
 	 * @param int     $total     The total number of ticks we will be performing.
 	 * @param int     $interval  The interval in milliseconds between updates.
-	 * @throws \InvalidArgumentException  Thrown if `$total` is less than 0.
+	 * @see cli\Progress::setTotal()
 	 */
 	public function __construct($msg, $total, $interval = 100) {
 		parent::__construct($msg, $interval);
+		$this->setTotal($total);
+	}
+
+	/**
+	 * Set the max increments for this progress notifier.
+	 *
+	 * @param int  $total  The total number of times this indicator should be `tick`ed.
+	 * @throws \InvalidArgumentException  Thrown if the `$total` is less than 0.
+	 */
+	public function setTotal($total) {
 		$this->_total = (int)$total;
 
 		if ($this->_total < 0) {
 			throw new \InvalidArgumentException('Maximum value out of range, must be positive.');
+		}
+	}
+
+	/**
+	 * Reset the progress state so the same instance can be used in multiple loops.
+	 */
+	public function reset($total = null) {
+		parent::reset();
+
+		if ($total) {
+			$this->setTotal($total);
 		}
 	}
 

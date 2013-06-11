@@ -51,6 +51,16 @@ abstract class Notify {
 	abstract public function display($finish = false);
 
 	/**
+	 * Reset the notifier state so the same instance can be used in multiple loops.
+	 */
+	public function reset() {
+		$this->_current = 0;
+		$this->_first = true;
+		$this->_start = null;
+		$this->_timer = null;
+	}
+
+	/**
 	 * Returns the formatted tick count.
 	 *
 	 * @return string  The formatted tick count.
