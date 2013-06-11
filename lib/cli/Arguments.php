@@ -86,7 +86,7 @@ class Arguments implements \ArrayAccess {
 			$offset = $offset->key;
 		}
 
-		return array_key_exists($this->_parsed, $offset);
+		return array_key_exists($offset, $this->_parsed);
 	}
 
 	/**
