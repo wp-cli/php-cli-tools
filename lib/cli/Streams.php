@@ -35,6 +35,10 @@ class Streams {
 		if( !is_array( $args[1] ) ) {
 			// Colorize the message first so sprintf doesn't bitch at us
 			$args[0] = Colors::colorize( $args[0] );
+
+			// Escape percent characters for sprintf
+			$args[0] = preg_replace('/(%[^\w]?)/', "%$1", $args[0]);
+
 			return call_user_func_array( 'sprintf', $args );
 		}
 
