@@ -48,6 +48,27 @@ class Colors {
 			'white'   => 47
 		)
 	);
+	static protected $_enabled = null;
+
+	static public function enable($force = true) {
+		self::$_enabled = $force === true ? true : null;
+	}
+
+	static public function disable($force = true) {
+		self::$_enabled = $force === true ? false : null;
+	}
+
+	/**
+	 * Check if we should colorize output based on local flags and shell type.
+	 *
+	 * Only check the shell type if `Colors::$_enabled` is null and `$colored` is null.
+	 */
+	static public function shouldColorize($colored = null) {
+		return self::$_enabled === true ||
+			(self::$_enabled !== false &&
+				($colored === true ||
+					($colored !== false && Streams::isTty())));
+	}
 
 	/**
 	 * Set the color.
@@ -80,7 +101,13 @@ class Colors {
 		return "\033[" . join(';', $colors) . "m";
 	}
 
-	static public function colorize($string, $colored = true) {
+	/**
+	 * Colorize a string using helpful string formatters. If the `Streams::$out` points to a TTY coloring will be enabled,
+	 * otherwise disabled. You can control this check with the `$colored` parameter.
+	 *
+	 * @param boolean  $colored  Force enable or disable the colorized output. If left as `null` the TTY will control coloring.
+	 */
+	static public function colorize($string, $colored = null) {
 		static $conversions = array(
 			'%y' => array('color' => 'yellow'),
 			'%g' => array('color' => 'green'),
@@ -117,7 +144,7 @@ class Colors {
 			'%_' => array('style' => 'bright')
 		);
 
-		if (!$colored) {
+		if (!self::shouldColorize($colored)) {
 			return preg_replace('/%((%)|.)/', '$2', $string);
 		}
 

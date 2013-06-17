@@ -13,6 +13,10 @@ class Streams {
 		return call_user_func_array( $method, $args );
 	}
 
+	static public function isTty() {
+		return posix_isatty(static::$out);
+	}
+
 	/**
 	 * Handles rendering strings. If extra scalar arguments are given after the `$msg`
 	 * the string will be rendered with `sprintf`. If the second argument is an `array`
