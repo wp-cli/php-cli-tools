@@ -32,7 +32,7 @@ class Colors {
 		'style' => array(
 			'bright'	 => 1,
 			'dim'		=> 2,
-			'underscore' => 4,
+			'underline' => 4,
 			'blink'	  => 5,
 			'reverse'	=> 7,
 			'hidden'	 => 8
