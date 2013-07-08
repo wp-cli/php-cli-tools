@@ -1,7 +1,7 @@
 <?php
 
 error_reporting(-1);
-require dirname(__FILE__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'cli' . DIRECTORY_SEPARATOR . 'Arguments.php';
+require 'lib/cli/Arguments.php';
 
 $args = new \cli\Arguments(array(
 	'flags' => array(

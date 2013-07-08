@@ -214,7 +214,7 @@ class Streams {
 		}
 
 		foreach( $map as $idx => $item ) {
-			self::line( sprintf('  %d. %s', $idx + 1, (string)$item) );
+			self::line( '  %d. %s', $idx + 1, (string)$item );
 		}
 		self::line();
 
