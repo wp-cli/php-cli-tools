@@ -41,7 +41,7 @@ class Streams {
 			$args[0] = Colors::colorize( $args[0] );
 
 			// Escape percent characters for sprintf
-			$args[0] = preg_replace('/(%[^\w]?)/', "%$1", $args[0]);
+			$args[0] = preg_replace('/(%([^\w]|$))/', "%$1", $args[0]);
 
 			return call_user_func_array( 'sprintf', $args );
 		}
