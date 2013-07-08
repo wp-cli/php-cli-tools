@@ -9,7 +9,7 @@ ini_set('display_errors', 1);
 ini_set('log_errors', 0);
 ini_set('html_errors', 0);
 
-require 'lib/cli/cli.php';
+require dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'lib'. DIRECTORY_SEPARATOR . 'cli' . DIRECTORY_SEPARATOR . 'cli.php';
 \cli\register_autoload();
 
 function test_notify(\cli\Notify $notify, $cycle = 1000000, $sleep = null) {
