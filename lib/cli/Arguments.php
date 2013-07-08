@@ -12,6 +12,12 @@
 
 namespace cli;
 
+require 'lib/cli/Memoize.php';
+require 'lib/cli/arguments/Argument.php';
+require 'lib/cli/arguments/HelpScreen.php';
+require 'lib/cli/arguments/InvalidArguments.php';
+require 'lib/cli/arguments/Lexer.php';
+
 /**
  * Parses command line arguments.
  */
