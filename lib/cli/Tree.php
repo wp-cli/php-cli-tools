@@ -16,5 +16,42 @@ namespace cli;
  * The `Tree` class is used to display data in a tree-like format.
  */
 class Tree {
+    protected $_renderer;
+    protected $_data = array();
 
+    /**
+     * Sets the renderer used by this tree.
+     *
+     * @param tree\Renderer  $renderer  The renderer to use for output.
+     * @see   tree\Renderer
+     * @see   tree\Ascii
+     */
+    public function setRenderer(tree\Renderer $renderer) {
+        $this->_renderer = $renderer;
+    }
+
+    /**
+     * Set the data.
+     * Format:
+     *     [
+     *         'Label' => [
+     *             'Thing' => ['Thing'],
+     *         ],
+     *         'Thing',
+     *     ]
+     * @param array $data
+     */
+    public function setData(array $data)
+    {
+        $this->_data = $data;
+    }
+
+    public function render()
+    {
+        return $this->_renderer->render($this->_data);
+    }
+    public function display()
+    {
+        echo $this->render();
+    }
 }
