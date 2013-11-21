@@ -14,24 +14,6 @@
 namespace cli;
 
 /**
- * Registers a basic auto loader for the `cli` namespace.
- */
-function register_autoload() {
-	spl_autoload_register( function($class) {
-				// Only attempt to load classes in our namespace
-				if( substr( $class, 0, 4 ) !== 'cli\\' ) {
-					return;
-				}
-
-				$base = dirname( __DIR__ ) . DIRECTORY_SEPARATOR;
-				$path = $base . str_replace( '\\', DIRECTORY_SEPARATOR, $class ) . '.php';
-				if( is_file( $path ) ) {
-					require_once $path;
-				}
-			} );
-}
-
-/**
  * Handles rendering strings. If extra scalar arguments are given after the `$msg`
  * the string will be rendered with `sprintf`. If the second argument is an `array`
  * then each key in the array will be the placeholder name. Placeholders are of the
@@ -118,7 +100,7 @@ function input( $format = null ) {
  * @return string  The users input.
  * @see cli\input()
  */
-function prompt( $question, $default = false, $marker = ': ' ) {
+function prompt( $question, $default = null, $marker = ': ' ) {
 	return Streams::prompt( $question, $default, $marker );
 }
 
@@ -127,7 +109,7 @@ function prompt( $question, $default = false, $marker = ': ' ) {
  * questions (which this function defaults too).
  *
  * @param string  $question  The question to ask the user.
- * @param string  $valid     A string of characters allowed as a response. Case
+ * @param string  $choice     A string of characters allowed as a response. Case
  *                           is ignored.
  * @param string  $default   The default choice. NULL if a default is not allowed.
  * @return string  The users choice.
@@ -150,6 +132,6 @@ function choose( $question, $choice = 'yn', $default = 'n' ) {
  * @see cli\input()
  * @see cli\err()
  */
-function menu( $items, $default = false, $title = 'Choose an item' ) {
+function menu( $items, $default = null, $title = 'Choose an item' ) {
 	return Streams::menu( $items, $default, $title );
 }
