@@ -12,10 +12,12 @@
 
 namespace cli\notify;
 
+use cli\Notify;
+
 /**
  * A Notifer that displays a string of periods.
  */
-class Dots extends \cli\Notify {
+class Dots extends Notify {
 	protected $_dots;
 	protected $_format = '{:msg}{:dots}  ({:elapsed}, {:speed}/s)';
 	protected $_iteration;
@@ -26,6 +28,7 @@ class Dots extends \cli\Notify {
 	 * @param string  $msg       The text to display next to the Notifier.
 	 * @param int     $dots      The number of dots to iterate through.
 	 * @param int     $interval  The interval in milliseconds between updates.
+     * @throws \InvalidArgumentException
 	 */
 	public function __construct($msg, $dots = 3, $interval = 100) {
 		parent::__construct($msg, $interval);

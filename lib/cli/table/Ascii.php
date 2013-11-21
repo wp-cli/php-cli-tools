@@ -11,6 +11,7 @@
  */
 
 namespace cli\table;
+use cli\Colors;
 
 /**
  * The ASCII renderer renders tables with ASCII borders.
@@ -63,10 +64,10 @@ class Ascii extends Renderer {
 		array_unshift($row, ''); // First border
 		array_push($row, ''); // Last border
 
-	return join($this->_characters['border'], $row);
+	    return join($this->_characters['border'], $row);
 	}
 
 	private function padColumn($content, $column) {
-		return ' ' . \cli\Colors::pad($content, $this->_widths[$column]) . ' ';
+		return ' ' . Colors::pad($content, $this->_widths[$column]) . ' ';
 	}
 }
