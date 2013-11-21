@@ -12,10 +12,12 @@
 
 namespace cli\notify;
 
+use cli\Notify;
+
 /**
  * The `Spinner` Notifier displays an ASCII spinner.
  */
-class Spinner extends \cli\Notify {
+class Spinner extends Notify {
 	protected $_chars = '-\|/';
 	protected $_format = '{:msg} {:char}  ({:elapsed}, {:speed}/s)';
 	protected $_iteration = 0;
