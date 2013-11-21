@@ -42,7 +42,7 @@ function register_autoload() {
  * @return string  The rendered string.
  */
 function render( $msg ) {
-	return \cli\Streams::_call( 'render', func_get_args() );
+	return Streams::_call( 'render', func_get_args() );
 }
 
 /**
@@ -55,7 +55,7 @@ function render( $msg ) {
  * @see \cli\render()
  */
 function out( $msg ) {
-	\cli\Streams::_call( 'out', func_get_args() );
+	Streams::_call( 'out', func_get_args() );
 }
 
 /**
@@ -67,7 +67,7 @@ function out( $msg ) {
  * @see cli\out()
  */
 function out_padded( $msg ) {
-	\cli\Streams::_call( 'out_padded', func_get_args() );
+	Streams::_call( 'out_padded', func_get_args() );
 }
 
 /**
@@ -77,7 +77,7 @@ function out_padded( $msg ) {
  * @see cli\out()
  */
 function line( $msg = '' ) {
-	\cli\Streams::_call( 'line', func_get_args() );
+	Streams::_call( 'line', func_get_args() );
 }
 
 /**
@@ -90,7 +90,7 @@ function line( $msg = '' ) {
  * @return void
  */
 function err( $msg = '' ) {
-	\cli\Streams::_call( 'err', func_get_args() );
+	Streams::_call( 'err', func_get_args() );
 }
 
 /**
@@ -104,7 +104,7 @@ function err( $msg = '' ) {
  * @throws \Exception  Thrown if ctrl-D (EOT) is sent as input.
  */
 function input( $format = null ) {
-	return \cli\Streams::input( $format );
+	return Streams::input( $format );
 }
 
 /**
@@ -120,7 +120,7 @@ function input( $format = null ) {
  * @see cli\input()
  */
 function prompt( $question, $default = false, $marker = ': ' ) {
-	return \cli\Streams::prompt( $question, $default, $marker );
+	return Streams::prompt( $question, $default, $marker );
 }
 
 /**
@@ -136,7 +136,7 @@ function prompt( $question, $default = false, $marker = ': ' ) {
  * @see      cli\prompt()
  */
 function choose( $question, $choice = 'yn', $default = 'n' ) {
-	return \cli\Streams::choose( $question, $choice, $default );
+	return Streams::choose( $question, $choice, $default );
 }
 
 /**
@@ -168,5 +168,5 @@ function confirm( $question, $default = false ) {
  * @see cli\err()
  */
 function menu( $items, $default = false, $title = 'Choose an item' ) {
-	return \cli\Streams::menu( $items, $default, $title );
+	return Streams::menu( $items, $default, $title );
 }
