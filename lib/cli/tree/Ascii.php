@@ -16,7 +16,26 @@ namespace cli\tree;
  * The ASCII renderer renders trees with ASCII lines.
  */
 class Ascii extends Renderer {
-    protected $_characters = array(
 
-    );
+    /**
+     * @param array $tree
+     * @return string
+     */
+    public function render(array $tree)
+    {
+        $output = '';
+
+        $treeIterator = new \RecursiveTreeIterator(
+            new \RecursiveArrayIterator($tree),
+            \RecursiveTreeIterator::SELF_FIRST
+        );
+
+        foreach ($treeIterator as $val)
+        {
+            $output .= $val . "\n";
+        }
+
+        return $output;
+    }
+
 }
