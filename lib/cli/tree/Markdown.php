@@ -59,7 +59,7 @@ class Markdown extends Renderer {
             // Next level
             if (is_array($next))
             {
-                $this->render($next, $level + 1);
+                $output .= $this->render($next, $level + 1);
             }
 
         }
