@@ -12,9 +12,8 @@
 
 namespace cli;
 
-
 /**
- * The `Table` class is used to display data in a tabular format.
+ * The `Tree` class is used to display data in a tree-like format.
  */
 class Tree {
 
