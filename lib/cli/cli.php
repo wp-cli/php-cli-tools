@@ -115,11 +115,12 @@ function input( $format = null ) {
  * @param string  $default   A default value if the user provides no input.
  * @param string  $marker    A string to append to the question and default value
  *                           on display.
+ * @param boolean $hide      Optionally hides what the user types in.
  * @return string  The users input.
  * @see cli\input()
  */
-function prompt( $question, $default = false, $marker = ': ' ) {
-	return \cli\Streams::prompt( $question, $default, $marker );
+function prompt( $question, $default = false, $marker = ': ', $hide = false ) {
+	return \cli\Streams::prompt( $question, $default, $marker, $hide );
 }
 
 /**

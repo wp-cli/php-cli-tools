@@ -141,17 +141,31 @@ class Streams {
 	 * @param string  $default   A default value if the user provides no input.
 	 * @param string  $marker    A string to append to the question and default value
 	 *                           on display.
+	 * @param boolean $hide      Optionally hides what the user types in.
 	 * @return string  The users input.
 	 * @see cli\input()
 	 */
-	public static function prompt( $question, $default = false, $marker = ': ' ) {
+	public static function prompt( $question, $default = false, $marker = ': ', $hide = false ) {
 		if( $default && strpos( $question, '[' ) === false ) {
 			$question .= ' [' . $default . ']';
 		}
 
 		while( true ) {
 			self::out( $question . $marker );
+
+			if ( $hide ) {
+				self::out( \cli\Colors::color( array(
+					'background' => 'black',
+					'color' => 'black'
+				) ) );
+			}
+
 			$line = self::input();
+
+			if ( $hide ) {
+				self::out( \cli\Colors::color( array('color' => 'reset') ) );
+			}
+
 
 			if( !empty( $line ) )
 				return $line;
