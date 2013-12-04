@@ -111,11 +111,11 @@ function input( $format = null ) {
  * Displays an input prompt. If no default value is provided the prompt will
  * continue displaying until input is received.
  *
- * @param string  $question  The question to ask the user.
- * @param string  $default   A default value if the user provides no input.
- * @param string  $marker    A string to append to the question and default value
- *                           on display.
- * @param boolean $hide      Optionally hides what the user types in.
+ * @param string      $question The question to ask the user.
+ * @param bool|string $default  A default value if the user provides no input.
+ * @param string      $marker   A string to append to the question and default value
+ *                              on display.
+ * @param boolean     $hide     Optionally hides what the user types in.
  * @return string  The users input.
  * @see cli\input()
  */
@@ -127,15 +127,31 @@ function prompt( $question, $default = false, $marker = ': ', $hide = false ) {
  * Presents a user with a multiple choice question, useful for 'yes/no' type
  * questions (which this function defaults too).
  *
- * @param string  $question  The question to ask the user.
- * @param string  $valid     A string of characters allowed as a response. Case
- *                           is ignored.
- * @param string  $default   The default choice. NULL if a default is not allowed.
+ * @param string      $question   The question to ask the user.
+ * @param string      $choice
+ * @param string|null $default    The default choice. NULL if a default is not allowed.
+ * @internal param string $valid  A string of characters allowed as a response. Case
+ *                                is ignored.
  * @return string  The users choice.
- * @see cli\prompt()
+ * @see      cli\prompt()
  */
 function choose( $question, $choice = 'yn', $default = 'n' ) {
 	return \cli\Streams::choose( $question, $choice, $default );
+}
+
+/**
+ * Does the same as {@see choose()}, but always asks yes/no and returns a boolean
+ *
+ * @param string    $question  The question to ask the user.
+ * @param bool|null $default   The default choice, in a boolean format.
+ * @return bool
+ */
+function confirm( $question, $default = false ) {
+	if ( is_bool( $default ) ) {
+		$default = $default? 'y' : 'n';
+	}
+	$result  = choose( $question, 'yn', $default );
+	return $result == 'y';
 }
 
 /**
@@ -143,9 +159,9 @@ function choose( $question, $choice = 'yn', $default = 'n' ) {
  * choose an option. The array must be a single dimension with either strings
  * or objects with a `__toString()` method.
  *
- * @param array   $items    The list of items the user can choose from.
- * @param string  $default  The index of the default item.
- * @param string  $title    The message displayed to the user when prompted.
+ * @param array       $items   The list of items the user can choose from.
+ * @param bool|string $default The index of the default item.
+ * @param string      $title   The message displayed to the user when prompted.
  * @return string  The index of the chosen item.
  * @see cli\line()
  * @see cli\input()
