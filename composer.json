@@ -10,11 +10,6 @@
             "name":  "James Logsdon",
             "email": "jlogsdon@php.net",
             "role":  "Developer"
-        },
-        {
-            "name": "Connect Studios",
-            "email": "devteam@connectstudios.com",
-            "role": "Contributor"
         }
     ],
     "require": {
