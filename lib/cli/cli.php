@@ -139,14 +139,14 @@ function confirm( $question, $default = false ) {
  * choose an option. The array must be a single dimension with either strings
  * or objects with a `__toString()` method.
  *
- * @param array       $items   The list of items the user can choose from.
- * @param bool|string $default The index of the default item.
- * @param string      $title   The message displayed to the user when prompted.
+ * @param array  $items   The list of items the user can choose from.
+ * @param string $default The index of the default item.
+ * @param string $title   The message displayed to the user when prompted.
  * @return string  The index of the chosen item.
  * @see cli\line()
  * @see cli\input()
  * @see cli\err()
  */
-function menu( $items, $default = false, $title = 'Choose an item' ) {
+function menu( $items, $default = null, $title = 'Choose an item' ) {
 	return Streams::menu( $items, $default, $title );
 }
