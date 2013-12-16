@@ -24,10 +24,10 @@ class Shell {
 	 * @todo Test on more systems.
 	 */
 	static public function columns() {
-		if( isset( $_SERVER['OS'] ) && strpos( $_SERVER['OS'], 'indows' ) !== false )
-			return exec('/usr/bin/env tput cols');
-		else
-			return 80; // default width of cmd window on Windows OS, maybe force using MODE CON COLS=XXX?
+        if ( file_exists('/usr/bin/env') ) {
+            return exec('/usr/bin/env tput cols');
+        }
+        return 80; // default width of cmd window on Windows OS, maybe force using MODE CON COLS=XXX?
 	}
 
 	/**
