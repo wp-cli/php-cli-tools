@@ -13,6 +13,8 @@
 namespace cli\progress;
 
 use cli;
+use cli\Progress;
+use cli\Shell;
 
 /**
  * Displays a progress bar spanning the entire shell.
@@ -51,7 +53,7 @@ class Bar extends Progress {
 		$elapsed   = str_pad($this->formatTime($this->elapsed()), strlen($estimated));
 		$timing    = cli\render($this->_formatTiming, compact('elapsed', 'estimated'));
 
-		$size = cli\Shell::columns();
+		$size = Shell::columns();
 		$size -= strlen($msg . $timing);
 
 		$bar = str_repeat($this->_bars[0], floor($_percent * $size)) . $this->_bars[1];
