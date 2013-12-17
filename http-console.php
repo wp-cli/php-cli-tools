@@ -3,15 +3,13 @@
  * An example application using php-cli-tools and Buzz
  */
 
+require_once __DIR__ . '/vendor/autoload.php';
+
 define('BUZZ_PATH', realpath('../Buzz'));
-define('TOOL_PATH', realpath('./'));
 define('SCRIPT_NAME', array_shift($argv));
 
 require_once BUZZ_PATH . '/lib/Buzz/ClassLoader.php';
 Buzz\ClassLoader::register();
-
-require_once TOOL_PATH . '/lib/cli/cli.php';
-\cli\register_autoload();
 
 class HttpConsole {
     protected $_host;
