@@ -15,6 +15,7 @@ namespace cli\progress;
 use cli;
 use cli\Progress;
 use cli\Shell;
+use cli\Streams;
 
 /**
  * Displays a progress bar spanning the entire shell.
@@ -47,11 +48,11 @@ class Bar extends Progress {
 
 		$percent = str_pad(floor($_percent * 100), 3);;
 		$msg = $this->_message;
-		$msg = cli\render($this->_formatMessage, compact('msg', 'percent'));
+		$msg = Streams::render($this->_formatMessage, compact('msg', 'percent'));
 
 		$estimated = $this->formatTime($this->estimated());
 		$elapsed   = str_pad($this->formatTime($this->elapsed()), strlen($estimated));
-		$timing    = cli\render($this->_formatTiming, compact('elapsed', 'estimated'));
+		$timing    = Streams::render($this->_formatTiming, compact('elapsed', 'estimated'));
 
 		$size = Shell::columns();
 		$size -= strlen($msg . $timing);
@@ -60,6 +61,6 @@ class Bar extends Progress {
 		// substr is needed to trim off the bar cap at 100%
 		$bar = substr(str_pad($bar, $size, ' '), 0, $size);
 
-		cli\out($this->_format, compact('msg', 'bar', 'timing'));
+		Streams::out($this->_format, compact('msg', 'bar', 'timing'));
 	}
 }

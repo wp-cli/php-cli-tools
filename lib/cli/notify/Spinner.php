@@ -13,6 +13,7 @@
 namespace cli\notify;
 
 use cli\Notify;
+use cli\Streams;
 
 /**
  * The `Spinner` Notifier displays an ASCII spinner.
@@ -39,6 +40,6 @@ class Spinner extends Notify {
 		$speed = number_format(round($this->speed()));
 		$elapsed = $this->formatTime($this->elapsed());
 
-		\cli\out_padded($this->_format, compact('msg', 'char', 'elapsed', 'speed'));
+		Streams::out_padded($this->_format, compact('msg', 'char', 'elapsed', 'speed'));
 	}
 }

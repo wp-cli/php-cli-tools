@@ -11,6 +11,7 @@
  */
 
 namespace cli\table;
+
 use cli\Colors;
 
 /**

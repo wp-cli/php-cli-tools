@@ -12,6 +12,8 @@
 
 namespace cli;
 
+use cli\Streams;
+
 /**
  * The `Notify` class is the basis of all feedback classes, such as Indicators
  * and Progress meters. The default behaviour is to refresh output after 100ms
@@ -127,9 +129,9 @@ abstract class Notify {
 	 * @see cli\Notify::display()
 	 */
 	public function finish() {
-		\cli\out("\r");
+		Streams::out("\r");
 		$this->display(true);
-		\cli\line();
+		Streams::line();
 	}
 
 	/**
@@ -176,7 +178,7 @@ abstract class Notify {
 		$this->increment($increment);
 
 		if ($this->shouldUpdate()) {
-			\cli\out("\r");
+			Streams::out("\r");
 			$this->display();
 		}
 	}
