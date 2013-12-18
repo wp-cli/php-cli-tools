@@ -12,10 +12,12 @@
 
 namespace cli\arguments;
 
+use cli\Memoize;
+
 /**
  * Represents an Argument or a value and provides several helpers related to parsing an argument list.
  */
-class Argument extends \cli\Memoize {
+class Argument extends Memoize {
 	/**
 	 * The canonical name of this argument, used for aliasing.
 	 *

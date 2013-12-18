@@ -10,38 +10,38 @@ Requirements
 Function List
 -------------
 
- * `\cli\out($msg, ...)`
- * `\cli\out_padded($msg, ...)`
- * `\cli\err($msg, ...)`
- * `\cli\line($msg = '', ...)`
- * `\cli\input()`
- * `\cli\prompt($question, $default = false, $marker = ':')`
- * `\cli\choose($question, $choices = 'yn', $default = 'n')`
- * `\cli\menu($items, $default = false, $title = 'Choose an Item')`
+ * `cli\out($msg, ...)`
+ * `cli\out_padded($msg, ...)`
+ * `cli\err($msg, ...)`
+ * `cli\line($msg = '', ...)`
+ * `cli\input()`
+ * `cli\prompt($question, $default = false, $marker = ':')`
+ * `cli\choose($question, $choices = 'yn', $default = 'n')`
+ * `cli\menu($items, $default = false, $title = 'Choose an Item')`
 
 Progress Indicators
 -------------------
 
- * `\cli\notifier\Dots($msg, $dots = 3, $interval = 100)`
- * `\cli\notifier\Spinner($msg, $interval = 100)`
- * `\cli\progress\Bar($msg, $total, $interval = 100)`
+ * `cli\notifier\Dots($msg, $dots = 3, $interval = 100)`
+ * `cli\notifier\Spinner($msg, $interval = 100)`
+ * `cli\progress\Bar($msg, $total, $interval = 100)`
 
 Tabular Display
 ---------------
 
- * `\cli\Table::__construct(array $headers = null, array $rows = null)`
- * `\cli\Table::setHeaders(array $headers)`
- * `\cli\Table::setRows(array $rows)`
- * `\cli\Table::setRenderer(\cli\table\Renderer $renderer)`
- * `\cli\Table::addRow(array $row)`
- * `\cli\Table::sort($column)`
- * `\cli\Table::display()`
+ * `cli\Table::__construct(array $headers = null, array $rows = null)`
+ * `cli\Table::setHeaders(array $headers)`
+ * `cli\Table::setRows(array $rows)`
+ * `cli\Table::setRenderer(cli\table\Renderer $renderer)`
+ * `cli\Table::addRow(array $row)`
+ * `cli\Table::sort($column)`
+ * `cli\Table::display()`
 
 The display function will detect if output is piped and, if it is, render a tab delimited table instead of the ASCII
 table rendered for visual display.
 
-You can also explicitly set the renderer used by calling `\cli\Table::setRenderer()` and giving it an instance of one
-of the concrete `\cli\table\Renderer` classes.
+You can also explicitly set the renderer used by calling `cli\Table::setRenderer()` and giving it an instance of one
+of the concrete `cli\table\Renderer` classes.
 
 Tree Display
 ------------

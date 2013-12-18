@@ -12,10 +12,13 @@
 
 namespace cli\notify;
 
+use cli\Notify;
+use cli\Streams;
+
 /**
  * The `Spinner` Notifier displays an ASCII spinner.
  */
-class Spinner extends \cli\Notify {
+class Spinner extends Notify {
 	protected $_chars = '-\|/';
 	protected $_format = '{:msg} {:char}  ({:elapsed}, {:speed}/s)';
 	protected $_iteration = 0;
@@ -37,6 +40,6 @@ class Spinner extends \cli\Notify {
 		$speed = number_format(round($this->speed()));
 		$elapsed = $this->formatTime($this->elapsed());
 
-		\cli\out_padded($this->_format, compact('msg', 'char', 'elapsed', 'speed'));
+		Streams::out_padded($this->_format, compact('msg', 'char', 'elapsed', 'speed'));
 	}
 }

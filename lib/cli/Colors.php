@@ -74,6 +74,7 @@ class Colors {
 	 * Set the color.
 	 *
 	 * @param string  $color  The name of the color or style to set.
+     * @return string
 	 */
 	static public function color($color) {
 		if (!is_array($color)) {
@@ -105,7 +106,9 @@ class Colors {
 	 * Colorize a string using helpful string formatters. If the `Streams::$out` points to a TTY coloring will be enabled,
 	 * otherwise disabled. You can control this check with the `$colored` parameter.
 	 *
+     * @param string   $string
 	 * @param boolean  $colored  Force enable or disable the colorized output. If left as `null` the TTY will control coloring.
+     * @return string
 	 */
 	static public function colorize($string, $colored = null) {
 		static $conversions = array(
@@ -161,6 +164,7 @@ class Colors {
 	 * Return the length of the string without color codes.
 	 *
 	 * @param string  $string  the string to measure
+     * @return string
 	 */
 	static public function length($string) {
 		return strlen(self::colorize($string, false));
@@ -171,6 +175,7 @@ class Colors {
 	 *
 	 * @param string  $string  the string to pad
 	 * @param integer  $length  the display length
+     * @return string
 	 */
 	static public function pad($string, $length) {
 		$real_length = strlen($string);

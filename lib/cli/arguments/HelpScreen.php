@@ -12,6 +12,8 @@
 
 namespace cli\arguments;
 
+use cli\Arguments;
+
 /**
  * Arguments help screen renderer
  */
@@ -21,7 +23,7 @@ class HelpScreen {
 	protected $_options = array();
 	protected $_maxOption = 0;
 
-	public function __construct(\cli\Arguments $arguments) {
+	public function __construct(Arguments $arguments) {
 		$this->setArguments($arguments);
 	}
 
@@ -29,19 +31,19 @@ class HelpScreen {
 		return $this->render();
 	}
 
-	public function setArguments(\cli\Arguments $arguments) {
+	public function setArguments(Arguments $arguments) {
 		$this->consumeArgumentFlags($arguments);
 		$this->consumeArgumentOptions($arguments);
 	}
 
-	public function consumeArgumentFlags(\cli\Arguments $arguments) {
+	public function consumeArgumentFlags(Arguments $arguments) {
 		$data = $this->_consume($arguments->getFlags());
 
 		$this->_flags = $data[0];
 		$this->_flagMax = $data[1];
 	}
 
-	public function consumeArgumentOptions(\cli\Arguments $arguments) {
+	public function consumeArgumentOptions(Arguments $arguments) {
 		$data = $this->_consume($arguments->getOptions());
 
 		$this->_options = $data[0];
