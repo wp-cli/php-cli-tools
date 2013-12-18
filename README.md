@@ -43,6 +43,15 @@ table rendered for visual display.
 You can also explicitly set the renderer used by calling `cli\Table::setRenderer()` and giving it an instance of one
 of the concrete `cli\table\Renderer` classes.
 
+Tree Display
+------------
+
+ * `cli\Tree::__construct()`
+ * `cli\Tree::setData(array $data)`
+ * `cli\Tree::setRenderer(cli\tree\Renderer $renderer)`
+ * `cli\Tree::render()`
+ * `cli\Tree::display()`
+
 Argument Parser
 ---------------
 
