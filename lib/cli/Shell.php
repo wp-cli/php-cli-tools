@@ -13,10 +13,11 @@
 namespace cli;
 
 /**
- * The `Shell` class is a utility class for shell related information such as
- * width.
+ * The `Shell` class is a utility class for shell related tasks such as
+ * information on width.
  */
 class Shell {
+
 	/**
 	 * Returns the number of columns the current shell has for display.
 	 *
@@ -37,6 +38,14 @@ class Shell {
 	 */
 	static public function isPiped() {
 		return (function_exists('posix_isatty') && !posix_isatty(STDOUT));
+	}
+
+	/**
+	 * Uses `stty` to hide input/output completely.
+	 * @param boolean $hidden Will hide/show the next data. Defaults to true.
+	 */
+	static public function hide($hidden = true) {
+		system( 'stty ' . ( $hidden? '-echo' : 'echo' ) );
 	}
 }
 
