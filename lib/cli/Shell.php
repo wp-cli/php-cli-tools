@@ -25,7 +25,7 @@ class Shell {
 	 */
 	static public function columns() {
 		if (stripos(PHP_OS, 'indows') === false) {
-			return exec('/usr/bin/env tput cols');
+			return (int) exec('/usr/bin/env tput cols');
 		}
 		return 80; // default width of cmd window on Windows OS, maybe force using MODE CON COLS=XXX?
 	}
