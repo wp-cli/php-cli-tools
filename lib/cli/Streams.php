@@ -41,7 +41,7 @@ class Streams {
 			$args[0] = Colors::colorize( $args[0] );
 
 			// Escape percent characters for sprintf
-			$args[0] = preg_replace('/(%[^\w]?)/', "%$1", $args[0]);
+			$args[0] = preg_replace('/(%([^\w]|$))/', "%$1", $args[0]);
 
 			return call_user_func_array( 'sprintf', $args );
 		}
@@ -144,7 +144,7 @@ class Streams {
 	 * @return string  The users input.
 	 * @see cli\input()
 	 */
-	public static function prompt( $question, $default = false, $marker = ': ' ) {
+	public static function prompt( $question, $default = null, $marker = ': ' ) {
 		if( $default && strpos( $question, '[' ) === false ) {
 			$question .= ' [' . $default . ']';
 		}
@@ -165,8 +165,7 @@ class Streams {
 	 * questions (which this public static function defaults too).
 	 *
 	 * @param string  $question  The question to ask the user.
-	 * @param string  $valid     A string of characters allowed as a response. Case
-	 *                           is ignored.
+	 * @param string  $choice    A string of characters allowed as a response. Case is ignored.
 	 * @param string  $default   The default choice. NULL if a default is not allowed.
 	 * @return string  The users choice.
 	 * @see cli\prompt()
@@ -206,7 +205,7 @@ class Streams {
 	 * @see cli\input()
 	 * @see cli\err()
 	 */
-	public static function menu( $items, $default = false, $title = 'Choose an item' ) {
+	public static function menu( $items, $default = null, $title = 'Choose an item' ) {
 		$map = array_values( $items );
 
 		if( $default && strpos( $title, '[' ) === false && isset( $items[$default] ) ) {

@@ -14,24 +14,6 @@
 namespace cli;
 
 /**
- * Registers a basic auto loader for the `cli` namespace.
- */
-function register_autoload() {
-	spl_autoload_register( function($class) {
-				// Only attempt to load classes in our namespace
-				if( substr( $class, 0, 4 ) !== 'cli\\' ) {
-					return;
-				}
-
-				$base = dirname( __DIR__ ) . DIRECTORY_SEPARATOR;
-				$path = $base . str_replace( '\\', DIRECTORY_SEPARATOR, $class ) . '.php';
-				if( is_file( $path ) ) {
-					require_once $path;
-				}
-			} );
-}
-
-/**
  * Handles rendering strings. If extra scalar arguments are given after the `$msg`
  * the string will be rendered with `sprintf`. If the second argument is an `array`
  * then each key in the array will be the placeholder name. Placeholders are of the
@@ -42,7 +24,7 @@ function register_autoload() {
  * @return string  The rendered string.
  */
 function render( $msg ) {
-	return \cli\Streams::_call( 'render', func_get_args() );
+	return Streams::_call( 'render', func_get_args() );
 }
 
 /**
@@ -55,7 +37,7 @@ function render( $msg ) {
  * @see \cli\render()
  */
 function out( $msg ) {
-	\cli\Streams::_call( 'out', func_get_args() );
+	Streams::_call( 'out', func_get_args() );
 }
 
 /**
@@ -67,7 +49,7 @@ function out( $msg ) {
  * @see cli\out()
  */
 function out_padded( $msg ) {
-	\cli\Streams::_call( 'out_padded', func_get_args() );
+	Streams::_call( 'out_padded', func_get_args() );
 }
 
 /**
@@ -77,7 +59,7 @@ function out_padded( $msg ) {
  * @see cli\out()
  */
 function line( $msg = '' ) {
-	\cli\Streams::_call( 'line', func_get_args() );
+	Streams::_call( 'line', func_get_args() );
 }
 
 /**
@@ -90,7 +72,7 @@ function line( $msg = '' ) {
  * @return void
  */
 function err( $msg = '' ) {
-	\cli\Streams::_call( 'err', func_get_args() );
+	Streams::_call( 'err', func_get_args() );
 }
 
 /**
@@ -104,37 +86,52 @@ function err( $msg = '' ) {
  * @throws \Exception  Thrown if ctrl-D (EOT) is sent as input.
  */
 function input( $format = null ) {
-	return \cli\Streams::input( $format );
+	return Streams::input( $format );
 }
 
 /**
  * Displays an input prompt. If no default value is provided the prompt will
  * continue displaying until input is received.
  *
- * @param string  $question  The question to ask the user.
- * @param string  $default   A default value if the user provides no input.
- * @param string  $marker    A string to append to the question and default value
- *                           on display.
+ * @param string $question The question to ask the user.
+ * @param string $default  A default value if the user provides no input.
+ * @param string $marker   A string to append to the question and default value on display.
  * @return string  The users input.
  * @see cli\input()
  */
-function prompt( $question, $default = false, $marker = ': ' ) {
-	return \cli\Streams::prompt( $question, $default, $marker );
+function prompt( $question, $default = null, $marker = ': ' ) {
+	return Streams::prompt( $question, $default, $marker );
 }
 
 /**
  * Presents a user with a multiple choice question, useful for 'yes/no' type
  * questions (which this function defaults too).
  *
- * @param string  $question  The question to ask the user.
- * @param string  $valid     A string of characters allowed as a response. Case
- *                           is ignored.
- * @param string  $default   The default choice. NULL if a default is not allowed.
+ * @param string      $question   The question to ask the user.
+ * @param string      $choice
+ * @param string|null $default    The default choice. NULL if a default is not allowed.
+ * @internal param string $valid  A string of characters allowed as a response. Case
+ *                                is ignored.
  * @return string  The users choice.
- * @see cli\prompt()
+ * @see      cli\prompt()
  */
 function choose( $question, $choice = 'yn', $default = 'n' ) {
-	return \cli\Streams::choose( $question, $choice, $default );
+	return Streams::choose( $question, $choice, $default );
+}
+
+/**
+ * Does the same as {@see choose()}, but always asks yes/no and returns a boolean
+ *
+ * @param string    $question  The question to ask the user.
+ * @param bool|null $default   The default choice, in a boolean format.
+ * @return bool
+ */
+function confirm( $question, $default = false ) {
+	if ( is_bool( $default ) ) {
+		$default = $default? 'y' : 'n';
+	}
+	$result  = choose( $question, 'yn', $default );
+	return $result == 'y';
 }
 
 /**
@@ -142,14 +139,14 @@ function choose( $question, $choice = 'yn', $default = 'n' ) {
  * choose an option. The array must be a single dimension with either strings
  * or objects with a `__toString()` method.
  *
- * @param array   $items    The list of items the user can choose from.
- * @param string  $default  The index of the default item.
- * @param string  $title    The message displayed to the user when prompted.
+ * @param array  $items   The list of items the user can choose from.
+ * @param string $default The index of the default item.
+ * @param string $title   The message displayed to the user when prompted.
  * @return string  The index of the chosen item.
  * @see cli\line()
  * @see cli\input()
  * @see cli\err()
  */
-function menu( $items, $default = false, $title = 'Choose an item' ) {
-	return \cli\Streams::menu( $items, $default, $title );
+function menu( $items, $default = null, $title = 'Choose an item' ) {
+	return Streams::menu( $items, $default, $title );
 }

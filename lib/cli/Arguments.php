@@ -12,6 +12,11 @@
 
 namespace cli;
 
+use cli\arguments\Argument;
+use cli\arguments\HelpScreen;
+use cli\arguments\InvalidArguments;
+use cli\arguments\Lexer;
+
 /**
  * Parses command line arguments.
  */
@@ -63,7 +68,7 @@ class Arguments implements \ArrayAccess {
 	}
 
 	public function getHelpScreen() {
-		return new \cli\arguments\HelpScreen($this);
+		return new HelpScreen($this);
 	}
 
 	/**
@@ -82,7 +87,7 @@ class Arguments implements \ArrayAccess {
 	 * @return bool
 	 */
 	public function offsetExists($offset) {
-		if ($offset instanceOf \cli\arguments\Argument) {
+		if ($offset instanceOf Argument) {
 			$offset = $offset->key;
 		}
 
@@ -96,7 +101,7 @@ class Arguments implements \ArrayAccess {
 	 * @return mixed
 	 */
 	public function offsetGet($offset) {
-		if ($offset instanceOf \cli\arguments\Argument) {
+		if ($offset instanceOf Argument) {
 			$offset = $offset->key;
 		}
 
@@ -112,7 +117,7 @@ class Arguments implements \ArrayAccess {
 	 * @param mixed  $value   The value to set
 	 */
 	public function offsetSet($offset, $value) {
-		if ($offset instanceOf \cli\arguments\Argument) {
+		if ($offset instanceOf Argument) {
 			$offset = $offset->key;
 		}
 
@@ -125,7 +130,7 @@ class Arguments implements \ArrayAccess {
 	 * @param mixed  $offset  An Argument object or the name of the argument.
 	 */
 	public function offsetUnset($offset) {
-		if ($offset instanceOf \cli\arguments\Argument) {
+		if ($offset instanceOf Argument) {
 			$offset = $offset->key;
 		}
 
@@ -191,7 +196,7 @@ class Arguments implements \ArrayAccess {
 	/**
 	 * Adds an option (string argument) to the argument list.
 	 *
-	 * @param mixed  $flag  A string representing the option, or an array of strings.
+	 * @param mixed  $option  A string representing the option, or an array of strings.
 	 * @param array  $settings  An array of settings for this option.
 	 * @setting string  description  A description to be shown in --help.
 	 * @setting bool    default  The default value for this option.
@@ -274,7 +279,7 @@ class Arguments implements \ArrayAccess {
 	 * @return array
 	 */
 	public function getFlag($flag) {
-		if ($flag instanceOf \cli\arguments\Argument) {
+		if ($flag instanceOf Argument) {
 			$obj  = $flag;
 			$flag = $flag->value;
 		}
@@ -335,7 +340,7 @@ class Arguments implements \ArrayAccess {
 	 * @return array
 	 */
 	public function getOption($option) {
-		if ($option instanceOf \cli\arguments\Argument) {
+		if ($option instanceOf Argument) {
 			$obj = $option;
 			$option = $option->value;
 		}
@@ -380,11 +385,12 @@ class Arguments implements \ArrayAccess {
 	 * if a long name is not given.
 	 *
 	 * @return array
+	 * @throws arguments\InvalidArguments
 	 */
 	public function parse() {
 		$this->_invalid = array();
 		$this->_parsed = array();
-		$this->_lexer = new \cli\arguments\Lexer($this->_input);
+		$this->_lexer = new Lexer($this->_input);
 
 		foreach ($this->_lexer as $argument) {
 			if ($this->_parseFlag($argument)) {
@@ -398,7 +404,7 @@ class Arguments implements \ArrayAccess {
 		}
 
 		if ($this->_strict && !empty($this->_invalid)) {
-			throw new \cli\arguments\InvalidArguments($this->_invalid);
+			throw new InvalidArguments($this->_invalid);
 		}
 	}
 
