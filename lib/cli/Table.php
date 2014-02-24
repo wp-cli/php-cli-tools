@@ -12,6 +12,12 @@
 
 namespace cli;
 
+use cli\Shell;
+use cli\Streams;
+use cli\table\Ascii;
+use cli\table\Renderer;
+use cli\table\Tabular;
+
 /**
  * The `Table` class is used to display data in a tabular format.
  */
@@ -36,6 +42,7 @@ class Table {
 	 *
 	 * @param array  $headers  Headers used in this table. Optional.
 	 * @param array  $rows     The rows of data for this table. Optional.
+	 * @param array  $footers  Footers used in this table. Optional.
 	 */
 	public function __construct(array $headers = null, array $rows = null, array $footers = null) {
 		if (!empty($headers)) {
@@ -59,10 +66,10 @@ class Table {
 			$this->setFooters($footers);
 		}
 
-		if (\cli\Shell::isPiped()) {
-			$this->setRenderer(new \cli\table\Tabular());
+		if (Shell::isPiped()) {
+			$this->setRenderer(new Tabular());
 		} else {
-			$this->setRenderer(new \cli\table\Ascii());
+			$this->setRenderer(new Ascii());
 		}
 	}
 
@@ -78,12 +85,12 @@ class Table {
 	/**
 	 * Sets the renderer used by this table.
 	 *
-	 * @param cli\table\Renderer  $renderer  The renderer to use for output.
-	 * @see   cli\table\Renderer
-	 * @see   cli\table\Standard
-	 * @see   cli\table\Tabular
+	 * @param table\Renderer  $renderer  The renderer to use for output.
+	 * @see   table\Renderer
+	 * @see   table\Ascii
+	 * @see   table\Tabular
 	 */
-	public function setRenderer(\cli\table\Renderer $renderer) {
+	public function setRenderer(Renderer $renderer) {
 		$this->_renderer = $renderer;
 	}
 
@@ -91,6 +98,7 @@ class Table {
 	 * Loops through the row and sets the maximum width for each column.
 	 *
 	 * @param array  $row  The table row.
+     * @return array $row
 	 */
 	protected function checkRow(array $row) {
 		foreach ($row as $column => $str) {
@@ -118,25 +126,25 @@ class Table {
 		$border = $this->_renderer->border();
 
 		if (isset($border)) {
-			\cli\line($border);
+			Streams::line($border);
 		}
-		\cli\line($this->_renderer->row($this->_headers));
+		Streams::line($this->_renderer->row($this->_headers));
 		if (isset($border)) {
-			\cli\line($border);
+			Streams::line($border);
 		}
 
 		foreach ($this->_rows as $row) {
-			\cli\line($this->_renderer->row($row));
+			Streams::line($this->_renderer->row($row));
 		}
 
 		if (isset($border)) {
-			\cli\line($border);
+			Streams::line($border);
 		}
 
 		if ($this->_footers) {
-			\cli\line($this->_renderer->row($this->_footers));
+			Streams::line($this->_renderer->row($this->_footers));
 			if (isset($border)) {
-				\cli\line($border);
+				Streams::line($border);
 			}
 		}
 

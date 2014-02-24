@@ -25,7 +25,19 @@ class Shell {
 	 * @todo Test on more systems.
 	 */
 	static public function columns() {
-		return exec('/usr/bin/env tput cols');
+		static $columns;
+
+		if ( null === $columns ) {
+			if (stripos(PHP_OS, 'indows') === false) {
+				$columns = (int) exec('/usr/bin/env tput cols');
+			}
+
+			if ( !$columns ) {
+				$columns = 80; // default width of cmd window on Windows OS, maybe force using MODE CON COLS=XXX?
+			}
+		}
+
+		return $columns;
 	}
 
 	/**

@@ -154,7 +154,7 @@ class Streams {
 	 * @return string  The users input.
 	 * @see cli\input()
 	 */
-	public static function prompt( $question, $default = false, $marker = ': ', $hide = false ) {
+	public static function prompt( $question, $default = null, $marker = ': ', $hide = false ) {
 		if( $default && strpos( $question, '[' ) === false ) {
 			$question .= ' [' . $default . ']';
 		}
@@ -175,8 +175,7 @@ class Streams {
 	 * questions (which this public static function defaults too).
 	 *
 	 * @param string  $question  The question to ask the user.
-	 * @param string  $valid     A string of characters allowed as a response. Case
-	 *                           is ignored.
+	 * @param string  $choice    A string of characters allowed as a response. Case is ignored.
 	 * @param string  $default   The default choice. NULL if a default is not allowed.
 	 * @return string  The users choice.
 	 * @see cli\prompt()
@@ -216,7 +215,7 @@ class Streams {
 	 * @see cli\input()
 	 * @see cli\err()
 	 */
-	public static function menu( $items, $default = false, $title = 'Choose an item' ) {
+	public static function menu( $items, $default = null, $title = 'Choose an item' ) {
 		$map = array_values( $items );
 
 		if( $default && strpos( $title, '[' ) === false && isset( $items[$default] ) ) {

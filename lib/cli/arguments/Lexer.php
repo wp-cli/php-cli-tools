@@ -12,7 +12,9 @@
 
 namespace cli\arguments;
 
-class Lexer extends \cli\Memoize implements \Iterator {
+use cli\Memoize;
+
+class Lexer extends Memoize implements \Iterator {
 	private $_items = array();
 	private $_index = 0;
 	private $_length = 0;
@@ -37,10 +39,10 @@ class Lexer extends \cli\Memoize implements \Iterator {
 	/**
 	 * Peek ahead to the next token without moving the cursor.
 	 *
-	 * @return cli\arguments\Argument
+	 * @return Argument
 	 */
 	public function peek() {
-		return new \cli\arguments\Argument($this->_items[0]);
+		return new Argument($this->_items[0]);
 	}
 
 	/**
@@ -103,7 +105,7 @@ class Lexer extends \cli\Memoize implements \Iterator {
 	}
 
 	private function _shift() {
-		$this->_item = new \cli\arguments\Argument(array_shift($this->_items));
+		$this->_item = new Argument(array_shift($this->_items));
 		$this->_index += 1;
 		$this->_explode();
 		$this->_unmemo('peek');
