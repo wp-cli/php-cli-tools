@@ -14,6 +14,7 @@ namespace cli;
 
 use cli\arguments\Argument;
 use cli\arguments\HelpScreen;
+use cli\arguments\MissingRequiredArguments;
 use cli\arguments\InvalidArguments;
 use cli\arguments\Lexer;
 
@@ -52,6 +53,9 @@ class Arguments implements \ArrayAccess {
 		}
 		if (isset($options['options'])) {
 			$this->addOptions($options['options']);
+		}
+		if (isset($options['commander'])) {
+			$this->commander($options['commander']);
 		}
 	}
 
@@ -138,6 +142,75 @@ class Arguments implements \ArrayAccess {
 	}
 
 	/**
+	 * Add flags and options in the style of commander js (https://github.com/visionmedia/commander.js)
+	 *
+	 * @param array  $args  An array flags and options of the form
+	 *                      [0] comma separated list of short and long flags
+	 *                      [1] description (optional)
+	 *                      [2] default value (optional)
+	 * @return $this
+	 */
+	public function commander($args) {
+		foreach ($args as $arg) {
+			$commander_name = null;
+			$desc = null;
+			$default = false;
+			if (is_string($arg)) {
+				$tmp_arg_names = $arg;
+			}
+			else if (is_array($arg)) {
+				$tmp_arg_names = $arg[0];
+				$count = count($arg);
+				if ($count > 1) {
+					$desc = $arg[1];
+					if ($count > 2) {
+						$default = $arg[2];
+					}
+				}
+			}
+			$required = (strpos($tmp_arg_names, '<') !== false);
+			$optional = (strpos($tmp_arg_names, '[') !== false);
+			$tmp_arg_names = preg_split('/[ ,|]+/', $tmp_arg_names);
+			if (count($tmp_arg_names) > 1 && !preg_match('/^[[<]/', $tmp_arg_names[1])) {
+				$tmp_arg_names = array_slice($tmp_arg_names, 0, 2);
+				// long options first
+				$tmp_arg_names = array_reverse($tmp_arg_names);
+			}
+			else {
+				$tmp_arg_names = array($tmp_arg_names[0]);
+			}
+			// 1. get rid of dashes
+			// 2. if long option, capitalize words after first word
+			//  and move to front
+			$arg_names = array();
+			foreach ($tmp_arg_names as $arg_name) {
+				$arg_name_no_leading_dashes = ltrim($arg_name, '-');
+				$arg_names[] = $arg_name_no_leading_dashes;
+				if (strpos($arg_name, '--') === 0) {
+					$commander_key = preg_replace_callback('/-+(\w)/', function($matches){ return strtoupper($matches[1]); }, $arg_name_no_leading_dashes);
+					// shift our commander style key to the front
+					array_unshift($arg_names, $commander_key);
+				}
+			}
+			$settings = array(
+					'commander_key' => $commander_key,
+					'required' => $required,
+					'default' => $default,
+					'description' => $desc
+			);
+			if ($required || $optional) {
+				$this->addOption($arg_names, array_merge($settings, array(
+					'required' => $required
+				)));
+			}
+			else {
+				$this->addFlag($arg_names, $settings);
+			}
+		}
+		return $this;
+	}
+
+	/**
 	 * Adds a flag (boolean argument) to the argument list.
 	 *
 	 * @param mixed  $flag  A string representing the flag, or an array of strings.
@@ -162,10 +235,11 @@ class Arguments implements \ArrayAccess {
 		}
 
 		$settings += array(
-			'default'     => false,
-			'stackable'   => false,
-			'description' => null,
-			'aliases'     => array()
+			'commander_key' => null,
+			'default'       => null,
+			'stackable'     => false,
+			'description'   => null,
+			'aliases'       => array()
 		);
 
 		$this->_flags[$flag] = $settings;
@@ -217,11 +291,12 @@ class Arguments implements \ArrayAccess {
 		}
 
 		$settings += array(
-			'default'     => null,
-			'description' => null,
-			'aliases'     => array()
+			'commander_key' => null,
+			'default'       => null,
+			'description'   => null,
+			'required'      => false,
+			'aliases'       => array()
 		);
-
 		$this->_options[$option] = $settings;
 		return $this;
 	}
@@ -386,6 +461,7 @@ class Arguments implements \ArrayAccess {
 	 *
 	 * @return array
 	 * @throws arguments\InvalidArguments
+	 * @throws arguments\MissingRequiredArguments
 	 */
 	public function parse() {
 		$this->_invalid = array();
@@ -403,6 +479,15 @@ class Arguments implements \ArrayAccess {
 			array_push($this->_invalid, $argument->raw);
 		}
 
+		$missingRequired = array();
+		foreach ($this->_options as $optName => $opt) {
+			if ($opt['required'] && !isset($this[$optName])) {
+				$missingRequired[] = $optName;
+			}
+		}
+		if ($missingRequired) {
+			throw new MissingRequiredArguments($missingRequired);
+		}
 		if ($this->_strict && !empty($this->_invalid)) {
 			throw new InvalidArguments($this->_invalid);
 		}
@@ -430,16 +515,15 @@ class Arguments implements \ArrayAccess {
 		return true;
 	}
 
-	private function _parseOption($option) {
-		if (!$this->isOption($option)) {
+	private function _parseOption($argument) {
+		if (!$this->isOption($argument)) {
 			return false;
 		}
-
 		// Peak ahead to make sure we get a value.
 		if (!$this->_lexer->end() && !$this->_lexer->peek->isValue) {
 			// Oops! Got no value, throw a warning and continue.
-			$this->_warn('no value given for ' . $option->raw);
-			$this[$option->key] = null;
+			$this->_warn('no value given for ' . $argument->raw);
+			$this[$argument->key] = null;
 			return true;
 		}
 
@@ -455,7 +539,7 @@ class Arguments implements \ArrayAccess {
 			}
 		}
 
-		$this[$option->key] = join($values, ' ');
+		$this[$argument->key] = join($values, ' ');
 		return true;
 	}
 }
