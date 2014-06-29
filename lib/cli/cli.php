@@ -170,7 +170,7 @@ function safe_strlen( $str ) {
  */
 function safe_str_pad( $string, $length ) {
 	$real_length = safe_strlen($string);
-	$show_length = self::length($string);
+	$show_length = Colors::length($string);
 	$diff = strlen( $string ) - safe_strlen( $string );
 	$length += $real_length - $show_length + $diff;
 
