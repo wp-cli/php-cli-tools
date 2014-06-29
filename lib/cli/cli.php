@@ -150,3 +150,13 @@ function confirm( $question, $default = false ) {
 function menu( $items, $default = null, $title = 'Choose an item' ) {
 	return Streams::menu( $items, $default, $title );
 }
+
+/**
+ * An encoding-safe way of getting string length.
+ *
+ * @param string The string to check
+ * @return int Numeric value that represents the string's length
+ */
+function safe_strlen( $str ) {
+	return mb_strlen( $str, mb_detect_encoding( $str ) );
+}

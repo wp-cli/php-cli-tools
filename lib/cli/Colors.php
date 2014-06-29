@@ -167,7 +167,7 @@ class Colors {
      * @return string
 	 */
 	static public function length($string) {
-		return strlen(self::colorize($string, false));
+		return safe_strlen(self::colorize($string, false));
 	}
 
 	/**
@@ -178,9 +178,10 @@ class Colors {
      * @return string
 	 */
 	static public function pad($string, $length) {
-		$real_length = strlen($string);
+		$real_length = safe_strlen($string);
 		$show_length = self::length($string);
-		$length  += $real_length - $show_length;
+		$diff = strlen( $string ) - safe_strlen( $string );
+		$length  += $real_length - $show_length + $diff;
 
 		return str_pad($string, $length);
 	}
