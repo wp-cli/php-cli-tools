@@ -2,7 +2,7 @@
 
 require dirname( dirname( __FILE__ ) ) . '/lib/cli/cli.php';
 
-function autoload( $className ) {
+function cli_autoload( $className ) {
 	$className = ltrim($className, '\\');
 	$fileName  = '';
 	$namespace = '';
@@ -20,4 +20,4 @@ function autoload( $className ) {
 	require dirname( dirname( __FILE__ ) ) . '/lib/' . $fileName;
 }
 
-spl_autoload_register( 'autoload' );
+spl_autoload_register( 'cli_autoload' );
