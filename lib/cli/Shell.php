@@ -48,7 +48,7 @@ class Shell {
 	 * @return bool
 	 */
 	static public function isPiped() {
-		return (function_exists('posix_isatty') && !posix_isatty(STDOUT));
+		return (function_exists('posix_isatty') && defined('STDOUT') && !posix_isatty(STDOUT));
 	}
 }
 
