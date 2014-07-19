@@ -26,6 +26,28 @@ class Ascii extends Renderer {
 	protected $_border = null;
 
 	/**
+	 * Set the widths of each column in the table.
+	 *
+	 * @param array  $widths  The widths of the columns.
+	 */
+	public function setWidths(array $widths) {
+
+		$max_width = (int) shell_exec( 'tput cols' );
+		if ( $max_width && array_sum( $widths ) > $max_width ) {
+
+			$avg = floor( $max_width / count( $widths ) );
+			foreach( $widths as &$width ) {
+				if ( $width > $avg ) {
+					$width = $avg;
+				}
+			}
+
+		}
+
+		$this->_widths = $widths;
+	}
+
+	/**
 	 * Set the characters used for rendering the Ascii table.
 	 *
 	 * The keys `corner`, `line` and `border` are used in rendering.
