@@ -82,12 +82,65 @@ class Ascii extends Renderer {
 	 * @param array  $row  The table row.
 	 * @return string  The formatted table row.
 	 */
-	public function row(array $row) {
+	public function row( array $row ) {
+
+		$extra_rows = array_fill( 0, count( $row ), array() );
+		$extra_row_count = 0;
+		foreach( $row as $col => $value ) {
+
+			$value = str_replace( PHP_EOL, ' ', $value );
+
+			$col_width = $this->_widths[ $col ];
+			$val_width = Colors::length( $value );
+			if ( Colors::length( $value ) > $col_width ) {
+				$row[ $col ] = mb_substr( $value, 0, $col_width, mb_detect_encoding( $value ) );
+				$value = mb_substr( $value, $col_width, null, mb_detect_encoding( $value ) );
+				$i = 0;
+				do {
+					$extra_value = mb_substr( $value, 0, $col_width, mb_detect_encoding( $value ) );
+					if ( mb_strlen( $extra_value, mb_detect_encoding( $extra_value ) ) ) {
+						$extra_rows[ $col ][] = $extra_value;
+						$value = mb_substr( $value, $col_width, null, mb_detect_encoding( $value ) );
+						$i++;
+						if ( $i > $extra_row_count ) {
+							$extra_row_count = $i;
+						}
+					}
+				} while( $value );
+			}
+
+		}
+
 		$row = array_map(array($this, 'padColumn'), $row, array_keys($row));
 		array_unshift($row, ''); // First border
 		array_push($row, ''); // Last border
 
-	    return join($this->_characters['border'], $row);
+		$ret = join($this->_characters['border'], $row);
+		if ( $extra_row_count ) {
+			foreach( $extra_rows as $col => $col_values ) {
+				while( count( $col_values ) < $extra_row_count ) {
+					$col_values[] = '';
+				}
+			}
+
+			do {
+				$row_values = array();
+				$has_more = false;
+				foreach( $extra_rows as $col => &$col_values ) {
+					$row_values[ $col ] = array_shift( $col_values );
+					if ( count( $col_values ) ) {
+						$has_more = true;
+					}
+				}
+
+				$row_values = array_map(array($this, 'padColumn'), $row_values, array_keys($row_values));
+				array_unshift($row_values, ''); // First border
+				array_push($row_values, ''); // Last border
+
+				$ret .= PHP_EOL . join($this->_characters['border'], $row_values);
+			} while( $has_more );
+		}
+		return $ret;
 	}
 
 	private function padColumn($content, $column) {
