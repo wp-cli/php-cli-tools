@@ -36,9 +36,28 @@ class Ascii extends Renderer {
 		if ( $max_width && array_sum( $widths ) > $max_width ) {
 
 			$avg = floor( $max_width / count( $widths ) );
-			foreach( $widths as &$width ) {
+			$resize_widths = array();
+			$extra_width = 0;
+			foreach( $widths as $width ) {
 				if ( $width > $avg ) {
-					$width = $avg;
+					$resize_widths[] = $width;
+				} else {
+					$extra_width = $extra_width + ( $avg - $width );
+				}
+			}
+
+			if ( ! empty( $resize_widths ) && $extra_width ) {
+				$avg_extra_width = floor( $extra_width / count( $resize_widths ) );
+				foreach( $widths as &$width ) {
+					if ( in_array( $width, $resize_widths ) ) {
+						$width = $avg + $avg_extra_width;
+						$extra_width = $extra_width - $avg_extra_width;
+						array_shift( $resize_widths );
+						// Last item gets the cake
+						if ( empty( $resize_widths ) ) {
+							$width = $width + $extra_width;
+						}
+					}
 				}
 			}
 
