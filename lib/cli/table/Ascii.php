@@ -32,9 +32,18 @@ class Ascii extends Renderer {
 	 * @param array  $widths  The widths of the columns.
 	 */
 	public function setWidths(array $widths) {
+		static $terminal_width;
 
-		$max_width = (int) shell_exec( 'tput cols' );
-		if ( $max_width && array_sum( $widths ) > $max_width ) {
+		if ( ! isset( $terminal_width ) ) {
+			$terminal_width = (int) shell_exec( 'tput cols' );
+		}
+		$col_count = count( $widths );
+		$col_borders_count = $col_count * strlen( $this->_characters['border'] );
+		$table_borders_count = strlen( $this->_characters['border'] ) * 1;
+		$col_padding_count = $col_count * strlen( $this->_characters['padding'] ) * 2;
+		$max_width = $terminal_width - $col_borders_count - $table_borders_count - $col_padding_count;
+
+		if ( $widths && $max_width && array_sum( $widths ) > $max_width ) {
 
 			$avg = floor( $max_width / count( $widths ) );
 			$resize_widths = array();
