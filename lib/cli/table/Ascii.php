@@ -19,9 +19,10 @@ use cli\Colors;
  */
 class Ascii extends Renderer {
 	protected $_characters = array(
-		'corner' => '+',
-		'line'   => '-',
-		'border' => '|'
+		'corner'  => '+',
+		'line'    => '-',
+		'border'  => '|',
+		'padding' => ' ',
 	);
 	protected $_border = null;
 
@@ -163,6 +164,6 @@ class Ascii extends Renderer {
 	}
 
 	private function padColumn($content, $column) {
-		return ' ' . Colors::pad($content, $this->_widths[$column]) . ' ';
+		return $this->_characters['padding'] . Colors::pad($content, $this->_widths[$column]) . $this->_characters['padding'];
 	}
 }
