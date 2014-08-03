@@ -50,6 +50,8 @@ class Colors {
 	);
 	static protected $_enabled = null;
 
+	static protected $_string_cache = array();
+
 	static public function enable($force = true) {
 		self::$_enabled = $force === true ? true : null;
 	}
@@ -111,7 +113,97 @@ class Colors {
      * @return string
 	 */
 	static public function colorize($string, $colored = null) {
-		static $conversions = array(
+		$passed = $string;
+
+		if (isset(self::$_string_cache[md5($passed)]['colorized'])) {
+			return self::$_string_cache[md5($passed)]['colorized'];
+		}
+
+		if (!self::shouldColorize($colored)) {
+			$return = preg_replace('/%((%)|.)/', '$2', $string);
+			self::cache_string($passed, $return, $colored);
+			return $return;
+		}
+
+		$string = str_replace('%%', '% ', $string);
+
+		foreach (self::get_colors() as $key => $value) {
+			$string = str_replace($key, self::color($value), $string);
+		}
+
+		$string = str_replace('% ', '%', $string);
+		self::cache_string($passed, $string, $colored);
+
+		return $string;
+	}
+
+	/**
+	 * Remove color information from a string.
+	 *
+	 * @param string $string A string with color information.
+	 * @return string A string with color information removed.
+	 */
+	static public function decolorize($string) {
+		// Get rid of color tokens if they exist
+		$string = str_replace(array_keys(self::get_colors()), '', $string);
+
+		// Remove color encoding if it exists
+		foreach (self::get_colors() as $key => $value) {
+			$string = str_replace(self::color($value), '', $string);
+		}
+
+		return $string;
+	}
+
+	/**
+	 * Cache the original, colorized, and decolorized versions of a string.
+	 *
+	 * @param string $passed The original string before colorization.
+	 * @param string $colorized The string after running through self::colorize.
+	 * @param string $colored The string without any color information.
+	 */
+	static public function cache_string($passed, $colorized, $colored) {
+		self::$_string_cache[md5($passed)] = array(
+			'passed'      => $passed,
+			'colorized'   => $colorized,
+			'decolorized' => self::decolorize($passed)
+		);
+	}
+
+	/**
+	 * Return the length of the string without color codes.
+	 *
+	 * @param string  $string  the string to measure
+     * @return string
+	 */
+	static public function length($string) {
+		if (isset(self::$_string_cache[md5($string)]['decolorized'])) {
+			$test_string = self::$_string_cache[md5($string)]['decolorized'];
+		} else {
+			$test_string = self::decolorize($string);
+		}
+
+		return safe_strlen($test_string);
+	}
+
+	/**
+	 * Pad the string to a certain display length.
+	 *
+	 * @param string  $string  the string to pad
+	 * @param integer  $length  the display length
+     * @return string
+	 */
+	static public function pad($string, $length) {
+		return safe_str_pad( $string, $length );
+	}
+
+	/**
+	 * Get the color mapping array.
+	 *
+	 * @return array Array of color tokens mapped to colors and styles.
+	 */
+	static public function get_colors() {
+		return array(
 			'%y' => array('color' => 'yellow'),
 			'%g' => array('color' => 'green'),
 			'%b' => array('color' => 'blue'),
@@ -146,38 +238,5 @@ class Colors {
 			'%9' => array('style' => 'bright'),
 			'%_' => array('style' => 'bright')
 		);
-
-		if (!self::shouldColorize($colored)) {
-			return preg_replace('/%((%)|.)/', '$2', $string);
-		}
-
-		$string = str_replace('%%', '% ', $string);
-
-		foreach ($conversions as $key => $value) {
-			$string = str_replace($key, self::color($value), $string);
-		}
-
-		return str_replace('% ', '%', $string);
-	}
-
-	/**
-	 * Return the length of the string without color codes.
-	 *
-	 * @param string  $string  the string to measure
-     * @return string
-	 */
-	static public function length($string) {
-		return safe_strlen(self::colorize($string, false));
-	}
-
-	/**
-	 * Pad the string to a certain display length.
-	 *
-	 * @param string  $string  the string to pad
-	 * @param integer  $length  the display length
-     * @return string
-	 */
-	static public function pad($string, $length) {
-		return safe_str_pad( $string, $length );
 	}
 }
