@@ -149,7 +149,9 @@ class Table {
 		}
 
 		foreach ($this->_rows as $row) {
-			$out[] = $this->_renderer->row($row);
+			$row = $this->_renderer->row($row);
+			$row = explode( PHP_EOL, $row );
+			$out = array_merge( $out, $row );
 		}
 
 		if (isset($border)) {
