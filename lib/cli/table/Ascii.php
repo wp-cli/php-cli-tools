@@ -129,16 +129,17 @@ class Ascii extends Renderer {
 			$value = str_replace( PHP_EOL, ' ', $value );
 
 			$col_width = $this->_widths[ $col ];
-			$val_width = Colors::length( $value );
-			if ( Colors::length( $value ) > $col_width ) {
+			$original_val_width = Colors::length( $value );
+			if ( $original_val_width > $col_width ) {
 				$row[ $col ] = mb_substr( $value, 0, $col_width, mb_detect_encoding( $value ) );
-				$value = mb_substr( $value, $col_width, null, mb_detect_encoding( $value ) );
+				$value = mb_substr( $value, $col_width, $original_val_width, mb_detect_encoding( $value ) );
 				$i = 0;
 				do {
 					$extra_value = mb_substr( $value, 0, $col_width, mb_detect_encoding( $value ) );
-					if ( mb_strlen( $extra_value, mb_detect_encoding( $extra_value ) ) ) {
+					$val_width = mb_strlen( $extra_value, mb_detect_encoding( $extra_value ) );
+					if ( $val_width ) {
 						$extra_rows[ $col ][] = $extra_value;
-						$value = mb_substr( $value, $col_width, null, mb_detect_encoding( $value ) );
+						$value = mb_substr( $value, $col_width, $original_val_width, mb_detect_encoding( $value ) );
 						$i++;
 						if ( $i > $extra_row_count ) {
 							$extra_row_count = $i;
