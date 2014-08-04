@@ -2,6 +2,14 @@
 
 class testsCli extends PHPUnit_Framework_TestCase {
 
+	function setUp() {
+		// Reset enable state
+		\cli\Colors::enable( null );
+
+		// Empty the cache
+		\cli\Colors::clearStringCache();
+	}
+
 	function test_string_length() {
 		$this->assertEquals( \cli\Colors::length( 'x' ), 1 );
 	}
