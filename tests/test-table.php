@@ -19,6 +19,7 @@ class Test_Table extends PHPUnit_Framework_TestCase {
 
 		$out = $table->getDisplayLines();
 		// "+ 1" accommodates "\n"
+		$this->assertCount( 12, $out );
 		$this->assertEquals( $constaint_width, strlen( $out[0] ) + 1 );
 		$this->assertEquals( $constaint_width, strlen( $out[1] ) + 1 );
 		$this->assertEquals( $constaint_width, strlen( $out[2] ) + 1 );
