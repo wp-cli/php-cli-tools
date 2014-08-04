@@ -44,4 +44,31 @@ class testsCli extends PHPUnit_Framework_TestCase {
 		// Ensure that the colorization is reverted
 		$this->assertEquals( \cli\Colors::decolorize( $colorized_string ), $string );
 	}
+
+	function test_string_cache() {
+		$string            = 'x';
+		$string_with_color = '%k' . $string;
+		$colorized_string  = "\033[30m$string";
+
+		// Ensure colorization works
+		$this->assertEquals( \cli\Colors::colorize( $string_with_color, true ), $colorized_string );
+
+		// Test that the value was cached appropriately
+		$test_cache = array(
+			'passed'      => $string_with_color,
+			'colorized'   => $colorized_string,
+			'decolorized' => $string,
+		);
+
+		// Use reflection to get access to protected property
+		$prop = new ReflectionProperty( '\cli\Colors', '_string_cache' );
+		$prop->setAccessible( true );
+		$cache = $prop->getValue();
+
+		// Test that the cache value exists
+		$this->assertTrue( isset( $cache[ md5( $string_with_color ) ] ) );
+
+		// Test that the cache value is correctly set
+		$this->assertEquals( $test_cache, $cache[ md5( $string_with_color ) ] );
+	}
 }
