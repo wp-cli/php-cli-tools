@@ -60,15 +60,10 @@ class testsCli extends PHPUnit_Framework_TestCase {
 			'decolorized' => $string,
 		);
 
-		// Use reflection to get access to protected property
-		$prop = new ReflectionProperty( '\cli\Colors', '_string_cache' );
-		$prop->setAccessible( true );
-		$cache = $prop->getValue();
-
 		// Test that the cache value exists
-		$this->assertTrue( isset( $cache[ md5( $string_with_color ) ] ) );
+		$this->assertTrue( isset( \cli\Colors::getStringCache()[ md5( $string_with_color ) ] ) );
 
 		// Test that the cache value is correctly set
-		$this->assertEquals( $test_cache, $cache[ md5( $string_with_color ) ] );
+		$this->assertEquals( $test_cache, \cli\Colors::getStringCache()[ md5( $string_with_color ) ] );
 	}
 }

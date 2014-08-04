@@ -239,4 +239,20 @@ class Colors {
 			'%_' => array('style' => 'bright')
 		);
 	}
+
+	/**
+	 * Get the cached string values.
+	 *
+	 * @return array The cached string values.
+	 */
+	static public function getStringCache() {
+		return self::$_string_cache;
+	}
+
+	/**
+	 * Clear the string cache.
+	 */
+	static public function clearStringCache() {
+		self::$_string_cache = array();
+	}
 }
