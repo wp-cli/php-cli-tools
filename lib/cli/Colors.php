@@ -121,18 +121,18 @@ class Colors {
 
 		if (!self::shouldColorize($colored)) {
 			$return = preg_replace('/%((%)|.)/', '$2', $string);
-			self::cache_string($passed, $return, $colored);
+			self::cacheString($passed, $return, $colored);
 			return $return;
 		}
 
 		$string = str_replace('%%', '% ', $string);
 
-		foreach (self::get_colors() as $key => $value) {
+		foreach (self::getColors() as $key => $value) {
 			$string = str_replace($key, self::color($value), $string);
 		}
 
 		$string = str_replace('% ', '%', $string);
-		self::cache_string($passed, $string, $colored);
+		self::cacheString($passed, $string, $colored);
 
 		return $string;
 	}
@@ -145,10 +145,10 @@ class Colors {
 	 */
 	static public function decolorize($string) {
 		// Get rid of color tokens if they exist
-		$string = str_replace(array_keys(self::get_colors()), '', $string);
+		$string = str_replace(array_keys(self::getColors()), '', $string);
 
 		// Remove color encoding if it exists
-		foreach (self::get_colors() as $key => $value) {
+		foreach (self::getColors() as $key => $value) {
 			$string = str_replace(self::color($value), '', $string);
 		}
 
@@ -162,7 +162,7 @@ class Colors {
 	 * @param string $colorized The string after running through self::colorize.
 	 * @param string $colored The string without any color information.
 	 */
-	static public function cache_string($passed, $colorized, $colored) {
+	static public function cacheString($passed, $colorized, $colored) {
 		self::$_string_cache[md5($passed)] = array(
 			'passed'      => $passed,
 			'colorized'   => $colorized,
@@ -202,7 +202,7 @@ class Colors {
 	 *
 	 * @return array Array of color tokens mapped to colors and styles.
 	 */
-	static public function get_colors() {
+	static public function getColors() {
 		return array(
 			'%y' => array('color' => 'yellow'),
 			'%g' => array('color' => 'green'),
