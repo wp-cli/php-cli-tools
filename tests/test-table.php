@@ -20,18 +20,18 @@ class Test_Table extends PHPUnit_Framework_TestCase {
 		$out = $table->getDisplayLines();
 		// "+ 1" accommodates "\n"
 		$this->assertCount( 12, $out );
-		$this->assertEquals( $constaint_width, strlen( $out[0] ) + 1 );
-		$this->assertEquals( $constaint_width, strlen( $out[1] ) + 1 );
-		$this->assertEquals( $constaint_width, strlen( $out[2] ) + 1 );
-		$this->assertEquals( $constaint_width, strlen( $out[3] ) + 1 );
-		$this->assertEquals( $constaint_width, strlen( $out[4] ) + 1 );
-		$this->assertEquals( $constaint_width, strlen( $out[5] ) + 1 );
-		$this->assertEquals( $constaint_width, strlen( $out[6] ) + 1 );
-		$this->assertEquals( $constaint_width, strlen( $out[7] ) + 1 );
-		$this->assertEquals( $constaint_width, strlen( $out[8] ) + 1 );
-		$this->assertEquals( $constaint_width, strlen( $out[9] ) + 1 );
-		$this->assertEquals( $constaint_width, strlen( $out[10] ) + 1 );
-		$this->assertEquals( $constaint_width, strlen( $out[11] ) + 1 );
+		$this->assertEquals( $constraint_width, strlen( $out[0] ) + 1 );
+		$this->assertEquals( $constraint_width, strlen( $out[1] ) + 1 );
+		$this->assertEquals( $constraint_width, strlen( $out[2] ) + 1 );
+		$this->assertEquals( $constraint_width, strlen( $out[3] ) + 1 );
+		$this->assertEquals( $constraint_width, strlen( $out[4] ) + 1 );
+		$this->assertEquals( $constraint_width, strlen( $out[5] ) + 1 );
+		$this->assertEquals( $constraint_width, strlen( $out[6] ) + 1 );
+		$this->assertEquals( $constraint_width, strlen( $out[7] ) + 1 );
+		$this->assertEquals( $constraint_width, strlen( $out[8] ) + 1 );
+		$this->assertEquals( $constraint_width, strlen( $out[9] ) + 1 );
+		$this->assertEquals( $constraint_width, strlen( $out[10] ) + 1 );
+		$this->assertEquals( $constraint_width, strlen( $out[11] ) + 1 );
 
 	}
 
