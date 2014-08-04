@@ -68,10 +68,12 @@ class testsCli extends PHPUnit_Framework_TestCase {
 			'decolorized' => $string,
 		);
 
+		$real_cache = \cli\Colors::getStringCache();
+
 		// Test that the cache value exists
-		$this->assertTrue( isset( \cli\Colors::getStringCache()[ md5( $string_with_color ) ] ) );
+		$this->assertTrue( isset( $real_cache[ md5( $string_with_color ) ] ) );
 
 		// Test that the cache value is correctly set
-		$this->assertEquals( $test_cache, \cli\Colors::getStringCache()[ md5( $string_with_color ) ] );
+		$this->assertEquals( $test_cache, $real_cache[ md5( $string_with_color ) ] );
 	}
 }
