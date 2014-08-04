@@ -25,6 +25,7 @@ class Ascii extends Renderer {
 		'padding' => ' ',
 	);
 	protected $_border = null;
+	protected $_constraintWidth = null;
 
 	/**
 	 * Set the widths of each column in the table.
@@ -32,16 +33,15 @@ class Ascii extends Renderer {
 	 * @param array  $widths  The widths of the columns.
 	 */
 	public function setWidths(array $widths) {
-		static $terminal_width;
 
-		if ( ! isset( $terminal_width ) ) {
-			$terminal_width = (int) shell_exec( 'tput cols' );
+		if ( is_null( $this->_constraintWidth ) ) {
+			$this->_constraintWidth = (int) shell_exec( 'tput cols' );
 		}
 		$col_count = count( $widths );
 		$col_borders_count = $col_count * strlen( $this->_characters['border'] );
 		$table_borders_count = strlen( $this->_characters['border'] ) * 1;
 		$col_padding_count = $col_count * strlen( $this->_characters['padding'] ) * 2;
-		$max_width = $terminal_width - $col_borders_count - $table_borders_count - $col_padding_count;
+		$max_width = $this->_constraintWidth - $col_borders_count - $table_borders_count - $col_padding_count;
 
 		if ( $widths && $max_width && array_sum( $widths ) > $max_width ) {
 
@@ -74,6 +74,15 @@ class Ascii extends Renderer {
 		}
 
 		$this->_widths = $widths;
+	}
+
+	/**
+	 * Set the contraint width for the table
+	 *
+	 * @param int $constraintWidth
+	 */
+	public function setConstraintWidth( $constraintWidth ) {
+		$this->_constraintWidth = $constraintWidth;
 	}
 
 	/**
