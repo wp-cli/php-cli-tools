@@ -7,11 +7,11 @@ class Test_Table extends PHPUnit_Framework_TestCase {
 
 	public function test_column_value_too_long() {
 
-		$constaint_width = 80;
+		$constraint_width = 80;
 
 		$table = new cli\Table;
 		$renderer = new cli\Table\Ascii;
-		$renderer->setConstraintWidth( $constaint_width );
+		$renderer->setConstraintWidth( $constraint_width );
 		$table->setRenderer( $renderer );
 		$table->setHeaders( array( 'Field', 'Value' ) );
 		$table->addRow( array( 'description', 'The 2012 theme for WordPress is a fully responsive theme that looks great on any device. Features include a front page template with its own widgets, an optional display font, styling for post formats on both index and single views, and an optional no-sidebar page template. Make it yours with a custom menu, header image, and background.' ) );
