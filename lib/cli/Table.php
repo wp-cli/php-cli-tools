@@ -122,32 +122,47 @@ class Table {
 	 * @see cli\Table::renderRow()
 	 */
 	public function display() {
+		foreach( $this->getDisplayLines() as $line ) {
+			Streams::line( $line );
+		}
+	}
+
+	/**
+	 * Get the table lines to output.
+	 *
+	 * @see cli\Table::display()
+	 * @see cli\Table::renderRow()
+	 *
+	 * @return array
+	 */
+	public function getDisplayLines() {
 		$this->_renderer->setWidths($this->_width);
 		$border = $this->_renderer->border();
 
+		$out = array();
 		if (isset($border)) {
-			Streams::line($border);
+			$out[] = $border;
 		}
-		Streams::line($this->_renderer->row($this->_headers));
+		$out[] = $this->_renderer->row($this->_headers);
 		if (isset($border)) {
-			Streams::line($border);
+			$out[] = $border;
 		}
 
 		foreach ($this->_rows as $row) {
-			Streams::line($this->_renderer->row($row));
+			$out[] = $this->_renderer->row($row);
 		}
 
 		if (isset($border)) {
-			Streams::line($border);
+			$out[] = $border;
 		}
 
 		if ($this->_footers) {
-			Streams::line($this->_renderer->row($this->_footers));
+			$out[] = $this->_renderer->row($this->_footers);
 			if (isset($border)) {
-				Streams::line($border);
+				$out[] = $border;
 			}
 		}
-
+		return $out;
 	}
 
 	/**
