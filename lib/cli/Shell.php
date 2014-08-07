@@ -27,7 +27,7 @@ class Shell {
 		static $columns;
 
 		if ( null === $columns ) {
-			if (stripos(PHP_OS, 'indows') === false) {
+			if (stripos(PHP_OS, 'indows') === false && stripos(PHP_OS, 'winnt') === false) {
 				$columns = (int) exec('/usr/bin/env tput cols');
 			}
 
