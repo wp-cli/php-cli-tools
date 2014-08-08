@@ -116,14 +116,23 @@ class Streams {
 	 * @param string  $format  A valid input format. See `fscanf` for documentation.
 	 *                         If none is given, all input up to the first newline
 	 *                         is accepted.
+	 * @param boolean $hide    If true will hide what the user types in.
 	 * @return string  The input with whitespace trimmed.
 	 * @throws \Exception  Thrown if ctrl-D (EOT) is sent as input.
 	 */
-	public static function input( $format = null ) {
+	public static function input( $format = null, $hide = false ) {
+		if ( $hide )
+			Shell::hide();
+
 		if( $format ) {
 			fscanf( static::$in, $format . "\n", $line );
 		} else {
 			$line = fgets( static::$in );
+		}
+
+		if ( $hide ) {
+			Shell::hide( false );
+			echo "\n";
 		}
 
 		if( $line === false ) {
@@ -137,21 +146,22 @@ class Streams {
 	 * Displays an input prompt. If no default value is provided the prompt will
 	 * continue displaying until input is received.
 	 *
-	 * @param string  $question  The question to ask the user.
-	 * @param string  $default   A default value if the user provides no input.
-	 * @param string  $marker    A string to append to the question and default value
-	 *                           on display.
+	 * @param string      $question The question to ask the user.
+	 * @param bool|string $default  A default value if the user provides no input.
+	 * @param string      $marker   A string to append to the question and default value
+	 *                              on display.
+	 * @param boolean     $hide     Optionally hides what the user types in.
 	 * @return string  The users input.
 	 * @see cli\input()
 	 */
-	public static function prompt( $question, $default = null, $marker = ': ' ) {
+	public static function prompt( $question, $default = null, $marker = ': ', $hide = false ) {
 		if( $default && strpos( $question, '[' ) === false ) {
 			$question .= ' [' . $default . ']';
 		}
 
 		while( true ) {
 			self::out( $question . $marker );
-			$line = self::input();
+			$line = self::input( null, $hide );
 
 			if( !empty( $line ) )
 				return $line;

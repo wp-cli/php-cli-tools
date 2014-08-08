@@ -93,14 +93,15 @@ function input( $format = null ) {
  * Displays an input prompt. If no default value is provided the prompt will
  * continue displaying until input is received.
  *
- * @param string $question The question to ask the user.
- * @param string $default  A default value if the user provides no input.
- * @param string $marker   A string to append to the question and default value on display.
+ * @param string  $question The question to ask the user.
+ * @param string  $default  A default value if the user provides no input.
+ * @param string  $marker   A string to append to the question and default value on display.
+ * @param boolean $hide     If the user input should be hidden
  * @return string  The users input.
  * @see cli\input()
  */
-function prompt( $question, $default = null, $marker = ': ' ) {
-	return Streams::prompt( $question, $default, $marker );
+function prompt( $question, $default = false, $marker = ': ', $hide = false ) {
+	return Streams::prompt( $question, $default, $marker, $hide );
 }
 
 /**
