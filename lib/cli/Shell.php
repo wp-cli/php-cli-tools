@@ -46,10 +46,22 @@ class Shell {
 	 * Returns true if STDOUT output is being redirected to a pipe or a file; false is
 	 * output is being sent directly to the terminal.
 	 *
+	 * If an env variable SHELL_PIPE exists, returned result depends it's
+	 * value. Strings like 1, 0, yes, no, that validate to booleans are accepted.
+	 *
+	 * To enable ASCII formatting even when shell is piped, use the
+	 * ENV variable SHELL_PIPE=0
+	 *
 	 * @return bool
 	 */
 	static public function isPiped() {
-		return (function_exists('posix_isatty') && !posix_isatty(STDOUT));
+		$shellPipe = getenv('SHELL_PIPE');
+
+		if ($shellPipe !== false) {
+			return filter_var($shellPipe, FILTER_VALIDATE_BOOLEAN);
+		} else {
+			return (function_exists('posix_isatty') && !posix_isatty(STDOUT));
+		}
 	}
 
 	/**

@@ -1,6 +1,8 @@
 PHP Command Line Tools
 ======================
 
+[![Build Status](https://travis-ci.org/wp-cli/php-cli-tools.png?branch=master)](https://travis-ci.org/wp-cli/php-cli-tools)
+
 A collection of functions and classes to assist with command line development.
 
 Requirements

@@ -1,11 +1,16 @@
 {
-    "name":        "jlogsdon/cli",
+    "name":        "wp-cli/php-cli-tools",
     "type":        "library",
     "description": "Console utilities for PHP",
     "keywords":    ["console", "cli"],
-    "homepage":    "http://github.com/jlogsdon/php-cli-tools",
+    "homepage":    "http://github.com/wp-cli/php-cli-tools",
     "license":     "MIT",
     "authors": [
+        {
+            "name":  "Daniel Bachhuber",
+            "email": "daniel@handbuilt.co",
+            "role":  "Maintainer"
+        },
         {
             "name":  "James Logsdon",
             "email": "jlogsdon@php.net",
