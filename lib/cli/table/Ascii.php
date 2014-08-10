@@ -13,6 +13,7 @@
 namespace cli\table;
 
 use cli\Colors;
+use cli\Shell;
 
 /**
  * The ASCII renderer renders tables with ASCII borders.
@@ -35,7 +36,7 @@ class Ascii extends Renderer {
 	public function setWidths(array $widths) {
 
 		if ( is_null( $this->_constraintWidth ) ) {
-			$this->_constraintWidth = (int) shell_exec( 'tput cols' );
+			$this->_constraintWidth = (int) Shell::columns();
 		}
 		$col_count = count( $widths );
 		$col_borders_count = $col_count * strlen( $this->_characters['border'] );
