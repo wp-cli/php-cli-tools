@@ -28,7 +28,7 @@ class Shell {
 		static $columns;
 
 		if ( null === $columns ) {
-			if (stripos(PHP_OS, 'indows') === false) {
+			if ( ! self::is_windows() ) {
 				$columns = (int) exec('/usr/bin/env tput cols');
 			}
 
@@ -71,6 +71,16 @@ class Shell {
 	static public function hide($hidden = true) {
 		system( 'stty ' . ( $hidden? '-echo' : 'echo' ) );
 	}
+
+	/**
+	 * Is this shell in Windows?
+	 *
+	 * @return bool
+	 */
+	static private function is_windows() {
+		return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+	}
+
 }
 
 ?>
