@@ -159,7 +159,9 @@ function menu( $items, $default = null, $title = 'Choose an item' ) {
  * @return int Numeric value that represents the string's length
  */
 function safe_strlen( $str ) {
-	return mb_strlen( $str, mb_detect_encoding( $str ) );
+	if ( function_exists( 'mb_strlen' ) ) 
+		return mb_strlen( $str, mb_detect_encoding( $str ) );
+	else return strlen( $str );
 }
 
 /**
