@@ -159,9 +159,31 @@ function menu( $items, $default = null, $title = 'Choose an item' ) {
  * @return int Numeric value that represents the string's length
  */
 function safe_strlen( $str ) {
-	if ( function_exists( 'mb_strlen' ) ) 
-		return mb_strlen( $str, mb_detect_encoding( $str ) );
-	else return strlen( $str );
+	if ( function_exists( 'mb_strlen' ) ) {
+		$length =  mb_strlen( $str, mb_detect_encoding( $str ) );
+	} else {
+		$length = strlen( $str );
+	}
+
+	return $length;
+}
+
+/**
+ * An encoding-safe way of getting a substring.
+ * 		
+ * @param  string  $string  The input string
+ * @param  int     $start   The starting position of the substring
+ * @param  boolean $length  Maximum length of the substring
+ * @return string           Substring of string specified by start and length parameters
+ */
+function safe_substr( $string, $start, $length = false ) {
+	if ( function_exists( 'mb_substr' ) ) {
+		$substr = mb_substr( $string, $start, $length, mb_detect_encoding( $string ) );
+	} else {
+		$substr = substr( $string, $start, $length );
+	}
+
+	return $substr;
 }
 
 /**
