@@ -26,9 +26,9 @@ class testsCli extends PHPUnit_Framework_TestCase {
 
 	function test_encoded_substr() {
 
-		$this->assertEquals( \cli\safe_substr( \cli\Colors::pad( 'hello', 0, 2 ) ), 'he' );
-		$this->assertEquals( \cli\safe_substr( \cli\Colors::pad( 'óra' , 0, 2 ) ), 'ór'  );
-		
+		$this->assertEquals( \cli\safe_substr( \cli\Colors::pad( 'hello', 6), 0, 2 ), 'he' );
+		$this->assertEquals( \cli\safe_substr( \cli\Colors::pad( 'óra', 6), 0, 2 ), 'ór'  );
+
 	}
 
 	function test_colorized_string_length() {
