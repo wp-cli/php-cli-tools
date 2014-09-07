@@ -153,7 +153,8 @@ function menu( $items, $default = null, $title = 'Choose an item' ) {
 }
 
 /**
- * An encoding-safe way of getting string length.
+ * Attempts an encoding-safe way of getting string length. If mb_string extensions aren't
+ * installed, falls back to basic strlen if no encoding is present
  *
  * @param string The string to check
  * @return int Numeric value that represents the string's length
@@ -162,6 +163,9 @@ function safe_strlen( $str ) {
 	if ( function_exists( 'mb_strlen' ) ) {
 		$length =  mb_strlen( $str, mb_detect_encoding( $str ) );
 	} else {
+		// iconv will return PHP notice if non-ascii characters are present in input string
+		$str = iconv( 'ASCII' , 'ASCII', $str );
+
 		$length = strlen( $str );
 	}
 
@@ -169,18 +173,22 @@ function safe_strlen( $str ) {
 }
 
 /**
- * An encoding-safe way of getting a substring.
+ * Attempts an encoding-safe way of getting a substring. If mb_string extensions aren't
+ * installed, falls back to ascii substring if no encoding is present
  * 		
- * @param  string  $string  The input string
+ * @param  string  $str  The input string
  * @param  int     $start   The starting position of the substring
  * @param  boolean $length  Maximum length of the substring
  * @return string           Substring of string specified by start and length parameters
  */
-function safe_substr( $string, $start, $length = false ) {
+function safe_substr( $str, $start, $length = false ) {
 	if ( function_exists( 'mb_substr' ) ) {
-		$substr = mb_substr( $string, $start, $length, mb_detect_encoding( $string ) );
+		$substr = mb_substr( $str, $start, $length, mb_detect_encoding( $str ) );
 	} else {
-		$substr = substr( $string, $start, $length );
+		// iconv will return PHP notice if non-ascii characters are present in input string
+		$str = iconv( 'ASCII' , 'ASCII', $str );
+		
+		$substr = substr( $str, $start, $length );
 	}
 
 	return $substr;
