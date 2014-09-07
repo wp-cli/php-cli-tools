@@ -132,15 +132,15 @@ class Ascii extends Renderer {
 			$col_width = $this->_widths[ $col ];
 			$original_val_width = Colors::length( $value );
 			if ( $original_val_width > $col_width ) {
-				$row[ $col ] = mb_substr( $value, 0, $col_width, mb_detect_encoding( $value ) );
-				$value = mb_substr( $value, $col_width, $original_val_width, mb_detect_encoding( $value ) );
+				$row[ $col ] = \cli\safe_substr( $value, 0, $col_width );
+				$value = \cli\safe_substr( $value, $col_width, $original_val_width );
 				$i = 0;
 				do {
-					$extra_value = mb_substr( $value, 0, $col_width, mb_detect_encoding( $value ) );
-					$val_width = mb_strlen( $extra_value, mb_detect_encoding( $extra_value ) );
+					$extra_value = \cli\safe_substr( $value, 0, $col_width );
+					$val_width = \cli\safe_strlen( $extra_value );
 					if ( $val_width ) {
 						$extra_rows[ $col ][] = $extra_value;
-						$value = mb_substr( $value, $col_width, $original_val_width, mb_detect_encoding( $value ) );
+						$value = \cli\safe_substr( $value, $col_width, $original_val_width );
 						$i++;
 						if ( $i > $extra_row_count ) {
 							$extra_row_count = $i;
