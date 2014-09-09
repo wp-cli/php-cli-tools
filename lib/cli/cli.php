@@ -195,17 +195,20 @@ function safe_substr( $str, $start, $length = false ) {
 }
 
 /**
- * An encoding-safe way of padding string length
+ * An encoding-safe way of padding string length for display
  *
  * @param string $string The string to pad
  * @param int $length The length to pad it to
  * @return string
  */
 function safe_str_pad( $string, $length ) {
-	$real_length = safe_strlen($string);
-	$show_length = Colors::length($string);
-	$diff = strlen( $string ) - safe_strlen( $string );
-	$length += $real_length - $show_length + $diff;
-
-	return str_pad($string, $length);
+	if ( function_exists( 'mb_strwidth' ) ) {
+		$real_length = mb_strwidth( $string, mb_detect_encoding( $string ) );
+	} else {
+		$real_length = safe_strlen( $string );
+	}
+	$show_length = Colors::length( $string );
+	$diff = strlen( $string ) - $real_length;
+	$length += $diff;
+	return str_pad( $string, $length );
 }
