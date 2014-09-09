@@ -207,7 +207,6 @@ function safe_str_pad( $string, $length ) {
 	} else {
 		$real_length = safe_strlen( $string );
 	}
-	$show_length = Colors::length( $string );
 	$diff = strlen( $string ) - $real_length;
 	$length += $diff;
 	return str_pad( $string, $length );
