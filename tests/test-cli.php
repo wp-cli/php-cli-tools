@@ -18,9 +18,11 @@ class testsCli extends PHPUnit_Framework_TestCase {
 
 		$this->assertEquals( \cli\Colors::length( 'hello' ), 5 );
 		$this->assertEquals( \cli\Colors::length( 'óra' ), 3 );
+		$this->assertEquals( \cli\Colors::length( '日本語' ), 3 );
 
 		$this->assertEquals( \cli\safe_strlen( \cli\Colors::pad( 'hello', 6 ) ), 6 );
 		$this->assertEquals( \cli\safe_strlen( \cli\Colors::pad( 'óra', 6 ) ), 6 );
+		$this->assertEquals( \cli\safe_strlen( \cli\Colors::pad( '日本語', 6 ) ), 6 );
 
 	}
 
@@ -28,6 +30,7 @@ class testsCli extends PHPUnit_Framework_TestCase {
 
 		$this->assertEquals( \cli\safe_substr( \cli\Colors::pad( 'hello', 6), 0, 2 ), 'he' );
 		$this->assertEquals( \cli\safe_substr( \cli\Colors::pad( 'óra', 6), 0, 2 ), 'ór'  );
+		$this->assertEquals( \cli\safe_substr( \cli\Colors::pad( '日本語', 6), 0, 2 ), '日本'  );
 
 	}
 
