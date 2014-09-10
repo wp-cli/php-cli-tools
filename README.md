@@ -9,6 +9,10 @@ Requirements
 
  * PHP >= 5.3
 
+Suggested PHP extensions
+ 
+ * mbstring - Used for calculating string widths.
+
 Function List
 -------------
 
