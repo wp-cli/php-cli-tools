@@ -202,10 +202,12 @@ function safe_substr( $str, $start, $length = false ) {
  * @return string
  */
 function safe_str_pad( $string, $length ) {
+	// Hebrew vowel characters
+	$cleaned_string = preg_replace( '#[\x{591}-\x{5C7}]+#u', '', $string );
 	if ( function_exists( 'mb_strwidth' ) ) {
-		$real_length = mb_strwidth( $string, mb_detect_encoding( $string ) );
+		$real_length = mb_strwidth( $cleaned_string, mb_detect_encoding( $string ) );
 	} else {
-		$real_length = safe_strlen( $string );
+		$real_length = safe_strlen( $cleaned_string );
 	}
 	$diff = strlen( $string ) - $real_length;
 	$length += $diff;
