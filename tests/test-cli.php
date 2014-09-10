@@ -18,9 +18,16 @@ class testsCli extends PHPUnit_Framework_TestCase {
 
 		$this->assertEquals( \cli\Colors::length( 'hello' ), 5 );
 		$this->assertEquals( \cli\Colors::length( 'óra' ), 3 );
+		$this->assertEquals( \cli\Colors::length( '日本語' ), 3 );
 
-		$this->assertEquals( \cli\safe_strlen( \cli\Colors::pad( 'hello', 6 ) ), 6 );
-		$this->assertEquals( \cli\safe_strlen( \cli\Colors::pad( 'óra', 6 ) ), 6 );
+	}
+
+	function test_encoded_string_pad() {
+
+		$this->assertEquals( 6, strlen( \cli\Colors::pad( 'hello', 6 ) ) );
+		$this->assertEquals( 7, strlen( \cli\Colors::pad( 'óra', 6 ) ) ); // special characters take one byte
+		$this->assertEquals( 9, strlen( \cli\Colors::pad( '日本語', 6 ) ) ); // each character takes two bytes
+		$this->assertEquals( 17, strlen( \cli\Colors::pad( 'עִבְרִית', 6 ) ) ); // process Hebrew vowels
 
 	}
 
@@ -28,6 +35,7 @@ class testsCli extends PHPUnit_Framework_TestCase {
 
 		$this->assertEquals( \cli\safe_substr( \cli\Colors::pad( 'hello', 6), 0, 2 ), 'he' );
 		$this->assertEquals( \cli\safe_substr( \cli\Colors::pad( 'óra', 6), 0, 2 ), 'ór'  );
+		$this->assertEquals( \cli\safe_substr( \cli\Colors::pad( '日本語', 6), 0, 2 ), '日本'  );
 
 	}
 
