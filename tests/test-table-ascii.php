@@ -62,6 +62,36 @@ OUT;
 	}
 
 	/**
+	 * Draw simple One column table with colored string
+	 * Output should look like:
+	 * +-------------+
+	 * | Test Header |
+	 * +-------------+
+	 * | x           |
+	 * +-------------+
+	 *
+	 * where `x` character has green color.
+	 * At the same time it checks that `green` defined in `cli\Colors` really looks as `green`.
+	 */
+	public function testDrawOneColumnColoredTable() {
+		$headers = array('Test Header');
+		$rows = array(
+			array(Colors::colorize('%Gx%n', true)),
+		);
+		// green `x`
+		$x = "\x1B\x5B\x33\x32\x3B\x31\x6Dx\x1B\x5B\x30\x6D";
+		$output = <<<OUT
++-------------+
+| Test Header |
++-------------+
+| $x           |
++-------------+
+
+OUT;
+		$this->assertInOutEquals(array($headers, $rows), $output);
+	}
+
+	/**
 	 * Checks that spacing and borders are handled correctly in table
 	 */
 	public function testSpacingInTable() {

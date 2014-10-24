@@ -28,7 +28,11 @@ class testsCli extends PHPUnit_Framework_TestCase {
 		$this->assertEquals( 7, strlen( \cli\Colors::pad( 'óra', 6 ) ) ); // special characters take one byte
 		$this->assertEquals( 9, strlen( \cli\Colors::pad( '日本語', 6 ) ) ); // each character takes two bytes
 		$this->assertEquals( 17, strlen( \cli\Colors::pad( 'עִבְרִית', 6 ) ) ); // process Hebrew vowels
+	}
 
+	function test_colorized_string_pad() {
+		$this->assertEquals( 22, strlen( \cli\Colors::pad( \cli\Colors::colorize( "%Gx%n", true ), 11 ))); // colorized `x` string
+		$this->assertEquals( 23, strlen( \cli\Colors::pad( \cli\Colors::colorize( "%Góra%n", true ), 11 ))); // colorized `óra` string
 	}
 
 	function test_encoded_substr() {
