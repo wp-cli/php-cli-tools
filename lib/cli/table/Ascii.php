@@ -78,7 +78,7 @@ class Ascii extends Renderer {
 	}
 
 	/**
-	 * Set the contraint width for the table
+	 * Set the constraint width for the table
 	 *
 	 * @param int $constraintWidth
 	 */
@@ -123,32 +123,36 @@ class Ascii extends Renderer {
 	 */
 	public function row( array $row ) {
 
-		$extra_rows = array_fill( 0, count( $row ), array() );
 		$extra_row_count = 0;
-		foreach( $row as $col => $value ) {
 
-			$value = str_replace( PHP_EOL, ' ', $value );
+		if ( count( $row ) > 0 ) {
+			$extra_rows = array_fill( 0, count( $row ), array() );
 
-			$col_width = $this->_widths[ $col ];
-			$original_val_width = Colors::length( $value );
-			if ( $original_val_width > $col_width ) {
-				$row[ $col ] = \cli\safe_substr( $value, 0, $col_width );
-				$value = \cli\safe_substr( $value, $col_width, $original_val_width );
-				$i = 0;
-				do {
-					$extra_value = \cli\safe_substr( $value, 0, $col_width );
-					$val_width = \cli\safe_strlen( $extra_value );
-					if ( $val_width ) {
-						$extra_rows[ $col ][] = $extra_value;
-						$value = \cli\safe_substr( $value, $col_width, $original_val_width );
-						$i++;
-						if ( $i > $extra_row_count ) {
-							$extra_row_count = $i;
+			foreach( $row as $col => $value ) {
+
+				$value = str_replace( PHP_EOL, ' ', $value );
+
+				$col_width = $this->_widths[ $col ];
+				$original_val_width = Colors::length( $value );
+				if ( $original_val_width > $col_width ) {
+					$row[ $col ] = \cli\safe_substr( $value, 0, $col_width );
+					$value = \cli\safe_substr( $value, $col_width, $original_val_width );
+					$i = 0;
+					do {
+						$extra_value = \cli\safe_substr( $value, 0, $col_width );
+						$val_width = \cli\safe_strlen( $extra_value );
+						if ( $val_width ) {
+							$extra_rows[ $col ][] = $extra_value;
+							$value = \cli\safe_substr( $value, $col_width, $original_val_width );
+							$i++;
+							if ( $i > $extra_row_count ) {
+								$extra_row_count = $i;
+							}
 						}
-					}
-				} while( $value );
-			}
+					} while( $value );
+				}
 
+			}
 		}
 
 		$row = array_map(array($this, 'padColumn'), $row, array_keys($row));

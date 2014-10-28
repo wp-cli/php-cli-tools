@@ -33,7 +33,7 @@ class Table {
 	 *
 	 * There are 3 ways to instantiate this class:
 	 *
-	 *  1. Pass an array of strings as the first paramater for the column headers
+	 *  1. Pass an array of strings as the first parameter for the column headers
 	 *     and a 2-dimensional array as the second parameter for the data rows.
 	 *  2. Pass an array of hash tables (string indexes instead of numerical)
 	 *     where each hash table is a row and the indexes of the *first* hash
@@ -48,7 +48,7 @@ class Table {
 		if (!empty($headers)) {
 			// If all the rows is given in $headers we use the keys from the
 			// first row for the header values
-			if (empty($rows)) {
+			if ($rows === null) {
 				$rows = $headers;
 				$keys = array_keys(array_shift($headers));
 				$headers = array();
