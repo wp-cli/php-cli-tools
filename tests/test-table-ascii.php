@@ -139,6 +139,22 @@ OUT;
 	}
 
 	/**
+	 * Draw a table with headers but no data
+	 */
+	public function testDrawWithHeadersNoData() {
+		$headers = array('header 1', 'header 2');
+		$rows = array();
+		$output = <<<'OUT'
++----------+----------+
+| header 1 | header 2 |
++----------+----------+
++----------+----------+
+
+OUT;
+		$this->assertInOutEquals(array($headers, $rows), $output);
+	}
+
+	/**
 	 * Verifies that Input and Output equals,
 	 * Sugar method for fast access from tests
 	 *
