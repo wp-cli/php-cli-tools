@@ -203,7 +203,7 @@ function safe_substr( $str, $start, $length = false ) {
  */
 function safe_str_pad( $string, $length ) {
 	// Hebrew vowel characters
-	$cleaned_string = preg_replace( '#[\x{591}-\x{5C7}]+#u', '', $string );
+	$cleaned_string = preg_replace( '#[\x{591}-\x{5C7}]+#u', '', Colors::decolorize( $string ) );
 	if ( function_exists( 'mb_strwidth' ) ) {
 		$real_length = mb_strwidth( $cleaned_string, mb_detect_encoding( $string ) );
 	} else {
@@ -211,5 +211,6 @@ function safe_str_pad( $string, $length ) {
 	}
 	$diff = strlen( $string ) - $real_length;
 	$length += $diff;
+
 	return str_pad( $string, $length );
 }
