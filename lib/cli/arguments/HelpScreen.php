@@ -89,9 +89,16 @@ class HelpScreen {
 				$formatted .= ' [default: ' . $settings['default'] . ']';
 			}
 
+			if ($settings['required']) {
+				$formatted .= ' (required)';
+			}
+
 			$pad = str_repeat(' ', $max + 3);
 			while ($desc = array_shift($description)) {
-				$formatted .= "\n${pad}${desc}";
+				for ($i = 0, $len = strlen($desc); $i < $len && $desc[$i] == ' '; ++$i);
+				if ($i < $len) {
+					$formatted .= "\n${pad}".substr($desc, $i);
+				}
 			}
 
 			array_push($help, $formatted);
@@ -105,10 +112,18 @@ class HelpScreen {
 		$out = array();
 
 		foreach ($options as $option => $settings) {
-			$names = array('--' . $option);
-
+			$names = array();
 			foreach ($settings['aliases'] as $alias) {
-				array_push($names, '-' . $alias);
+				if (strlen($alias) > 1) {
+					array_push($names, '--' . $alias);
+				} else {
+					array_push($names, '-' . $alias);
+				}
+			}
+
+			// don't show user commander key
+			if (!$settings['commander_key']) {
+				array_unshift($names, '--' . $option);
 			}
 
 			$names = join($names, ', ');
