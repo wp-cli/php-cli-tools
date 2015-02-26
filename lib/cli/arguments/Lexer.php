@@ -19,6 +19,8 @@ class Lexer extends Memoize implements \Iterator {
 	private $_index = 0;
 	private $_length = 0;
 
+	public static $allowRewind = true;
+
 	/**
 	 * @param array  $items  A list of strings to process as tokens.
 	 */
@@ -68,11 +70,10 @@ class Lexer extends Memoize implements \Iterator {
 	 * the cursor's position to 0.
 	 */
 	public function rewind() {
-		static $first = true;
 		$this->_shift();
-		if ($first) {
+		if (self::$allowRewind) {
 			$this->_index = 0;
-			$first = false;
+			self::$allowRewind = false;
 		}
 	}
 
