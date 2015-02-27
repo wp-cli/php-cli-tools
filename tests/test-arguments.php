@@ -254,12 +254,12 @@ class TestArguments extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @todo implement once the "default" value issue has been fixed
+     * @param  array $args           arguments as they appear in the cli
+     * @param  array $expectedValues expected values after parsing
      * @dataProvider settingsWithMissingOptionsWithDefault
      */
     public function testParseWithMissingOptionsWithDefault($cliParams, $expectedValues)
     {
-        $this->markTestSkipped('Will fail cause default value is not populated. Issue #30 is still open.');
         $this->_testParse($cliParams, $expectedValues);
     }
 }
