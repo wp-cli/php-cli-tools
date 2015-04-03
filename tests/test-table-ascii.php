@@ -197,14 +197,15 @@ OUT;
 			array('C1', 'C2', 'C3')
 		);
 		$output = <<<'OUT'
-+----+----+----------------------------------------------------------------------------------------------------------+
-| 1  | 2  | 3                                                                                                        |
-+----+----+----------------------------------------------------------------------------------------------------------+
-| A1 | A2 | A3 with long text with long text with long text with long text with long text with long text with long t |
-|    |    | ext with long text with long text with long text with long text                                          |
-| B1 | B2 | B3                                                                                                       |
-| C1 | C2 | C3                                                                                                       |
-+----+----+----------------------------------------------------------------------------------------------------------+
++----+----+-------------------------------------------------------------------+
+| 1  | 2  | 3                                                                 |
++----+----+-------------------------------------------------------------------+
+| A1 | A2 | A3 with long text with long text with long text with long text wi |
+|    |    | th long text with long text with long text with long text with lo |
+|    |    | ng text with long text with long text                             |
+| B1 | B2 | B3                                                                |
+| C1 | C2 | C3                                                                |
++----+----+-------------------------------------------------------------------+
 
 OUT;
 		$this->assertInOutEquals(array($headers, $rows), $output);
