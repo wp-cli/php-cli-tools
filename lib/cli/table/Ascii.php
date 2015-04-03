@@ -126,7 +126,7 @@ class Ascii extends Renderer {
 		$extra_row_count = 0;
 
 		if ( count( $row ) > 0 ) {
-			$extra_rows = array();//array_fill( 0, count( $row ), array() );
+			$extra_rows = array();
 
 			foreach( $row as $col => $value ) {
 				$extra_rows[$col] = array();
@@ -167,8 +167,6 @@ class Ascii extends Renderer {
 					$col_values[] = '';
 				}
 			}
-			//ed($extra_rows, 'er');
-			//ed($extra_row_count, 'erc');
 
 			do {
 				$row_values = array();
