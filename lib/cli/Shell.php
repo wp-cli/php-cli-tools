@@ -30,7 +30,7 @@ class Shell {
 		if ( null === $columns ) {
 			if (self::is_windows() ) {
 				$output = array();
-				exec('mode', $output);
+				exec('mode CON', $output);
 				foreach ($output as $line) {
 					if (preg_match('/Columns:( )*([0-9]+)/', $line, $matches)) {
 						$columns = (int)$matches[2];
