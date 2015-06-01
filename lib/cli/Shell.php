@@ -28,12 +28,21 @@ class Shell {
 		static $columns;
 
 		if ( null === $columns ) {
-			if ( ! self::is_windows() ) {
+			if (self::is_windows() ) {
+				$output = array();
+				exec('mode CON', $output);
+				foreach ($output as $line) {
+					if (preg_match('/Columns:( )*([0-9]+)/', $line, $matches)) {
+						$columns = (int)$matches[2];
+						break;
+					}
+				}
+			} else {
 				$columns = (int) exec('/usr/bin/env tput cols');
 			}
 
 			if ( !$columns ) {
-				$columns = 80; // default width of cmd window on Windows OS, maybe force using MODE CON COLS=XXX?
+				$columns = 80; // default width of cmd window on Windows OS
 			}
 		}
 
