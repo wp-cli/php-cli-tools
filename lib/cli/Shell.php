@@ -37,7 +37,7 @@ class Shell {
 						break;
 					}
 				}
-			} else if ( !preg_match( "/(^|,)(\s*)?exec(\s*)?(,|$)/", ini_get( "disable_functions" ) ) ) {
+			} else if (!preg_match('/(^|,)(\s*)?exec(\s*)?(,|$)/', ini_get('disable_functions'))) {
 				$columns = (int) exec('/usr/bin/env tput cols');
 			}
 
