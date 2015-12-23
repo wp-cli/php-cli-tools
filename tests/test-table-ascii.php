@@ -204,6 +204,6 @@ OUT;
 	 * @param mixed $expected Expected output
 	 */
 	private function assertOutFileEqualsWith($expected) {
-		$this->assertStringEqualsFile($this->_mockFile, $expected);
+		$this->assertEquals($expected, file_get_contents($this->_mockFile));
 	}
 }
