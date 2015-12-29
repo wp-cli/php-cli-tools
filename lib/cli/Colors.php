@@ -120,7 +120,9 @@ class Colors {
 		}
 
 		if (!self::shouldColorize($colored)) {
-			$return = preg_replace('/%((%)|.)/', '$2', $string);
+			$colors = self::getColors();
+			$search = array_keys( $colors );
+			$return = str_replace( $search, '', $string );
 			self::cacheString($passed, $return, $colored);
 			return $return;
 		}

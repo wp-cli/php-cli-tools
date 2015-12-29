@@ -132,6 +132,25 @@ OUT;
 	}
 
 	/**
+	 * Test that % gets escaped correctly.
+	 */
+	public function testTableWithPercentCharacters() {
+		$headers = array( 'Heading', 'Heading2', 'Heading3' );
+		$rows = array(
+			array( '% at start', 'at end %', 'in % middle' )
+		);
+		$output = <<<'OUT'
++------------+----------+-------------+
+| Heading    | Heading2 | Heading3    |
++------------+----------+-------------+
+| % at start | at end % | in % middle |
++------------+----------+-------------+
+
+OUT;
+		$this->assertInOutEquals(array($headers, $rows), $output);
+	}
+
+	/**
 	 * Draw wide multiplication Table.
 	 * Example with many columns, many rows
 	 */
