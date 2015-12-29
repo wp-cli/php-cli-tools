@@ -140,11 +140,11 @@ OUT;
 			array( '% at start', 'at end %', 'in % middle' )
 		);
 		$output = <<<'OUT'
-+------------+----------+--------------+
-| Heading    | Heading2 | Heading3     |
-+------------+----------+--------------+
-| % at start | at end % | in % middle  |
-+------------+----------+--------------+
++------------+----------+-------------+
+| Heading    | Heading2 | Heading3    |
++------------+----------+-------------+
+| % at start | at end % | in % middle |
++------------+----------+-------------+
 
 OUT;
 		$this->assertInOutEquals(array($headers, $rows), $output);
