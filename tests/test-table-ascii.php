@@ -151,6 +151,35 @@ OUT;
 	}
 
 	/**
+	 * Test that a % is appropriately padded in the table
+	 */
+	public function testTablePaddingWithPercentCharacters() {
+		$headers = array( 'ID', 'post_title', 'post_name' );
+		$rows = array(
+			array(
+				3,
+				'10%',
+				''
+			),
+			array(
+				1,
+				'Hello world!',
+				'hello-world'
+			),
+		);
+		$output = <<<'OUT'
++----+--------------+-------------+
+| ID | post_title   | post_name   |
++----+--------------+-------------+
+| 3  | 10%          |             |
+| 1  | Hello world! | hello-world |
++----+--------------+-------------+
+
+OUT;
+		$this->assertInOutEquals(array($headers, $rows), $output);
+	}
+
+	/**
 	 * Draw wide multiplication Table.
 	 * Example with many columns, many rows
 	 */
