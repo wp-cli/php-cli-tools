@@ -127,13 +127,13 @@ class Colors {
 			return $return;
 		}
 
-		$string = str_replace('%%', '% ', $string);
+		$string = str_replace('%%', '%¾', $string);
 
 		foreach (self::getColors() as $key => $value) {
 			$string = str_replace($key, self::color($value), $string);
 		}
 
-		$string = str_replace('% ', '%', $string);
+		$string = str_replace('%¾', '%', $string);
 		self::cacheString($passed, $string, $colored);
 
 		return $string;
