@@ -74,6 +74,7 @@ OUT;
 	 * At the same time it checks that `green` defined in `cli\Colors` really looks as `green`.
 	 */
 	public function testDrawOneColumnColoredTable() {
+		Colors::enable( true );
 		$headers = array('Test Header');
 		$rows = array(
 			array(Colors::colorize('%Gx%n', true)),
