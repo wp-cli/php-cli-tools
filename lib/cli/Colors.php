@@ -21,30 +21,30 @@ class Colors {
 	static protected $_colors = array(
 		'color' => array(
 			'black'   => 30,
-			'red'	 => 31,
+			'red'     => 31,
 			'green'   => 32,
 			'yellow'  => 33,
-			'blue'	=> 34,
+			'blue'    => 34,
 			'magenta' => 35,
-			'cyan'	=> 36,
+			'cyan'    => 36,
 			'white'   => 37
 		),
 		'style' => array(
-			'bright'	 => 1,
-			'dim'		=> 2,
+			'bright'    => 1,
+			'dim'       => 2,
 			'underline' => 4,
-			'blink'	  => 5,
-			'reverse'	=> 7,
-			'hidden'	 => 8
+			'blink'     => 5,
+			'reverse'   => 7,
+			'hidden'    => 8
 		),
 		'background' => array(
 			'black'   => 40,
-			'red'	 => 41,
+			'red'     => 41,
 			'green'   => 42,
 			'yellow'  => 43,
-			'blue'	=> 44,
+			'blue'    => 44,
 			'magenta' => 45,
-			'cyan'	=> 46,
+			'cyan'    => 46,
 			'white'   => 47
 		)
 	);
@@ -80,7 +80,7 @@ class Colors {
 	 */
 	static public function color($color) {
 		if (!is_array($color)) {
-			$color = compact('color');
+			$color = array('color' => $color);
 		}
 
 		$color += array('color' => null, 'style' => null, 'background' => null);
@@ -101,7 +101,7 @@ class Colors {
 			$colors[] = 0;
 		}
 
-		return "\033[" . join(';', $colors) . "m";
+		return "\033[" . implode(';', $colors) . "m";
 	}
 
 	/**
@@ -119,19 +119,16 @@ class Colors {
 			return self::$_string_cache[md5($passed)]['colorized'];
 		}
 
+		$colors = array_map('self::color', self::getColors());
 		if (!self::shouldColorize($colored)) {
-			$colors = self::getColors();
-			$search = array_keys( $colors );
-			$return = str_replace( $search, '', $string );
+			$return = str_replace(array_keys($colors), '', $string);
 			self::cacheString($passed, $return, $colored);
 			return $return;
 		}
 
 		$string = str_replace('%%', '%¾', $string);
 
-		foreach (self::getColors() as $key => $value) {
-			$string = str_replace($key, self::color($value), $string);
-		}
+		$string = strtr($string, $colors);
 
 		$string = str_replace('%¾', '%', $string);
 		self::cacheString($passed, $string, $colored);
@@ -146,15 +143,10 @@ class Colors {
 	 * @return string A string with color information removed.
 	 */
 	static public function decolorize($string) {
+		$colors = array_map('self::color', self::getColors());
 		// Get rid of color tokens if they exist
-		$string = str_replace(array_keys(self::getColors()), '', $string);
-
 		// Remove color encoding if it exists
-		foreach (self::getColors() as $key => $value) {
-			$string = str_replace(self::color($value), '', $string);
-		}
-
-		return $string;
+		return str_replace(array_keys($colors) + $colors, '', $string);
 	}
 
 	/**
