@@ -158,11 +158,11 @@ class Colors {
 			'',
 			implode('', array_keys($colors))
 		);
-		$stack = [];
+		$stack = array();
 		return preg_replace_callback(
 			"#<(/?)([$colors_keys])>#",
 			function ($match) use (&$stack, $colors) {
-				$current_colors_list = array_pop($stack) ?: [];
+				$current_colors_list = array_pop($stack) ?: array();
 				if ($match[1]) {
 					// Use previous colors
 					if (!count($stack)) {
@@ -176,7 +176,8 @@ class Colors {
 					$colors_list[] = $colors["%$match[2]"];
 					$stack[]       = $colors_list;
 				}
-				return implode('', array_map('self::color', $colors_list));
+				// PHP 5.3 doesn't allow `self::color` here:(
+				return implode('', array_map(array(__CLASS__, 'color'), $colors_list));
 			},
 			$string
 		);
