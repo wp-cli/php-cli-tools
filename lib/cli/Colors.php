@@ -119,21 +119,67 @@ class Colors {
 			return self::$_string_cache[md5($passed)]['colorized'];
 		}
 
-		$colors = array_map('self::color', self::getColors());
+		$colors_prepared = array_map('self::color', self::getColors());
 		if (!self::shouldColorize($colored)) {
-			$return = str_replace(array_keys($colors), '', $string);
+			$colors_keys = str_replace(
+				'%',
+				'',
+				implode('', array_keys($colors_prepared))
+			);
+			$return = preg_replace(
+				"#</?[$colors_keys]>|%[$colors_keys]#",
+				'',
+				$string
+			);
 			self::cacheString($passed, $return, $colored);
 			return $return;
 		}
 
 		$string = str_replace('%%', '%¾', $string);
-
-		$string = strtr($string, $colors);
-
+		$string = strtr($string, $colors_prepared);
 		$string = str_replace('%¾', '%', $string);
+
+		$string = self::colorizeTags($string);
+
 		self::cacheString($passed, $string, $colored);
 
 		return $string;
+	}
+
+	/**
+	 * @param string  $string
+	 *
+	 * @return string
+	 */
+	static protected function colorizeTags ($string) {
+		$colors = self::getColors();
+		$colors_keys = str_replace(
+			'%',
+			'',
+			implode('', array_keys($colors))
+		);
+		$stack = [];
+		return preg_replace_callback(
+			"#<(/?)([$colors_keys])>#",
+			function ($match) use (&$stack, $colors) {
+				$current_colors_list = array_pop($stack) ?: [];
+				if ($match[1]) {
+					// Use previous colors
+					if (!count($stack)) {
+						return '';
+					}
+					$colors_list = $stack[count($stack) - 1];
+				} else {
+					// Mix current colors with new color
+					$stack[]       = $current_colors_list;
+					$colors_list   = $current_colors_list;
+					$colors_list[] = $colors["%$match[2]"];
+					$stack[]       = $colors_list;
+				}
+				return implode('', array_map('self::color', $colors_list));
+			},
+			$string
+		);
 	}
 
 	/**
@@ -143,10 +189,20 @@ class Colors {
 	 * @return string A string with color information removed.
 	 */
 	static public function decolorize($string) {
-		$colors = array_map('self::color', self::getColors());
+		$colors_prepared = array_map('self::color', self::getColors());
+		$colors_keys = str_replace(
+			'%',
+			'',
+			implode('', array_keys($colors_prepared))
+		);
+		$return = preg_replace(
+			"#</?[$colors_keys]>|%[$colors_keys]#",
+			'',
+			$string
+		);
 		// Get rid of color tokens if they exist
 		// Remove color encoding if it exists
-		return str_replace(array_keys($colors) + $colors, '', $string);
+		return str_replace($colors_prepared, '', $return);
 	}
 
 	/**
