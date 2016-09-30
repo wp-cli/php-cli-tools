@@ -165,10 +165,10 @@ class Colors {
 				$current_colors_list = array_pop($stack) ?: array();
 				if ($match[1]) {
 					// Use previous colors
-					if (!count($stack)) {
-						return '';
-					}
 					$colors_list = $stack[count($stack) - 1];
+					if (!$colors_list) {
+						$colors_list = $colors['%n'];
+					}
 				} else {
 					// Mix current colors with new color
 					$stack[]       = $current_colors_list;

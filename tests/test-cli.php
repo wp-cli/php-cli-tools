@@ -63,7 +63,7 @@ class testsCli extends PHPUnit_Framework_TestCase {
 	function test_colorize_string_with_tags_is_colored() {
 		// Bright green `x` and bright green on blue background `y`
 		$original = '<G>x<4>y</4></G>';
-		$colorized = "\033[32;1mx\033[32;1m\033[44my\033[32;1m";
+		$colorized = "\033[32;1mx\033[32;1m\033[44my\033[32;1m\033[0m";
 
 		$this->assertEquals( \cli\Colors::colorize( $original, true ), $colorized );
 	}
