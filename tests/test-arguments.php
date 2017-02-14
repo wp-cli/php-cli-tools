@@ -231,7 +231,7 @@ class TestArguments extends PHPUnit_Framework_TestCase
 
         foreach ($expectedValues as $name => $value) {
             if ($args->isFlag($name)) {
-                $this->assertTrue($args[$name]);
+                $this->assertEquals($value, $args[$name]);
             }
 
             if ($args->isOption($name)) {
