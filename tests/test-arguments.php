@@ -146,7 +146,7 @@ class TestArguments extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Data provider with valid fags and options
+     * Data provider with valid args and options
      *
      * @return array set of args and expected parsed values
      */
@@ -206,6 +206,16 @@ class TestArguments extends PHPUnit_Framework_TestCase
         );
     }
 
+    public function settingsWithNoOptionsWithDefault()
+    {
+        return array(
+            array(
+                array(),
+                array('flag1' => false, 'flag2' => false, 'option2' => 'some default value')
+            )
+        );
+    }
+
     /**
      * Generic private testParse method.
      *
@@ -221,7 +231,7 @@ class TestArguments extends PHPUnit_Framework_TestCase
 
         foreach ($expectedValues as $name => $value) {
             if ($args->isFlag($name)) {
-                $this->assertTrue($args[$name]);
+                $this->assertEquals($value, $args[$name]);
             }
 
             if ($args->isOption($name)) {
@@ -260,6 +270,15 @@ class TestArguments extends PHPUnit_Framework_TestCase
      */
     public function testParseWithMissingOptionsWithDefault($cliParams, $expectedValues)
     {
+        $this->_testParse($cliParams, $expectedValues);
+    }
+
+    /**
+     * @param  array $args           arguments as they appear in the cli
+     * @param  array $expectedValues expected values after parsing
+     * @dataProvider settingsWithNoOptionsWithDefault
+     */
+    public function testParseWithNoOptionsWithDefault($cliParams, $expectedValues) {
         $this->_testParse($cliParams, $expectedValues);
     }
 }
