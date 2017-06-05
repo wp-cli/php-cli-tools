@@ -21,20 +21,18 @@ class Shell {
 	/**
 	 * Returns the number of columns the current shell has for display.
 	 *
-	 * @param mixed $test For testing only.
-	 *
 	 * @return int  The number of columns.
 	 * @todo Test on more systems.
 	 */
-	static public function columns( $test = null ) {
+	static public function columns() {
 		static $columns;
 
-		if ( null !== $test ) {
+		if ( false !== ( $env_reset = getenv( 'WP_CLI_TEST_SHELL_COLUMNS_RESET' ) ) && $env_reset ) {
 			$columns = null;
 		}
 		if ( null === $columns ) {
 			if ( function_exists( 'exec' ) ) {
-				if ( self::is_windows( 'WIN' === $test ) ) {
+				if ( self::is_windows() ) {
 					// Cater for shells such as Cygwin and Git bash where `mode CON` returns an incorrect value for columns.
 					if ( ( $shell = getenv( 'SHELL' ) ) && preg_match( '/(?:bash|zsh)(?:.exe)?$/', $shell ) && getenv( 'TERM' ) ) {
 						$columns = (int) exec( 'tput cols' );
