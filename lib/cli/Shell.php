@@ -27,7 +27,7 @@ class Shell {
 	static public function columns() {
 		static $columns;
 
-		if ( false !== ( $env_reset = getenv( 'WP_CLI_TEST_SHELL_COLUMNS_RESET' ) ) && $env_reset ) {
+		if ( getenv( 'WP_CLI_TEST_SHELL_COLUMNS_RESET' ) ) {
 			$columns = null;
 		}
 		if ( null === $columns ) {
