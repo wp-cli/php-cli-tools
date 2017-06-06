@@ -34,7 +34,7 @@ class Shell {
 			if ( function_exists( 'exec' ) ) {
 				if ( self::is_windows() ) {
 					// Cater for shells such as Cygwin and Git bash where `mode CON` returns an incorrect value for columns.
-					if ( ( $shell = getenv( 'SHELL' ) ) && preg_match( '/(?:bash|zsh)(?:.exe)?$/', $shell ) && getenv( 'TERM' ) ) {
+					if ( ( $shell = getenv( 'SHELL' ) ) && preg_match( '/(?:bash|zsh)(?:\.exe)?$/', $shell ) && getenv( 'TERM' ) ) {
 						$columns = (int) exec( 'tput cols' );
 					}
 					if ( ! $columns ) {
