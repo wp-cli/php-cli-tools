@@ -161,7 +161,7 @@ function menu( $items, $default = null, $title = 'Choose an item' ) {
  */
 function safe_strlen( $str ) {
 	if ( function_exists( 'mb_strlen' ) && function_exists( 'mb_detect_encoding' ) ) {
-		$length =  mb_strlen( $str, mb_detect_encoding( $str ) );
+		$length =  mb_strwidth( $str, mb_detect_encoding( $str ) );
 	} else {
 		// iconv will return PHP notice if non-ascii characters are present in input string
 		$str = iconv( 'ASCII' , 'ASCII', $str );
