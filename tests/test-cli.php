@@ -60,6 +60,21 @@ class testsCli extends PHPUnit_Framework_TestCase {
 		$this->assertEquals( \cli\Colors::colorize( $original, false ), 'x' );
 	}
 
+	function test_colorize_string_with_tags_is_colored() {
+		// Bright green `x` and bright green on blue background `y`
+		$original = '<G>x<4>y</4></G>';
+		$colorized = "\033[32;1mx\033[32;1m\033[44my\033[32;1m\033[0m";
+
+		$this->assertEquals( \cli\Colors::colorize( $original, true ), $colorized );
+	}
+
+	function test_colorize_string_with_tags_no_closing_tag() {
+		$original = '<G>x';
+		$colorized = "\033[32;1mx";
+
+		$this->assertEquals( \cli\Colors::colorize( $original, true ), $colorized );
+	}
+
 	function test_binary_string_is_converted_back_to_original_string() {
 		$string            = 'x';
 		$string_with_color = '%b' . $string;
@@ -70,6 +85,7 @@ class testsCli extends PHPUnit_Framework_TestCase {
 
 		// Ensure that the colorization is reverted
 		$this->assertEquals( \cli\Colors::decolorize( $colorized_string ), $string );
+		$this->assertEquals( \cli\Colors::decolorize( "%b<b>$colorized_string" ), $string );
 	}
 
 	function test_string_cache() {
