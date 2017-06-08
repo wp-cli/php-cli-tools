@@ -23,9 +23,6 @@
     "autoload": {
         "psr-0": {
             "cli": "lib/"
-        },
-        "files": [
-            "lib/cli/cli.php"
-        ]
+        }
     }
 }

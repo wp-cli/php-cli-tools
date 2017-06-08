@@ -126,9 +126,10 @@ class Ascii extends Renderer {
 		$extra_row_count = 0;
 
 		if ( count( $row ) > 0 ) {
-			$extra_rows = array_fill( 0, count( $row ), array() );
+			$extra_rows = array();
 
 			foreach( $row as $col => $value ) {
+				$extra_rows[$col] = array();
 
 				$value = str_replace( PHP_EOL, ' ', $value );
 
