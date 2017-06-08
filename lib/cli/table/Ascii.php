@@ -57,7 +57,7 @@ class Ascii extends Renderer {
 				}
 			}
 
-			if ( ! empty( $resize_widths ) && $extra_width ) {
+			if ( ! empty( $resize_widths ) ) {
 				$avg_extra_width = floor( $extra_width / count( $resize_widths ) );
 				foreach( $widths as &$width ) {
 					if ( in_array( $width, $resize_widths ) ) {
