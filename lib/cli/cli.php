@@ -230,13 +230,13 @@ function strwidth( $string ) {
 	// Assume UTF-8 - `grapheme_strlen()` will return null if given non-UTF-8 string.
 	if ( function_exists( 'grapheme_strlen' ) && null !== ( $width = grapheme_strlen( $string ) ) ) {
 		if ( ! $test_strwidth || ( $test_strwidth & 1 ) ) {
-			return $width + preg_match_all( $eaw_regex, $string );
+			return $width + preg_match_all( $eaw_regex, $string, $dummy /*needed for PHP 5.3*/ );
 		}
 	}
 	// Assume UTF-8 - `preg_match_all()` will return false if given non-UTF-8 string (or if PCRE UTF-8 mode is unavailable).
-	if ( false !== ( $width = preg_match_all( '/\X/u', $string ) ) ) {
+	if ( false !== ( $width = preg_match_all( '/\X/u', $string, $dummy /*needed for PHP 5.3*/ ) ) ) {
 		if ( ! $test_strwidth || ( $test_strwidth & 2 ) ) {
-			return $width + preg_match_all( $eaw_regex, $string );
+			return $width + preg_match_all( $eaw_regex, $string, $dummy /*needed for PHP 5.3*/ );
 		}
 	}
 	if ( function_exists( 'mb_strwidth' ) && function_exists( 'mb_detect_encoding' ) ) {
@@ -244,7 +244,7 @@ function strwidth( $string ) {
 		$width = mb_strwidth( $string, $encoding );
 		if ( 'UTF-8' === $encoding ) {
 			// Subtract combining characters.
-			$width -= preg_match_all( $m_regex, $string );
+			$width -= preg_match_all( $m_regex, $string, $dummy /*needed for PHP 5.3*/ );
 		}
 		if ( ! $test_strwidth || ( $test_strwidth & 4 ) ) {
 			return $width;
