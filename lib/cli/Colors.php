@@ -185,7 +185,7 @@ class Colors {
 			$test_string = self::decolorize($string);
 		}
 
-		return safe_strlen($test_string);
+		return strwidth($test_string);
 	}
 
 	/**
