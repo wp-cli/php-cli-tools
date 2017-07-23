@@ -12,13 +12,27 @@ class testsCli extends PHPUnit_Framework_TestCase {
 
 	function test_string_length() {
 		$this->assertEquals( \cli\Colors::length( 'x' ), 1 );
+		$this->assertEquals( \cli\Colors::length( '日' ), 1 );
+	}
+
+	function test_string_width() {
+		$this->assertEquals( \cli\Colors::width( 'x' ), 1 );
+		$this->assertEquals( \cli\Colors::width( '日' ), 2 ); // Double-width char.
 	}
 
 	function test_encoded_string_length() {
 
 		$this->assertEquals( \cli\Colors::length( 'hello' ), 5 );
 		$this->assertEquals( \cli\Colors::length( 'óra' ), 3 );
-		$this->assertEquals( \cli\Colors::length( '日本語' ), 6 ); // 3 double-width chars.
+		$this->assertEquals( \cli\Colors::length( '日本語' ), 3 );
+
+	}
+
+	function test_encoded_string_width() {
+
+		$this->assertEquals( \cli\Colors::width( 'hello' ), 5 );
+		$this->assertEquals( \cli\Colors::width( 'óra' ), 3 );
+		$this->assertEquals( \cli\Colors::width( '日本語' ), 6 ); // 3 double-width chars.
 
 	}
 
@@ -45,6 +59,12 @@ class testsCli extends PHPUnit_Framework_TestCase {
 
 	function test_colorized_string_length() {
 		$this->assertEquals( \cli\Colors::length( \cli\Colors::colorize( '%Gx%n', true ) ), 1 );
+		$this->assertEquals( \cli\Colors::length( \cli\Colors::colorize( '%G日%n', true ) ), 1 );
+	}
+
+	function test_colorized_string_width() {
+		$this->assertEquals( \cli\Colors::width( \cli\Colors::colorize( '%Gx%n', true ) ), 1 );
+		$this->assertEquals( \cli\Colors::width( \cli\Colors::colorize( '%G日%n', true ) ), 2 ); // Double-width char.
 	}
 
 	function test_colorize_string_is_colored() {

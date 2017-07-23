@@ -133,7 +133,7 @@ class Ascii extends Renderer {
 				$value = str_replace( PHP_EOL, ' ', $value );
 
 				$col_width = $this->_widths[ $col ];
-				$original_val_width = Colors::shouldColorize() ? Colors::length( $value ) : \cli\strwidth( $value );
+				$original_val_width = Colors::shouldColorize() ? Colors::width( $value ) : \cli\strwidth( $value );
 				if ( $original_val_width > $col_width ) {
 					$row[ $col ] = \cli\safe_substr( $value, 0, $col_width );
 					$value = \cli\safe_substr( $value, $col_width, $original_val_width );
