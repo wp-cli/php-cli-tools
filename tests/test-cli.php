@@ -18,7 +18,7 @@ class testsCli extends PHPUnit_Framework_TestCase {
 
 		$this->assertEquals( \cli\Colors::length( 'hello' ), 5 );
 		$this->assertEquals( \cli\Colors::length( 'óra' ), 3 );
-		$this->assertEquals( \cli\Colors::length( '日本語' ), 3 );
+		$this->assertEquals( \cli\Colors::length( '日本語' ), 6 ); // 3 double-width chars.
 
 	}
 
