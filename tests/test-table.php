@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Tests for cli\Table
  */
@@ -35,4 +34,22 @@ class Test_Table extends PHPUnit_Framework_TestCase {
 
 	}
 
+	public function test_column_value_too_long_with_multibytes() {
+
+		$constraint_width = 80;
+
+		$table = new cli\Table;
+		$renderer = new cli\Table\Ascii;
+		$renderer->setConstraintWidth( $constraint_width );
+		$table->setRenderer( $renderer );
+		$table->setHeaders( array( 'Field', 'Value' ) );
+		$table->addRow( array( 'この文章はダミーです。文字の大きさ、量、字間、行間等を確認するために入れています。この文章はダミーです。文字の大きさ、量、字間、行間等を確認するために入れています。この文章はダミーです。文字の大きさ、', 'こんにちは' ) );
+		$table->addRow( array( 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.', 'Hello' ) );
+
+		$out = $table->getDisplayLines();
+
+		for ( $i = 0; $i < count( $out ); $i++ ) {
+			$this->assertEquals( $constraint_width, mb_strwidth( $out[$i] ) + 1 );
+		}
+	}
 }
