@@ -95,4 +95,94 @@ class testsCli extends PHPUnit_Framework_TestCase {
 		// Test that the cache value is correctly set
 		$this->assertEquals( $test_cache, $real_cache[ md5( $string_with_color ) ] );
 	}
+
+	function test_strwidth() {
+		// Save.
+		$test_strwidth = getenv( 'PHP_CLI_TOOLS_TEST_STRWIDTH' );
+		if ( function_exists( 'mb_detect_order' ) ) {
+			$mb_detect_order = mb_detect_order();
+		}
+
+		putenv( 'PHP_CLI_TOOLS_TEST_STRWIDTH' );
+
+		// UTF-8.
+
+		// 4 characters, one a double-width Han = 5 spacing chars, with 2 combining chars. Adapted from http://unicode.org/faq/char_combmark.html#7 (combining acute accent added after "a").
+		$str = "a\xCC\x81\xE0\xA4\xA8\xE0\xA4\xBF\xE4\xBA\x9C\xF0\x90\x82\x83";
+
+		if ( function_exists( 'grapheme_strlen' ) ) {
+			$this->assertSame( 5, \cli\strwidth( $str ) ); // Tests grapheme_strlen().
+			putenv( 'PHP_CLI_TOOLS_TEST_STRWIDTH=2' ); // Test preg_match_all( '/\X/u' ).
+			$this->assertSame( 5, \cli\strwidth( $str ) );
+		} else {
+			$this->assertSame( 5, \cli\strwidth( $str ) ); // Tests preg_match_all( '/\X/u' ).
+		}
+
+		if ( function_exists( 'mb_strwidth' ) && function_exists( 'mb_detect_order' ) ) {
+			putenv( 'PHP_CLI_TOOLS_TEST_STRWIDTH=4' ); // Test mb_strwidth().
+			mb_detect_order( array( 'UTF-8', 'ISO-8859-1' ) );
+			$this->assertSame( 5, \cli\strwidth( $str ) );
+		}
+
+		putenv( 'PHP_CLI_TOOLS_TEST_STRWIDTH=8' ); // Test safe_strlen().
+		if ( function_exists( 'mb_strlen' ) && function_exists( 'mb_detect_order' ) ) {
+			$this->assertSame( 6, \cli\strwidth( $str ) ); // mb_strlen() - counts the 2 combining chars but not the double-width Han so out by 1.
+			$this->assertSame( 6, mb_strlen( $str, 'UTF-8' ) );
+		} else {
+			$this->assertSame( 16, \cli\strwidth( $str ) ); // strlen() - no. of bytes.
+			$this->assertSame( 16, strlen( $str ) );
+		}
+
+		// Nepali जस्ट ट॓स्ट गर्दै - 1st word: 3 spacing + 1 combining, 2nd word: 3 spacing + 2 combining, 3rd word: 3 spacing + 2 combining = 9 spacing chars + 2 spaces = 11 chars.
+		$str = "\xe0\xa4\x9c\xe0\xa4\xb8\xe0\xa5\x8d\xe0\xa4\x9f \xe0\xa4\x9f\xe0\xa5\x93\xe0\xa4\xb8\xe0\xa5\x8d\xe0\xa4\x9f \xe0\xa4\x97\xe0\xa4\xb0\xe0\xa5\x8d\xe0\xa4\xa6\xe0\xa5\x88";
+
+		putenv( 'PHP_CLI_TOOLS_TEST_STRWIDTH' );
+
+		if ( function_exists( 'grapheme_strlen' ) ) {
+			$this->assertSame( 11, \cli\strwidth( $str ) ); // Tests grapheme_strlen().
+			putenv( 'PHP_CLI_TOOLS_TEST_STRWIDTH=2' ); // Test preg_match_all( '/\X/u' ).
+			$this->assertSame( 11, \cli\strwidth( $str ) );
+		} else {
+			$this->assertSame( 11, \cli\strwidth( $str ) ); // Tests preg_match_all( '/\X/u' ).
+		}
+
+		if ( function_exists( 'mb_strwidth' ) && function_exists( 'mb_detect_order' ) ) {
+			putenv( 'PHP_CLI_TOOLS_TEST_STRWIDTH=4' ); // Test mb_strwidth().
+			mb_detect_order( array( 'UTF-8' ) );
+			$this->assertSame( 11, \cli\strwidth( $str ) );
+		}
+
+		// Non-UTF-8 - both grapheme_strlen() and preg_match_all( '/\X/u' ) will fail.
+
+		putenv( 'PHP_CLI_TOOLS_TEST_STRWIDTH' );
+
+		if ( function_exists( 'mb_strwidth' ) && function_exists( 'mb_detect_order' ) ) {
+			// Latin-1
+			mb_detect_order( array( 'UTF-8', 'ISO-8859-1' ) );
+			$str = "\xe0b\xe7"; // "àbç" in ISO-8859-1
+			$this->assertSame( 3, \cli\strwidth( $str ) ); // Test mb_strwidth().
+			$this->assertSame( 3, mb_strwidth( $str, 'ISO-8859-1' ) );
+
+			// Shift JIS.
+			mb_detect_order( array( 'UTF-8', 'SJIS' ) );
+			$str = "\x82\xb1\x82\xf1\x82\xc9\x82\xbf\x82\xcd\x90\xa2\x8a\x45!"; // "こャにちは世界!" ("Hello world!") in Shift JIS - 7 double-width chars plus Latin exclamation mark.
+			$this->assertSame( 15, \cli\strwidth( $str ) ); // Test mb_strwidth().
+			$this->assertSame( 15, mb_strwidth( $str, 'SJIS' ) );
+
+			putenv( 'PHP_CLI_TOOLS_TEST_STRWIDTH=8' ); // Test safe_strlen().
+			if ( function_exists( 'mb_strlen' ) && function_exists( 'mb_detect_order' ) ) {
+				$this->assertSame( 8, \cli\strwidth( $str ) ); // mb_strlen() - doesn't allow for double-width.
+				$this->assertSame( 8, mb_strlen( $str, 'SJIS' ) );
+			} else {
+				$this->assertSame( 15, \cli\strwidth( $str ) ); // strlen() - no. of bytes.
+				$this->assertSame( 15, strlen( $str ) );
+			}
+		}
+
+		// Restore.
+		putenv( false == $test_strwidth ? 'PHP_CLI_TOOLS_TEST_STRWIDTH' : "PHP_CLI_TOOLS_TEST_STRWIDTH=$test_strwidth" );
+		if ( function_exists( 'mb_detect_order' ) ) {
+			mb_detect_order( $mb_detect_order );
+		}
+	}
 }

@@ -93,6 +93,27 @@ OUT;
 	}
 
 	/**
+	 * Check it works with colors disabled.
+	 */
+	public function testDrawOneColumnColorDisabledTable() {
+		Colors::disable( true );
+		$this->assertFalse( Colors::shouldColorize() );
+		$headers = array('Test Header');
+		$rows = array(
+			array('%Gx%n'),
+		);
+		$output = <<<OUT
++-------------+
+| Test Header |
++-------------+
+| %Gx%n       |
++-------------+
+
+OUT;
+		$this->assertInOutEquals(array($headers, $rows), $output);
+	}
+
+	/**
 	 * Checks that spacing and borders are handled correctly in table
 	 */
 	public function testSpacingInTable() {

@@ -102,7 +102,7 @@ class Table {
 	 */
 	protected function checkRow(array $row) {
 		foreach ($row as $column => $str) {
-			$width = Colors::length($str);
+			$width = Colors::shouldColorize() ? Colors::length($str) : safe_strlen($str);
 			if (!isset($this->_width[$column]) || $width > $this->_width[$column]) {
 				$this->_width[$column] = $width;
 			}
