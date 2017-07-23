@@ -203,15 +203,52 @@ function safe_substr( $str, $start, $length = false ) {
  */
 function safe_str_pad( $string, $length ) {
 	$cleaned_string = Colors::shouldColorize() ? Colors::decolorize( $string ) : $string;
-	// Hebrew vowel characters
-	$cleaned_string = preg_replace( '#[\x{591}-\x{5C7}]+#u', '', $cleaned_string );
-	if ( function_exists( 'mb_strwidth' ) && function_exists( 'mb_detect_encoding' ) ) {
-		$real_length = mb_strwidth( $cleaned_string, mb_detect_encoding( $string ) );
-	} else {
-		$real_length = safe_strlen( $cleaned_string );
-	}
+	$real_length = strwidth( $cleaned_string );
 	$diff = strlen( $string ) - $real_length;
 	$length += $diff;
 
 	return str_pad( $string, $length );
+}
+
+/**
+ * Get width of string, ie length in characters, taking into account multi-byte and mark characters for UTF-8, and multi-byte for non-UTF-8.
+ *
+ * @param string The string to check
+ * @return int The string's width.
+ */
+function strwidth( $string ) {
+	static $eaw_regex; // East Asian Width regex. Characters that count as 2 characters as they're "wide" or "fullwidth". See http://www.unicode.org/reports/tr11/tr11-19.html
+	static $m_regex; // Mark characters regex (Unicode property "M") - mark combining "Mc", mark enclosing "Me" and mark non-spacing "Mn" chars that should be ignored for spacing purposes.
+	if ( null === $eaw_regex ) {
+		// Load both regexs generated from Unicode data.
+		require __DIR__ . '/unicode/regex.php';
+	}
+
+	// Allow for selective testings - "1" bit set tests grapheme_strlen(), "2" preg_match_all( '/\X/u' ), "4" mb_strwidth(), "other" safe_strlen().
+	$test_strwidth = getenv( 'PHP_CLI_TOOLS_TEST_STRWIDTH' );
+
+	// Assume UTF-8 - `grapheme_strlen()` will return null if given non-UTF-8 string.
+	if ( function_exists( 'grapheme_strlen' ) && null !== ( $width = grapheme_strlen( $string ) ) ) {
+		if ( ! $test_strwidth || ( $test_strwidth & 1 ) ) {
+			return $width + preg_match_all( $eaw_regex, $string, $dummy /*needed for PHP 5.3*/ );
+		}
+	}
+	// Assume UTF-8 - `preg_match_all()` will return false if given non-UTF-8 string (or if PCRE UTF-8 mode is unavailable).
+	if ( false !== ( $width = preg_match_all( '/\X/u', $string, $dummy /*needed for PHP 5.3*/ ) ) ) {
+		if ( ! $test_strwidth || ( $test_strwidth & 2 ) ) {
+			return $width + preg_match_all( $eaw_regex, $string, $dummy /*needed for PHP 5.3*/ );
+		}
+	}
+	if ( function_exists( 'mb_strwidth' ) && function_exists( 'mb_detect_encoding' ) ) {
+		$encoding = mb_detect_encoding( $string, null, true /*strict*/ );
+		$width = mb_strwidth( $string, $encoding );
+		if ( 'UTF-8' === $encoding ) {
+			// Subtract combining characters.
+			$width -= preg_match_all( $m_regex, $string, $dummy /*needed for PHP 5.3*/ );
+		}
+		if ( ! $test_strwidth || ( $test_strwidth & 4 ) ) {
+			return $width;
+		}
+	}
+	return safe_strlen( $string );
 }

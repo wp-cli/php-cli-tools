@@ -176,7 +176,7 @@ class Colors {
 	 * Return the length of the string without color codes.
 	 *
 	 * @param string  $string  the string to measure
-     * @return string
+     * @return int
 	 */
 	static public function length($string) {
 		if (isset(self::$_string_cache[md5($string)]['decolorized'])) {
@@ -186,6 +186,23 @@ class Colors {
 		}
 
 		return safe_strlen($test_string);
+	}
+
+	/**
+	 * Return the width (length in characters) of the string without color codes.
+	 *
+	 * @param string  $string  the string to measure
+     * @return int
+	 */
+	static public function width($string) {
+		$md5 = md5($string);
+		if (isset(self::$_string_cache[$md5]['decolorized'])) {
+			$test_string = self::$_string_cache[$md5]['decolorized'];
+		} else {
+			$test_string = self::decolorize($string);
+		}
+
+		return strwidth($test_string);
 	}
 
 	/**
