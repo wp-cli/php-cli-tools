@@ -195,8 +195,9 @@ class Colors {
      * @return int
 	 */
 	static public function width($string) {
-		if (isset(self::$_string_cache[md5($string)]['decolorized'])) {
-			$test_string = self::$_string_cache[md5($string)]['decolorized'];
+		$md5 = md5($string);
+		if (isset(self::$_string_cache[$md5]['decolorized'])) {
+			$test_string = self::$_string_cache[$md5]['decolorized'];
 		} else {
 			$test_string = self::decolorize($string);
 		}
