@@ -248,7 +248,7 @@ class Table {
 	 * @return bool True if whole Ascii table is marked as pre-colorized, or if the individual column is pre-colorized; else false.
 	 * @see cli\Ascii::isPreColorized()
 	 */
-	private function isAsciiPreColorized( int $column ) {
+	private function isAsciiPreColorized( $column ) {
 		if ( $this->_renderer instanceof Ascii ) {
 			return $this->_renderer->isPreColorized( $column );
 		}

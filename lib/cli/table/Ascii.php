@@ -207,7 +207,7 @@ class Ascii extends Renderer {
 	 * @param int $column Column index to check.
 	 * @return bool True if whole table is marked as pre-colorized, or if the individual column is pre-colorized; else false.
 	 */
-	public function isPreColorized( int $column ) {
+	public function isPreColorized( $column ) {
 		if ( is_bool( $this->_pre_colorized ) ) {
 			return $this->_pre_colorized;
 		}
