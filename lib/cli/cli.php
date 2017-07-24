@@ -204,10 +204,10 @@ function safe_substr( $str, $start, $length = false ) {
 function safe_str_pad( $string, $length ) {
 	$cleaned_string = Colors::shouldColorize() ? Colors::decolorize( $string ) : $string;
 	$real_length = strwidth( $cleaned_string );
-	$diff = strlen( $string ) - $real_length;
+	$diff = mb_strwidth( $string ) - $real_length;
 	$length += $diff;
 
-	return str_pad( $string, $length );
+	return mb_str_pad( $string, $length );
 }
 
 /**

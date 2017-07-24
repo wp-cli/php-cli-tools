@@ -57,7 +57,7 @@ class testsCli extends PHPUnit_Framework_TestCase {
 		$this->assertEquals( 9, mb_strwidth( \cli\safe_str_pad( 'hello', 9 ) ) );
 		$this->assertEquals( 9, mb_strwidth( \cli\safe_str_pad( 'óra', 9 ) ) ); // special characters take one byte
 		$this->assertEquals( 9, mb_strwidth( \cli\safe_str_pad( '日本語', 9 ) ) ); // each character takes two bytes
-		//$this->assertEquals( 9, mb_strwidth( \cli\safe_str_pad( 'עִבְרִית', 9 ) ) ); // process Hebrew vowels
+		$this->assertEquals( 9, mb_strwidth( \cli\safe_str_pad( 'עִבְרִית', 9 ) ) ); // process Hebrew vowels
 	}
 
 	function test_colorized_string_pad() {
