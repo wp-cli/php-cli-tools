@@ -194,7 +194,7 @@ class Colors {
 	 * @param bool   $pre_colorized Optional. Set if the string is pre-colorized. Default false.
      * @return int
 	 */
-	static public function width( $string, bool $pre_colorized = false ) {
+	static public function width( $string, $pre_colorized = false ) {
 		return strwidth( $pre_colorized || self::shouldColorize() ? self::decolorize( $string, $pre_colorized /*keep_tokens*/ ) : $string );
 	}
 
@@ -206,7 +206,7 @@ class Colors {
 	 * @param bool   $pre_colorized Optional. Set if the string is pre-colorized. Default false.
      * @return string
 	 */
-	static public function pad( $string, $length, bool $pre_colorized = false ) {
+	static public function pad( $string, $length, $pre_colorized = false ) {
 		$real_length = self::width( $string, $pre_colorized );
 		$diff = strlen( $string ) - $real_length;
 		$length += $diff;
