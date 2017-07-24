@@ -183,6 +183,10 @@ function safe_strlen( $str ) {
  * @return string               Substring of string specified by start and length parameters
  */
 function safe_substr( $str, $start, $length = false, $width = false ) {
+	// PHP 5.3 substr takes false as full length, PHP > 5.3 takes null - for compat. do strlen.
+	if ( null === $length || false === $length ) {
+		$length = safe_strlen( $str );
+	}
 	if ( function_exists( 'mb_substr' ) && function_exists( 'mb_detect_encoding' ) ) {
 		$encoding = mb_detect_encoding( $str );
 		if ( false !== $width && 'UTF-8' === $encoding ) {
@@ -191,11 +195,13 @@ function safe_substr( $str, $start, $length = false, $width = false ) {
 				// Load both regexs generated from Unicode data.
 				require __DIR__ . '/unicode/regex.php';
 			}
-			$cnt = preg_match_all( '/[\x00-\x7f\xc2-\xf4][^\x00-\x7f\xc2-\xf4]*/', $str, $matches );
-			$width = $length;
+			if ( preg_match( $eaw_regex, $str ) ) {
+				$cnt = preg_match_all( '/[\x00-\x7f\xc2-\xf4][^\x00-\x7f\xc2-\xf4]*/', $str, $matches );
+				$width = $length;
 
-			for ( $length = 0; $length < $cnt && $width > 0; $length++ ) {
-				$width -= preg_match( $eaw_regex, $matches[0][ $length ] ) ? 2 : 1;
+				for ( $length = 0; $length < $cnt && $width > 0; $length++ ) {
+					$width -= preg_match( $eaw_regex, $matches[0][ $length ] ) ? 2 : 1;
+				}
 			}
 		}
 		$substr = mb_substr( $str, $start, $length, $encoding );

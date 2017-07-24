@@ -46,6 +46,7 @@ class testsCli extends PHPUnit_Framework_TestCase {
 
 	function test_colorized_string_pad() {
 		// Colors enabled.
+		\cli\Colors::enable( true );
 
 		$colorized = \cli\Colors::colorize( '%Gx%n', true ); // colorized `x` string
 		$this->assertSame( 22, strlen( \cli\Colors::pad( $colorized, 11 ) ) );
@@ -86,6 +87,7 @@ class testsCli extends PHPUnit_Framework_TestCase {
 
 	function test_colorized_string_width() {
 		// Colors enabled.
+		\cli\Colors::enable( true );
 
 		$colorized = \cli\Colors::colorize( '%Gx%n', true );
 		$this->assertSame( 1, \cli\Colors::width( $colorized ) );

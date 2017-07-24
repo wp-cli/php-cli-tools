@@ -82,7 +82,6 @@ class Test_Table extends PHPUnit_Framework_TestCase {
 		$table->setRows( $items );
 
 		$out = $table->getDisplayLines();
-		error_log( "out=" . print_r( $out, true ) );
 
 		// "+ 4" accommodates 3 borders and header.
 		$this->assertSame( 4 + 4, count( $out ) );
