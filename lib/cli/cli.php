@@ -175,7 +175,7 @@ function safe_strlen( $str ) {
 /**
  * Attempts an encoding-safe way of getting a substring. If mb_string extensions aren't
  * installed, falls back to ascii substring if no encoding is present
- * 		
+ *
  * @param  string  $str  The input string
  * @param  int     $start   The starting position of the substring
  * @param  boolean $length  Maximum length of the substring
@@ -187,7 +187,7 @@ function safe_substr( $str, $start, $length = false ) {
 	} else {
 		// iconv will return PHP notice if non-ascii characters are present in input string
 		$str = iconv( 'ASCII' , 'ASCII', $str );
-		
+
 		$substr = substr( $str, $start, $length );
 	}
 
@@ -204,10 +204,10 @@ function safe_substr( $str, $start, $length = false ) {
 function safe_str_pad( $string, $length ) {
 	$cleaned_string = Colors::shouldColorize() ? Colors::decolorize( $string ) : $string;
 	$real_length = strwidth( $cleaned_string );
-	$diff = strlen( $string ) - $real_length;
+	$diff = mb_strwidth( $string ) - $real_length;
 	$length += $diff;
 
-	return str_pad( $string, $length );
+	return mb_str_pad( $string, $length );
 }
 
 /**
@@ -251,4 +251,11 @@ function strwidth( $string ) {
 		}
 	}
 	return safe_strlen( $string );
+}
+
+
+function mb_str_pad( $str, $pad_len ) {
+	$pad_str = str_repeat( ' ', $pad_len );
+	$after = mb_substr( $pad_str, mb_strwidth( $str ) );
+	return $str . $after;
 }

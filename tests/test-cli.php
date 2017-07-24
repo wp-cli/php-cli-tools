@@ -44,6 +44,22 @@ class testsCli extends PHPUnit_Framework_TestCase {
 		$this->assertEquals( 17, strlen( \cli\Colors::pad( 'עִבְרִית', 6 ) ) ); // process Hebrew vowels
 	}
 
+	function test_mb_str_pad() {
+
+		$this->assertEquals( 9, mb_strwidth( \cli\mb_str_pad( 'hello', 9 ) ) );
+		$this->assertEquals( 9, mb_strwidth( \cli\mb_str_pad( 'óra', 9 ) ) ); // special characters take one byte
+		$this->assertEquals( 9, mb_strwidth( \cli\mb_str_pad( '日本語', 9 ) ) ); // each character takes two bytes
+		$this->assertEquals( 9, mb_strwidth( \cli\mb_str_pad( 'עִבְרִית', 9 ) ) ); // process Hebrew vowels
+	}
+
+	function test_safe_str_pad() {
+
+		$this->assertEquals( 9, mb_strwidth( \cli\safe_str_pad( 'hello', 9 ) ) );
+		$this->assertEquals( 9, mb_strwidth( \cli\safe_str_pad( 'óra', 9 ) ) ); // special characters take one byte
+		$this->assertEquals( 9, mb_strwidth( \cli\safe_str_pad( '日本語', 9 ) ) ); // each character takes two bytes
+		$this->assertEquals( 9, mb_strwidth( \cli\safe_str_pad( 'עִבְרִית', 9 ) ) ); // process Hebrew vowels
+	}
+
 	function test_colorized_string_pad() {
 		$this->assertEquals( 22, strlen( \cli\Colors::pad( \cli\Colors::colorize( "%Gx%n", true ), 11 ))); // colorized `x` string
 		$this->assertEquals( 23, strlen( \cli\Colors::pad( \cli\Colors::colorize( "%Góra%n", true ), 11 ))); // colorized `óra` string
