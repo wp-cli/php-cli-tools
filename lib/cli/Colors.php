@@ -146,7 +146,7 @@ class Colors {
 	 * @param bool   $keep_tokens Optional. If set, color tokens (eg "%n") won't be stripped. Default false.
 	 * @return string A string with color information removed.
 	 */
-	static public function decolorize( $string, bool $keep_tokens = false ) {
+	static public function decolorize( $string, $keep_tokens = false ) {
 		if ( ! $keep_tokens ) {
 			// Get rid of color tokens if they exist
 			$string = str_replace('%%', '%¾', $string);
