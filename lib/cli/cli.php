@@ -176,14 +176,29 @@ function safe_strlen( $str ) {
  * Attempts an encoding-safe way of getting a substring. If mb_string extensions aren't
  * installed, falls back to ascii substring if no encoding is present
  * 		
- * @param  string  $str  The input string
- * @param  int     $start   The starting position of the substring
- * @param  boolean $length  Maximum length of the substring
- * @return string           Substring of string specified by start and length parameters
+ * @param  string      $str     The input string.
+ * @param  int         $start   The starting position of the substring.
+ * @param  int|boolean $length  Optional. Maximum length of the substring. Default false but should set to null for `substr()` compat behavior.
+ * @param  boolean     $width   Optional. If set and encoding is UTF-8, $length is interpreted as spacing width. Default false.
+ * @return string               Substring of string specified by start and length parameters
  */
-function safe_substr( $str, $start, $length = false ) {
+function safe_substr( $str, $start, $length = false, $width = false ) {
 	if ( function_exists( 'mb_substr' ) && function_exists( 'mb_detect_encoding' ) ) {
-		$substr = mb_substr( $str, $start, $length, mb_detect_encoding( $str ) );
+		$encoding = mb_detect_encoding( $str );
+		if ( false !== $width && 'UTF-8' === $encoding ) {
+			static $eaw_regex; // East Asian Width regex. Characters that count as 2 characters as they're "wide" or "fullwidth". See http://www.unicode.org/reports/tr11/tr11-19.html
+			if ( null === $eaw_regex ) {
+				// Load both regexs generated from Unicode data.
+				require __DIR__ . '/unicode/regex.php';
+			}
+			$cnt = preg_match_all( '/[\x00-\x7f\xc2-\xf4][^\x00-\x7f\xc2-\xf4]*/', $str, $matches );
+			$width = $length;
+
+			for ( $length = 0; $length < $cnt && $width > 0; $length++ ) {
+				$width -= preg_match( $eaw_regex, $matches[0][ $length ] ) ? 2 : 1;
+			}
+		}
+		$substr = mb_substr( $str, $start, $length, $encoding );
 	} else {
 		// iconv will return PHP notice if non-ascii characters are present in input string
 		$str = iconv( 'ASCII' , 'ASCII', $str );
@@ -202,8 +217,7 @@ function safe_substr( $str, $start, $length = false ) {
  * @return string
  */
 function safe_str_pad( $string, $length ) {
-	$cleaned_string = Colors::shouldColorize() ? Colors::decolorize( $string ) : $string;
-	$real_length = strwidth( $cleaned_string );
+	$real_length = strwidth( $string );
 	$diff = strlen( $string ) - $real_length;
 	$length += $diff;
 
