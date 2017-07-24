@@ -45,8 +45,30 @@ class testsCli extends PHPUnit_Framework_TestCase {
 	}
 
 	function test_colorized_string_pad() {
-		$this->assertEquals( 22, strlen( \cli\Colors::pad( \cli\Colors::colorize( "%Gx%n", true ), 11 ))); // colorized `x` string
-		$this->assertEquals( 23, strlen( \cli\Colors::pad( \cli\Colors::colorize( "%Góra%n", true ), 11 ))); // colorized `óra` string
+		// Colors enabled.
+
+		$colorized = \cli\Colors::colorize( '%Gx%n', true ); // colorized `x` string
+		$this->assertSame( 22, strlen( \cli\Colors::pad( $colorized, 11 ) ) );
+		$this->assertSame( 22, strlen( \cli\Colors::pad( $colorized, 11, false /*pre_colorized*/ ) ) );
+		$this->assertSame( 22, strlen( \cli\Colors::pad( $colorized, 11, true /*pre_colorized*/ ) ) );
+
+		$colorized = \cli\Colors::colorize( "%Góra%n", true ); // colorized `óra` string
+		$this->assertSame( 23, strlen( \cli\Colors::pad( $colorized, 11 ) ) );
+		$this->assertSame( 23, strlen( \cli\Colors::pad( $colorized, 11, false /*pre_colorized*/ ) ) );
+		$this->assertSame( 23, strlen( \cli\Colors::pad( $colorized, 11, true /*pre_colorized*/ ) ) );
+
+		// Colors disabled.
+		\cli\Colors::disable( true );
+
+		$colorized = \cli\Colors::colorize( '%Gx%n', true ); // colorized `x` string
+		$this->assertSame( 12, strlen( \cli\Colors::pad( $colorized, 12 ) ) );
+		$this->assertSame( 12, strlen( \cli\Colors::pad( $colorized, 12, false /*pre_colorized*/ ) ) );
+		$this->assertSame( 23, strlen( \cli\Colors::pad( $colorized, 12, true /*pre_colorized*/ ) ) );
+
+		$colorized = \cli\Colors::colorize( "%Góra%n", true ); // colorized `óra` string
+		$this->assertSame( 16, strlen( \cli\Colors::pad( $colorized, 15 ) ) );
+		$this->assertSame( 16, strlen( \cli\Colors::pad( $colorized, 15, false /*pre_colorized*/ ) ) );
+		$this->assertSame( 27, strlen( \cli\Colors::pad( $colorized, 15, true /*pre_colorized*/ ) ) );
 	}
 
 	function test_encoded_substr() {
@@ -63,8 +85,30 @@ class testsCli extends PHPUnit_Framework_TestCase {
 	}
 
 	function test_colorized_string_width() {
-		$this->assertEquals( \cli\Colors::width( \cli\Colors::colorize( '%Gx%n', true ) ), 1 );
-		$this->assertEquals( \cli\Colors::width( \cli\Colors::colorize( '%G日%n', true ) ), 2 ); // Double-width char.
+		// Colors enabled.
+
+		$colorized = \cli\Colors::colorize( '%Gx%n', true );
+		$this->assertSame( 1, \cli\Colors::width( $colorized ) );
+		$this->assertSame( 1, \cli\Colors::width( $colorized, false /*pre_colorized*/ ) );
+		$this->assertSame( 1, \cli\Colors::width( $colorized, true /*pre_colorized*/ ) );
+
+		$colorized = \cli\Colors::colorize( '%G日%n', true ); // Double-width char.
+		$this->assertSame( 2, \cli\Colors::width( $colorized ) );
+		$this->assertSame( 2, \cli\Colors::width( $colorized, false /*pre_colorized*/ ) );
+		$this->assertSame( 2, \cli\Colors::width( $colorized, true /*pre_colorized*/ ) );
+
+		// Colors disabled.
+		\cli\Colors::disable( true );
+
+		$colorized = \cli\Colors::colorize( '%Gx%n', true );
+		$this->assertSame( 12, \cli\Colors::width( $colorized ) );
+		$this->assertSame( 12, \cli\Colors::width( $colorized, false /*pre_colorized*/ ) );
+		$this->assertSame( 1, \cli\Colors::width( $colorized, true /*pre_colorized*/ ) );
+
+		$colorized = \cli\Colors::colorize( '%G日%n', true ); // Double-width char.
+		$this->assertSame( 13, \cli\Colors::width( $colorized ) );
+		$this->assertSame( 13, \cli\Colors::width( $colorized, false /*pre_colorized*/ ) );
+		$this->assertSame( 2, \cli\Colors::width( $colorized, true /*pre_colorized*/ ) );
 	}
 
 	function test_colorize_string_is_colored() {
