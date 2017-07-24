@@ -190,17 +190,15 @@ function safe_substr( $str, $start, $length = false, $width = false ) {
 	if ( function_exists( 'mb_substr' ) && function_exists( 'mb_detect_encoding' ) ) {
 		$encoding = mb_detect_encoding( $str );
 		if ( false !== $width && 'UTF-8' === $encoding ) {
-			static $eaw_regex; // East Asian Width regex. Characters that count as 2 characters as they're "wide" or "fullwidth". See http://www.unicode.org/reports/tr11/tr11-19.html
-			if ( null === $eaw_regex ) {
-				// Load both regexs generated from Unicode data.
-				require __DIR__ . '/unicode/regex.php';
-			}
+			// Set the East Asian Width regex.
+			$eaw_regex = get_unicode_regexs( 'eaw' );
 			if ( preg_match( $eaw_regex, $str ) ) {
 				$cnt = preg_match_all( '/[\x00-\x7f\xc2-\xf4][^\x00-\x7f\xc2-\xf4]*/', $str, $matches );
+				$chrs = $matches[0];
 				$width = $length;
 
 				for ( $length = 0; $length < $cnt && $width > 0; $length++ ) {
-					$width -= preg_match( $eaw_regex, $matches[0][ $length ] ) ? 2 : 1;
+					$width -= preg_match( $eaw_regex, $chrs[ $length ] ) ? 2 : 1;
 				}
 			}
 		}
@@ -237,12 +235,8 @@ function safe_str_pad( $string, $length ) {
  * @return int The string's width.
  */
 function strwidth( $string ) {
-	static $eaw_regex; // East Asian Width regex. Characters that count as 2 characters as they're "wide" or "fullwidth". See http://www.unicode.org/reports/tr11/tr11-19.html
-	static $m_regex; // Mark characters regex (Unicode property "M") - mark combining "Mc", mark enclosing "Me" and mark non-spacing "Mn" chars that should be ignored for spacing purposes.
-	if ( null === $eaw_regex ) {
-		// Load both regexs generated from Unicode data.
-		require __DIR__ . '/unicode/regex.php';
-	}
+	// Set the East Asian Width and Mark regexs.
+	list( $eaw_regex, $m_regex ) = get_unicode_regexs();
 
 	// Allow for selective testings - "1" bit set tests grapheme_strlen(), "2" preg_match_all( '/\X/u' ), "4" mb_strwidth(), "other" safe_strlen().
 	$test_strwidth = getenv( 'PHP_CLI_TOOLS_TEST_STRWIDTH' );
@@ -271,4 +265,30 @@ function strwidth( $string ) {
 		}
 	}
 	return safe_strlen( $string );
+}
+
+/**
+ * Get the regexs generated from Unicode data.
+ *
+ * @param string $idx Optional. Return a specific regex only. Default null.
+ * @return array|string Returns keyed array if not given $idx or $idx doesn't exist, otherwise the specific regex string.
+ */
+function get_unicode_regexs( $idx = null ) {
+	static $eaw_regex; // East Asian Width regex. Characters that count as 2 characters as they're "wide" or "fullwidth". See http://www.unicode.org/reports/tr11/tr11-19.html
+	static $m_regex; // Mark characters regex (Unicode property "M") - mark combining "Mc", mark enclosing "Me" and mark non-spacing "Mn" chars that should be ignored for spacing purposes.
+	if ( null === $eaw_regex ) {
+		// Load both regexs generated from Unicode data.
+		require __DIR__ . '/unicode/regex.php';
+	}
+
+	if ( null !== $idx ) {
+		if ( 'eaw' === $idx ) {
+			return $eaw_regex;
+		}
+		if ( 'm' === $idx ) {
+			return $m_regex;
+		}
+	}
+
+	return array( $eaw_regex, $m_regex, );
 }
