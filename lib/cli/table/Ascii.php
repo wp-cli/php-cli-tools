@@ -134,17 +134,18 @@ class Ascii extends Renderer {
 				$value = str_replace( PHP_EOL, ' ', $value );
 
 				$col_width = $this->_widths[ $col ];
-				$original_val_width = Colors::width( $value, self::isPreColorized( $col ) );
+				$encoding = function_exists( 'mb_detect_encoding' ) ? mb_detect_encoding( $value, null, true /*strict*/ ) : false;
+				$original_val_width = Colors::width( $value, self::isPreColorized( $col ), $encoding );
 				if ( $original_val_width > $col_width ) {
-					$row[ $col ] = \cli\safe_substr( $value, 0, $col_width, true /*width*/ );
-					$value = \cli\safe_substr( $value, \cli\safe_strlen( $row[ $col ] ), null );
+					$row[ $col ] = \cli\safe_substr( $value, 0, $col_width, true /*is_width*/, $encoding );
+					$value = \cli\safe_substr( $value, \cli\safe_strlen( $row[ $col ], $encoding ), null /*length*/, false /*is_width*/, $encoding );
 					$i = 0;
 					do {
-						$extra_value = \cli\safe_substr( $value, 0, $col_width, true /*width*/ );
-						$val_width = Colors::width( $extra_value, self::isPreColorized( $col ) );
+						$extra_value = \cli\safe_substr( $value, 0, $col_width, true /*is_width*/, $encoding );
+						$val_width = Colors::width( $extra_value, self::isPreColorized( $col ), $encoding );
 						if ( $val_width ) {
 							$extra_rows[ $col ][] = $extra_value;
-							$value = \cli\safe_substr( $value, \cli\safe_strlen( $extra_value ), null );
+							$value = \cli\safe_substr( $value, \cli\safe_strlen( $extra_value, $encoding ), null /*length*/, false /*is_width*/, $encoding );
 							$i++;
 							if ( $i > $extra_row_count ) {
 								$extra_row_count = $i;

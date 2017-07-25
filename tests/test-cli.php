@@ -1,5 +1,7 @@
 <?php
 
+use cli\Colors;
+
 class testsCli extends PHPUnit_Framework_TestCase {
 
 	function setUp() {
@@ -46,30 +48,30 @@ class testsCli extends PHPUnit_Framework_TestCase {
 
 	function test_colorized_string_pad() {
 		// Colors enabled.
-		\cli\Colors::enable( true );
+		Colors::enable( true );
 
-		$colorized = \cli\Colors::colorize( '%Gx%n', true ); // colorized `x` string
-		$this->assertSame( 22, strlen( \cli\Colors::pad( $colorized, 11 ) ) );
-		$this->assertSame( 22, strlen( \cli\Colors::pad( $colorized, 11, false /*pre_colorized*/ ) ) );
-		$this->assertSame( 22, strlen( \cli\Colors::pad( $colorized, 11, true /*pre_colorized*/ ) ) );
+		$x = Colors::colorize( '%Gx%n', true ); // colorized `x` string
+		$ora = Colors::colorize( "%Góra%n", true ); // colorized `óra` string
 
-		$colorized = \cli\Colors::colorize( "%Góra%n", true ); // colorized `óra` string
-		$this->assertSame( 23, strlen( \cli\Colors::pad( $colorized, 11 ) ) );
-		$this->assertSame( 23, strlen( \cli\Colors::pad( $colorized, 11, false /*pre_colorized*/ ) ) );
-		$this->assertSame( 23, strlen( \cli\Colors::pad( $colorized, 11, true /*pre_colorized*/ ) ) );
+		$this->assertSame( 22, strlen( Colors::pad( $x, 11 ) ) );
+		$this->assertSame( 22, strlen( Colors::pad( $x, 11, false /*pre_colorized*/ ) ) );
+		$this->assertSame( 22, strlen( Colors::pad( $x, 11, true /*pre_colorized*/ ) ) );
+
+		$this->assertSame( 23, strlen( Colors::pad( $ora, 11 ) ) ); // +1 for two-byte "ó".
+		$this->assertSame( 23, strlen( Colors::pad( $ora, 11, false /*pre_colorized*/ ) ) );
+		$this->assertSame( 23, strlen( Colors::pad( $ora, 11, true /*pre_colorized*/ ) ) );
 
 		// Colors disabled.
-		\cli\Colors::disable( true );
+		Colors::disable( true );
+		$this->assertFalse( Colors::shouldColorize() );
 
-		$colorized = \cli\Colors::colorize( '%Gx%n', true ); // colorized `x` string
-		$this->assertSame( 12, strlen( \cli\Colors::pad( $colorized, 12 ) ) );
-		$this->assertSame( 12, strlen( \cli\Colors::pad( $colorized, 12, false /*pre_colorized*/ ) ) );
-		$this->assertSame( 23, strlen( \cli\Colors::pad( $colorized, 12, true /*pre_colorized*/ ) ) );
+		$this->assertSame( 20, strlen( Colors::pad( $x, 20 ) ) );
+		$this->assertSame( 20, strlen( Colors::pad( $x, 20, false /*pre_colorized*/ ) ) );
+		$this->assertSame( 31, strlen( Colors::pad( $x, 20, true /*pre_colorized*/ ) ) );
 
-		$colorized = \cli\Colors::colorize( "%Góra%n", true ); // colorized `óra` string
-		$this->assertSame( 16, strlen( \cli\Colors::pad( $colorized, 15 ) ) );
-		$this->assertSame( 16, strlen( \cli\Colors::pad( $colorized, 15, false /*pre_colorized*/ ) ) );
-		$this->assertSame( 27, strlen( \cli\Colors::pad( $colorized, 15, true /*pre_colorized*/ ) ) );
+		$this->assertSame( 21, strlen( Colors::pad( $ora, 20 ) ) ); // +1 for two-byte "ó".
+		$this->assertSame( 21, strlen( Colors::pad( $ora, 20, false /*pre_colorized*/ ) ) );
+		$this->assertSame( 32, strlen( Colors::pad( $ora, 20, true /*pre_colorized*/ ) ) );
 	}
 
 	function test_encoded_substr() {
@@ -78,6 +80,57 @@ class testsCli extends PHPUnit_Framework_TestCase {
 		$this->assertEquals( \cli\safe_substr( \cli\Colors::pad( 'óra', 6), 0, 2 ), 'ór'  );
 		$this->assertEquals( \cli\safe_substr( \cli\Colors::pad( '日本語', 6), 0, 2 ), '日本'  );
 
+		$this->assertSame( 'el', \cli\safe_substr( Colors::pad( 'hello', 6 ), 1, 2 ) );
+
+		$this->assertSame( 'a ', \cli\safe_substr( Colors::pad( 'óra', 6 ), 2, 2 ) );
+		$this->assertSame( ' ', \cli\safe_substr( Colors::pad( 'óra', 6 ), 5, 2 ) );
+
+		$this->assertSame( '本語', \cli\safe_substr( Colors::pad( '日本語', 8 ), 1, 2 ) );
+		$this->assertSame( '語 ', \cli\safe_substr( Colors::pad( '日本語', 8 ), 2, 2 ) );
+
+	}
+
+	function test_encoded_substr_is_width() {
+
+		$this->assertSame( 'he',  \cli\safe_substr( Colors::pad( 'hello', 6 ), 0, 2, true /*is_width*/ ) );
+		$this->assertSame( 'ór', \cli\safe_substr( Colors::pad( 'óra', 6 ), 0, 2, true /*is_width*/ ) );
+		$this->assertSame( '日', \cli\safe_substr( Colors::pad( '日本語', 8 ), 0, 2, true /*is_width*/ ) );
+		$this->assertSame( '日本', \cli\safe_substr( Colors::pad( '日本語', 8 ), 0, 4, true /*is_width*/ ) );
+		$this->assertSame( '日本', \cli\safe_substr( Colors::pad( '日本語', 8 ), 0, 3, true /*is_width*/ ) );
+		$this->assertSame( '日本語', \cli\safe_substr( Colors::pad( '日本語', 8 ), 0, 6, true /*is_width*/ ) );
+		$this->assertSame( '日本語 ', \cli\safe_substr( Colors::pad( '日本語', 8 ), 0, 7, true /*is_width*/ ) );
+
+		$this->assertSame( 'el', \cli\safe_substr( Colors::pad( 'hello', 6 ), 1, 2, true /*is_width*/ ) );
+
+		$this->assertSame( 'a ', \cli\safe_substr( Colors::pad( 'óra', 6 ), 2, 2, true /*is_width*/ ) );
+		$this->assertSame( ' ', \cli\safe_substr( Colors::pad( 'óra', 6 ), 5, 2, true /*is_width*/ ) );
+
+		$this->assertSame( '', \cli\safe_substr( '1日4本語90', 0, 0, true /*is_width*/ ) );
+		$this->assertSame( '1', \cli\safe_substr( '1日4本語90', 0, 1, true /*is_width*/ ) );
+		$this->assertSame( '1日', \cli\safe_substr( '1日4本語90', 0, 2, true /*is_width*/ ) );
+		$this->assertSame( '1日', \cli\safe_substr( '1日4本語90', 0, 3, true /*is_width*/ ) );
+		$this->assertSame( '1日4', \cli\safe_substr( '1日4本語90', 0, 4, true /*is_width*/ ) );
+		$this->assertSame( '1日4本', \cli\safe_substr( '1日4本語90', 0, 5, true /*is_width*/ ) );
+		$this->assertSame( '1日4本', \cli\safe_substr( '1日4本語90', 0, 6, true /*is_width*/ ) );
+		$this->assertSame( '1日4本語', \cli\safe_substr( '1日4本語90', 0, 7, true /*is_width*/ ) );
+		$this->assertSame( '1日4本語', \cli\safe_substr( '1日4本語90', 0, 8, true /*is_width*/ ) );
+		$this->assertSame( '1日4本語9', \cli\safe_substr( '1日4本語90', 0, 9, true /*is_width*/ ) );
+		$this->assertSame( '1日4本語90', \cli\safe_substr( '1日4本語90', 0, 10, true /*is_width*/ ) );
+		$this->assertSame( '1日4本語90', \cli\safe_substr( '1日4本語90', 0, 11, true /*is_width*/ ) );
+
+		$this->assertSame( '日', \cli\safe_substr( '1日4本語90', 1, 2, true /*is_width*/ ) );
+		$this->assertSame( '日4', \cli\safe_substr( '1日4本語90', 1, 3, true /*is_width*/ ) );
+		$this->assertSame( '4本語9', \cli\safe_substr( '1日4本語90', 2, 6, true /*is_width*/ ) );
+
+		$this->assertSame( '本', \cli\safe_substr( '1日4本語90', 3, 1, true /*is_width*/ ) );
+		$this->assertSame( '本', \cli\safe_substr( '1日4本語90', 3, 2, true /*is_width*/ ) );
+		$this->assertSame( '本語', \cli\safe_substr( '1日4本語90', 3, 3, true /*is_width*/ ) );
+		$this->assertSame( '本語', \cli\safe_substr( '1日4本語90', 3, 4, true /*is_width*/ ) );
+		$this->assertSame( '本語9', \cli\safe_substr( '1日4本語90', 3, 5, true /*is_width*/ ) );
+
+		$this->assertSame( '0', \cli\safe_substr( '1日4本語90', 6, 1, true /*is_width*/ ) );
+		$this->assertSame( '', \cli\safe_substr( '1日4本語90', 7, 1, true /*is_width*/ ) );
+		$this->assertSame( '', \cli\safe_substr( '1日4本語90', 6, 0, true /*is_width*/ ) );
 	}
 
 	function test_colorized_string_length() {
@@ -87,30 +140,30 @@ class testsCli extends PHPUnit_Framework_TestCase {
 
 	function test_colorized_string_width() {
 		// Colors enabled.
-		\cli\Colors::enable( true );
+		Colors::enable( true );
 
-		$colorized = \cli\Colors::colorize( '%Gx%n', true );
-		$this->assertSame( 1, \cli\Colors::width( $colorized ) );
-		$this->assertSame( 1, \cli\Colors::width( $colorized, false /*pre_colorized*/ ) );
-		$this->assertSame( 1, \cli\Colors::width( $colorized, true /*pre_colorized*/ ) );
+		$x = Colors::colorize( '%Gx%n', true );
+		$dw = Colors::colorize( '%G日%n', true ); // Double-width char.
 
-		$colorized = \cli\Colors::colorize( '%G日%n', true ); // Double-width char.
-		$this->assertSame( 2, \cli\Colors::width( $colorized ) );
-		$this->assertSame( 2, \cli\Colors::width( $colorized, false /*pre_colorized*/ ) );
-		$this->assertSame( 2, \cli\Colors::width( $colorized, true /*pre_colorized*/ ) );
+		$this->assertSame( 1, Colors::width( $x ) );
+		$this->assertSame( 1, Colors::width( $x, false /*pre_colorized*/ ) );
+		$this->assertSame( 1, Colors::width( $x, true /*pre_colorized*/ ) );
+
+		$this->assertSame( 2, Colors::width( $dw ) );
+		$this->assertSame( 2, Colors::width( $dw, false /*pre_colorized*/ ) );
+		$this->assertSame( 2, Colors::width( $dw, true /*pre_colorized*/ ) );
 
 		// Colors disabled.
-		\cli\Colors::disable( true );
+		Colors::disable( true );
+		$this->assertFalse( Colors::shouldColorize() );
 
-		$colorized = \cli\Colors::colorize( '%Gx%n', true );
-		$this->assertSame( 12, \cli\Colors::width( $colorized ) );
-		$this->assertSame( 12, \cli\Colors::width( $colorized, false /*pre_colorized*/ ) );
-		$this->assertSame( 1, \cli\Colors::width( $colorized, true /*pre_colorized*/ ) );
+		$this->assertSame( 12, Colors::width( $x ) );
+		$this->assertSame( 12, Colors::width( $x, false /*pre_colorized*/ ) );
+		$this->assertSame( 1, Colors::width( $x, true /*pre_colorized*/ ) );
 
-		$colorized = \cli\Colors::colorize( '%G日%n', true ); // Double-width char.
-		$this->assertSame( 13, \cli\Colors::width( $colorized ) );
-		$this->assertSame( 13, \cli\Colors::width( $colorized, false /*pre_colorized*/ ) );
-		$this->assertSame( 2, \cli\Colors::width( $colorized, true /*pre_colorized*/ ) );
+		$this->assertSame( 13, Colors::width( $dw ) );
+		$this->assertSame( 13, Colors::width( $dw, false /*pre_colorized*/ ) );
+		$this->assertSame( 2, Colors::width( $dw, true /*pre_colorized*/ ) );
 	}
 
 	function test_colorize_string_is_colored() {
@@ -160,6 +213,58 @@ class testsCli extends PHPUnit_Framework_TestCase {
 
 		// Test that the cache value is correctly set
 		$this->assertEquals( $test_cache, $real_cache[ md5( $string_with_color ) ] );
+	}
+
+	function test_string_cache_colorize() {
+		$string            = 'x';
+		$string_with_color = '%k' . $string;
+		$colorized_string  = "\033[30m$string";
+
+		// Colors enabled.
+		Colors::enable( true );
+
+		// Ensure colorization works
+		$this->assertSame( $colorized_string, Colors::colorize( $string_with_color ) );
+		$this->assertSame( $colorized_string, Colors::colorize( $string_with_color ) );
+
+		// Colors disabled.
+		Colors::disable( true );
+		$this->assertFalse( Colors::shouldColorize() );
+
+		// Ensure it doesn't come from the cache.
+		$this->assertSame( $string, Colors::colorize( $string_with_color ) );
+		$this->assertSame( $string, Colors::colorize( $string_with_color ) );
+
+		// Check that escaped % isn't stripped on putting into cache.
+		$string = 'x%%n';
+		$string_with_color = '%k' . $string;
+		$this->assertSame( 'x%n', Colors::colorize( $string_with_color ) );
+		$this->assertSame( 'x%n', Colors::colorize( $string_with_color ) );
+	}
+
+	function test_decolorize() {
+		// Colors enabled.
+		Colors::enable( true );
+
+		$string = '%kx%%n%n';
+		$colorized_string = Colors::colorize( $string );
+		$both_string = '%gfoo' . $colorized_string . 'bar%%%n';
+
+		$this->assertSame( 'x%n', Colors::decolorize( $string ) );
+		$this->assertSame( 'x', Colors::decolorize( $colorized_string ) );
+		$this->assertSame( 'fooxbar%', Colors::decolorize( $both_string ) );
+
+		$this->assertSame( $string, Colors::decolorize( $string, 1 /*keep_tokens*/ ) );
+		$this->assertSame( 'x%n', Colors::decolorize( $colorized_string, 1 /*keep_tokens*/ ) );
+		$this->assertSame( '%gfoox%nbar%%%n', Colors::decolorize( $both_string, 1 /*keep_tokens*/ ) );
+
+		$this->assertSame( 'x%n', Colors::decolorize( $string, 2 /*keep_encodings*/ ) );
+		$this->assertSame( '[30mx[0m', Colors::decolorize( $colorized_string, 2 /*keep_encodings*/ ) );
+		$this->assertSame( 'foo[30mx[0mbar%', Colors::decolorize( $both_string, 2 /*keep_encodings*/ ) );
+
+		$this->assertSame( $string, Colors::decolorize( $string, 3 /*noop*/ ) );
+		$this->assertSame( $colorized_string, Colors::decolorize( $colorized_string, 3 /*noop*/ ) );
+		$this->assertSame( $both_string, Colors::decolorize( $both_string, 3 /*noop*/ ) );
 	}
 
 	function test_strwidth() {

@@ -115,16 +115,15 @@ class Colors {
 	static public function colorize($string, $colored = null) {
 		$passed = $string;
 
-		if (isset(self::$_string_cache[md5($passed)]['colorized'])) {
-			return self::$_string_cache[md5($passed)]['colorized'];
+		if (!self::shouldColorize($colored)) {
+			$return = self::decolorize( $passed, 2 /*keep_encodings*/ );
+			self::cacheString($passed, $return);
+			return $return;
 		}
 
-		if (!self::shouldColorize($colored)) {
-			$colors = self::getColors();
-			$search = array_keys( $colors );
-			$return = str_replace( $search, '', $string );
-			self::cacheString($passed, $return, $colored);
-			return $return;
+		$md5 = md5($passed);
+		if (isset(self::$_string_cache[$md5]['colorized'])) {
+			return self::$_string_cache[$md5]['colorized'];
 		}
 
 		$string = str_replace('%%', '%¾', $string);
@@ -134,7 +133,7 @@ class Colors {
 		}
 
 		$string = str_replace('%¾', '%', $string);
-		self::cacheString($passed, $string, $colored);
+		self::cacheString($passed, $string);
 
 		return $string;
 	}
@@ -143,20 +142,22 @@ class Colors {
 	 * Remove color information from a string.
 	 *
 	 * @param string $string A string with color information.
-	 * @param bool   $keep_tokens Optional. If set, color tokens (eg "%n") won't be stripped. Default false.
+	 * @param int    $keep   Optional. If the 1 bit is set, color tokens (eg "%n") won't be stripped. If the 2 bit is set, color encodings (ANSI escapes) won't be stripped. Default 0.
 	 * @return string A string with color information removed.
 	 */
-	static public function decolorize( $string, $keep_tokens = false ) {
-		if ( ! $keep_tokens ) {
+	static public function decolorize( $string, $keep = 0 ) {
+		if ( ! ( $keep & 1 ) ) {
 			// Get rid of color tokens if they exist
 			$string = str_replace('%%', '%¾', $string);
 			$string = str_replace(array_keys(self::getColors()), '', $string);
 			$string = str_replace('%¾', '%', $string);
 		}
 
-		// Remove color encoding if it exists
-		foreach (self::getColors() as $key => $value) {
-			$string = str_replace(self::color($value), '', $string);
+		if ( ! ( $keep & 2 ) ) {
+			// Remove color encoding if it exists
+			foreach (self::getColors() as $key => $value) {
+				$string = str_replace(self::color($value), '', $string);
+			}
 		}
 
 		return $string;
@@ -167,13 +168,13 @@ class Colors {
 	 *
 	 * @param string $passed The original string before colorization.
 	 * @param string $colorized The string after running through self::colorize.
-	 * @param string $colored The string without any color information.
+	 * @param string $deprecated Optional. Not used. Default null.
 	 */
-	static public function cacheString($passed, $colorized, $colored) {
+	static public function cacheString( $passed, $colorized, $deprecated = null ) {
 		self::$_string_cache[md5($passed)] = array(
 			'passed'      => $passed,
 			'colorized'   => $colorized,
-			'decolorized' => self::decolorize($passed)
+			'decolorized' => self::decolorize($passed), // Not very useful but keep for BC.
 		);
 	}
 
@@ -190,24 +191,26 @@ class Colors {
 	/**
 	 * Return the width (length in characters) of the string without color codes if enabled.
 	 *
-	 * @param string $string        The string to measure.
-	 * @param bool   $pre_colorized Optional. Set if the string is pre-colorized. Default false.
+	 * @param string      $string        The string to measure.
+	 * @param bool        $pre_colorized Optional. Set if the string is pre-colorized. Default false.
+	 * @param string|bool $encoding      Optional. The encoding of the string. Default false.
      * @return int
 	 */
-	static public function width( $string, $pre_colorized = false ) {
-		return strwidth( $pre_colorized || self::shouldColorize() ? self::decolorize( $string, $pre_colorized /*keep_tokens*/ ) : $string );
+	static public function width( $string, $pre_colorized = false, $encoding = false ) {
+		return strwidth( $pre_colorized || self::shouldColorize() ? self::decolorize( $string, $pre_colorized ? 1 /*keep_tokens*/ : 0 ) : $string, $encoding );
 	}
 
 	/**
 	 * Pad the string to a certain display length.
 	 *
-	 * @param string $string        The string to pad.
-	 * @param int    $length        The display length.
-	 * @param bool   $pre_colorized Optional. Set if the string is pre-colorized. Default false.
+	 * @param string      $string        The string to pad.
+	 * @param int         $length        The display length.
+	 * @param bool        $pre_colorized Optional. Set if the string is pre-colorized. Default false.
+	 * @param string|bool $encoding      Optional. The encoding of the string. Default false.
      * @return string
 	 */
-	static public function pad( $string, $length, $pre_colorized = false ) {
-		$real_length = self::width( $string, $pre_colorized );
+	static public function pad( $string, $length, $pre_colorized = false, $encoding = false ) {
+		$real_length = self::width( $string, $pre_colorized, $encoding );
 		$diff = strlen( $string ) - $real_length;
 		$length += $diff;
 
