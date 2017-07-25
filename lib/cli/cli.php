@@ -156,15 +156,19 @@ function menu( $items, $default = null, $title = 'Choose an item' ) {
  * Attempts an encoding-safe way of getting string length. If mb_string extensions aren't
  * installed, falls back to basic strlen if no encoding is present
  *
- * @param string The string to check
- * @return int Numeric value that represents the string's length
+ * @param  string      $str      The string to check.
+ * @param  string|bool $encoding Optional. The encoding of the string. Default false.
+ * @return int  Numeric value that represents the string's length
  */
-function safe_strlen( $str ) {
-	if ( function_exists( 'mb_strlen' ) && function_exists( 'mb_detect_encoding' ) ) {
-		$length =  mb_strlen( $str, mb_detect_encoding( $str ) );
+function safe_strlen( $str, $encoding = false ) {
+	if ( function_exists( 'mb_strlen' ) && ( $encoding || function_exists( 'mb_detect_encoding' ) ) ) {
+		if ( ! $encoding ) {
+			$encoding = mb_detect_encoding( $str, null, true /*strict*/ );
+		}
+		$length =  mb_strlen( $str, $encoding );
 	} else {
 		// iconv will return PHP notice if non-ascii characters are present in input string
-		$str = iconv( 'ASCII' , 'ASCII', $str );
+		$str = iconv( $encoding ? $encoding : 'ASCII', 'ASCII', $str );
 
 		$length = strlen( $str );
 	}
@@ -176,17 +180,43 @@ function safe_strlen( $str ) {
  * Attempts an encoding-safe way of getting a substring. If mb_string extensions aren't
  * installed, falls back to ascii substring if no encoding is present
  * 		
- * @param  string  $str  The input string
- * @param  int     $start   The starting position of the substring
- * @param  boolean $length  Maximum length of the substring
- * @return string           Substring of string specified by start and length parameters
+ * @param  string        $str      The input string.
+ * @param  int           $start    The starting position of the substring.
+ * @param  int|bool|null $length   Optional. Maximum length of the substring. Default false.
+ * @param  int|bool      $is_width Optional. If set and encoding is UTF-8, $length is interpreted as spacing width. Default false.
+ * @param  string|bool   $encoding Optional. The encoding of the string. Default false.
+ * @return string  Substring of string specified by start and length parameters
  */
-function safe_substr( $str, $start, $length = false ) {
-	if ( function_exists( 'mb_substr' ) && function_exists( 'mb_detect_encoding' ) ) {
-		$substr = mb_substr( $str, $start, $length, mb_detect_encoding( $str ) );
+function safe_substr( $str, $start, $length = false, $is_width = false, $encoding = false ) {
+	// PHP 5.3 substr takes false as full length, PHP > 5.3 takes null - for compat. do `safe_strlen()`.
+	if ( null === $length || false === $length ) {
+		$length = safe_strlen( $str, $encoding );
+	}
+	if ( function_exists( 'mb_substr' ) && ( $encoding || function_exists( 'mb_detect_encoding' ) ) ) {
+		if ( ! $encoding ) {
+			$encoding = mb_detect_encoding( $str, null, true /*strict*/ );
+		}
+		$substr = mb_substr( $str, $start, $length, $encoding );
+
+		if ( $is_width && 'UTF-8' === $encoding ) {
+			// Set the East Asian Width regex.
+			$eaw_regex = get_unicode_regexs( 'eaw' );
+			// If there's any East Asian double-width chars...
+			if ( preg_match( $eaw_regex, $substr ) ) {
+				// Explode string into an array of UTF-8 chars. Based on core `_mb_substr()` in "wp-includes/compat.php".
+				$chars = preg_split( '/([\x00-\x7f\xc2-\xf4][^\x00-\x7f\xc2-\xf4]*)/', $substr, $length + 1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY );
+				$cnt = min( count( $chars ), $length );
+				$width = $length;
+
+				for ( $length = 0; $length < $cnt && $width > 0; $length++ ) {
+					$width -= preg_match( $eaw_regex, $chars[ $length ] ) ? 2 : 1;
+				}
+				return join( '', array_slice( $chars, 0, $length ) );
+			}
+		}
 	} else {
 		// iconv will return PHP notice if non-ascii characters are present in input string
-		$str = iconv( 'ASCII' , 'ASCII', $str );
+		$str = iconv( $encoding ? $encoding : 'ASCII', 'ASCII', $str );
 		
 		$substr = substr( $str, $start, $length );
 	}
@@ -197,13 +227,13 @@ function safe_substr( $str, $start, $length = false ) {
 /**
  * An encoding-safe way of padding string length for display
  *
- * @param string $string The string to pad
- * @param int $length The length to pad it to
+ * @param  string      $string   The string to pad.
+ * @param  int         $length   The length to pad it to.
+ * @param  string|bool $encoding Optional. The encoding of the string. Default false.
  * @return string
  */
-function safe_str_pad( $string, $length ) {
-	$cleaned_string = Colors::shouldColorize() ? Colors::decolorize( $string ) : $string;
-	$real_length = strwidth( $cleaned_string );
+function safe_str_pad( $string, $length, $encoding = false ) {
+	$real_length = strwidth( $string, $encoding );
 	$diff = strlen( $string ) - $real_length;
 	$length += $diff;
 
@@ -213,16 +243,13 @@ function safe_str_pad( $string, $length ) {
 /**
  * Get width of string, ie length in characters, taking into account multi-byte and mark characters for UTF-8, and multi-byte for non-UTF-8.
  *
- * @param string The string to check
- * @return int The string's width.
+ * @param  string      $string   The string to check.
+ * @param  string|bool $encoding Optional. The encoding of the string. Default false.
+ * @return int  The string's width.
  */
-function strwidth( $string ) {
-	static $eaw_regex; // East Asian Width regex. Characters that count as 2 characters as they're "wide" or "fullwidth". See http://www.unicode.org/reports/tr11/tr11-19.html
-	static $m_regex; // Mark characters regex (Unicode property "M") - mark combining "Mc", mark enclosing "Me" and mark non-spacing "Mn" chars that should be ignored for spacing purposes.
-	if ( null === $eaw_regex ) {
-		// Load both regexs generated from Unicode data.
-		require __DIR__ . '/unicode/regex.php';
-	}
+function strwidth( $string, $encoding = false ) {
+	// Set the East Asian Width and Mark regexs.
+	list( $eaw_regex, $m_regex ) = get_unicode_regexs();
 
 	// Allow for selective testings - "1" bit set tests grapheme_strlen(), "2" preg_match_all( '/\X/u' ), "4" mb_strwidth(), "other" safe_strlen().
 	$test_strwidth = getenv( 'PHP_CLI_TOOLS_TEST_STRWIDTH' );
@@ -239,8 +266,10 @@ function strwidth( $string ) {
 			return $width + preg_match_all( $eaw_regex, $string, $dummy /*needed for PHP 5.3*/ );
 		}
 	}
-	if ( function_exists( 'mb_strwidth' ) && function_exists( 'mb_detect_encoding' ) ) {
-		$encoding = mb_detect_encoding( $string, null, true /*strict*/ );
+	if ( function_exists( 'mb_strwidth' ) && ( $encoding || function_exists( 'mb_detect_encoding' ) ) ) {
+		if ( ! $encoding ) {
+			$encoding = mb_detect_encoding( $string, null, true /*strict*/ );
+		}
 		$width = mb_strwidth( $string, $encoding );
 		if ( 'UTF-8' === $encoding ) {
 			// Subtract combining characters.
@@ -251,4 +280,30 @@ function strwidth( $string ) {
 		}
 	}
 	return safe_strlen( $string );
+}
+
+/**
+ * Get the regexs generated from Unicode data.
+ *
+ * @param string $idx Optional. Return a specific regex only. Default null.
+ * @return array|string  Returns keyed array if not given $idx or $idx doesn't exist, otherwise the specific regex string.
+ */
+function get_unicode_regexs( $idx = null ) {
+	static $eaw_regex; // East Asian Width regex. Characters that count as 2 characters as they're "wide" or "fullwidth". See http://www.unicode.org/reports/tr11/tr11-19.html
+	static $m_regex; // Mark characters regex (Unicode property "M") - mark combining "Mc", mark enclosing "Me" and mark non-spacing "Mn" chars that should be ignored for spacing purposes.
+	if ( null === $eaw_regex ) {
+		// Load both regexs generated from Unicode data.
+		require __DIR__ . '/unicode/regex.php';
+	}
+
+	if ( null !== $idx ) {
+		if ( 'eaw' === $idx ) {
+			return $eaw_regex;
+		}
+		if ( 'm' === $idx ) {
+			return $m_regex;
+		}
+	}
+
+	return array( $eaw_regex, $m_regex, );
 }

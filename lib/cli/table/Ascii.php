@@ -27,6 +27,7 @@ class Ascii extends Renderer {
 	);
 	protected $_border = null;
 	protected $_constraintWidth = null;
+	protected $_pre_colorized = false;
 
 	/**
 	 * Set the widths of each column in the table.
@@ -133,17 +134,18 @@ class Ascii extends Renderer {
 				$value = str_replace( PHP_EOL, ' ', $value );
 
 				$col_width = $this->_widths[ $col ];
-				$original_val_width = Colors::shouldColorize() ? Colors::width( $value ) : \cli\strwidth( $value );
+				$encoding = function_exists( 'mb_detect_encoding' ) ? mb_detect_encoding( $value, null, true /*strict*/ ) : false;
+				$original_val_width = Colors::width( $value, self::isPreColorized( $col ), $encoding );
 				if ( $original_val_width > $col_width ) {
-					$row[ $col ] = \cli\safe_substr( $value, 0, $col_width );
-					$value = \cli\safe_substr( $value, $col_width, $original_val_width );
+					$row[ $col ] = \cli\safe_substr( $value, 0, $col_width, true /*is_width*/, $encoding );
+					$value = \cli\safe_substr( $value, \cli\safe_strlen( $row[ $col ], $encoding ), null /*length*/, false /*is_width*/, $encoding );
 					$i = 0;
 					do {
-						$extra_value = \cli\safe_substr( $value, 0, $col_width );
-						$val_width = \cli\strwidth( $extra_value );
+						$extra_value = \cli\safe_substr( $value, 0, $col_width, true /*is_width*/, $encoding );
+						$val_width = Colors::width( $extra_value, self::isPreColorized( $col ), $encoding );
 						if ( $val_width ) {
 							$extra_rows[ $col ][] = $extra_value;
-							$value = \cli\safe_substr( $value, $col_width, $original_val_width );
+							$value = \cli\safe_substr( $value, \cli\safe_strlen( $extra_value, $encoding ), null /*length*/, false /*is_width*/, $encoding );
 							$i++;
 							if ( $i > $extra_row_count ) {
 								$extra_row_count = $i;
@@ -188,6 +190,31 @@ class Ascii extends Renderer {
 	}
 
 	private function padColumn($content, $column) {
-		return $this->_characters['padding'] . Colors::pad($content, $this->_widths[$column]) . $this->_characters['padding'];
+		return $this->_characters['padding'] . Colors::pad( $content, $this->_widths[ $column ], $this->isPreColorized( $column ) ) . $this->_characters['padding'];
+	}
+
+	/**
+	 * Set whether items are pre-colorized.
+	 *
+	 * @param bool|array $colorized A boolean to set all columns in the table as pre-colorized, or an array of booleans keyed by column index (number) to set individual columns as pre-colorized.
+	 */
+	public function setPreColorized( $pre_colorized ) {
+		$this->_pre_colorized = $pre_colorized;
+	}
+
+	/**
+	 * Is a column pre-colorized?
+	 *
+	 * @param int $column Column index to check.
+	 * @return bool True if whole table is marked as pre-colorized, or if the individual column is pre-colorized; else false.
+	 */
+	public function isPreColorized( $column ) {
+		if ( is_bool( $this->_pre_colorized ) ) {
+			return $this->_pre_colorized;
+		}
+		if ( is_array( $this->_pre_colorized ) && isset( $this->_pre_colorized[ $column ] ) ) {
+			return $this->_pre_colorized[ $column ];
+		}
+		return false;
 	}
 }
