@@ -49,8 +49,10 @@ class Shell {
 						}
 					}
 				} else {
-					if ( getenv( 'TERM' ) ) {
-						$columns = (int) exec( '/usr/bin/env tput cols' );
+					if ( ! ( $columns = (int) getenv( 'COLUMNS' ) ) ) {
+						if ( getenv( 'TERM' ) ) {
+							$columns = (int) exec( '/usr/bin/env tput cols 2>/dev/null' );
+						}
 					}
 				}
 			}
