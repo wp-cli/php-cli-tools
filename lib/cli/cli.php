@@ -203,12 +203,12 @@ function safe_substr( $str, $start, $length = false, $is_width = false, $encodin
 			$eaw_regex = get_unicode_regexs( 'eaw' );
 			// If there's any East Asian double-width chars...
 			if ( preg_match( $eaw_regex, $substr ) ) {
-				// Note that if the length ends in the middle of a double-width char, the char is included, not excluded.
+				// Note that if the length ends in the middle of a double-width char, the char is excluded, not included.
 
 				// See if it's all EAW - the most likely case.
 				if ( preg_match_all( $eaw_regex, $substr, $dummy /*needed for PHP 5.3*/ ) === $length ) {
-					// Just halve the length so (rounded up).
-					$substr = mb_substr( $substr, 0, (int) ( ( $length + 1 ) / 2 ), $encoding );
+					// Just halve the length so (rounded down to a minimum of 1).
+					$substr = mb_substr( $substr, 0, max( (int) ( $length / 2 ), 1 ), $encoding );
 				} else {
 					// Explode string into an array of UTF-8 chars. Based on core `_mb_substr()` in "wp-includes/compat.php".
 					$chars = preg_split( '/([\x00-\x7f\xc2-\xf4][^\x00-\x7f\xc2-\xf4]*)/', $substr, $length + 1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY );
@@ -217,6 +217,10 @@ function safe_substr( $str, $start, $length = false, $is_width = false, $encodin
 
 					for ( $length = 0; $length < $cnt && $width > 0; $length++ ) {
 						$width -= preg_match( $eaw_regex, $chars[ $length ] ) ? 2 : 1;
+					}
+					// Round down to a minimum of 1.
+					if ( $width < 0 && $length > 1 ) {
+						$length--;
 					}
 					return join( '', array_slice( $chars, 0, $length ) );
 				}

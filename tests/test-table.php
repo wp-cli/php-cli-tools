@@ -55,6 +55,50 @@ class Test_Table extends PHPUnit_Framework_TestCase {
 		}
 	}
 
+	public function test_column_odd_single_width_with_double_width() {
+
+		$dummy = new cli\Table;
+		$renderer = new cli\Table\Ascii;
+
+		$strip_borders = function ( $a ) {
+			return array_map( function ( $v ) {
+				return substr( $v, 2, -2 );
+			}, $a );
+		};
+
+		$renderer->setWidths( array( 10 ) );
+
+		// 1 single-width, 6 double-width, 1 single-width, 2 double-width, 1 half-width, 2 double-width.
+		$out = $renderer->row( array( '1あいうえおか2きくｶけこ' ) );
+		$result = $strip_borders( explode( "\n", $out ) );
+
+		$this->assertSame( 3, count( $result ) );
+		$this->assertSame( '1あいうえ ', $result[0] ); // 1 single width, 4 double-width, space = 10.
+		$this->assertSame( 'おか2きくｶ', $result[1] ); // 2 double-width, 1 single-width, 2 double-width, 1 half-width = 10.
+		$this->assertSame( 'けこ      ', $result[2] ); // 2 double-width, 8 spaces = 10.
+
+		// Minimum width 1.
+
+		$renderer->setWidths( array( 1 ) );
+
+		$out = $renderer->row( array( '1あいうえおか2きくｶけこ' ) );
+		$result = $strip_borders( explode( "\n", $out ) );
+
+		$this->assertSame( 13, count( $result ) );
+		// Uneven rows.
+		$this->assertSame( '1', $result[0] );
+		$this->assertSame( 'あ', $result[1] );
+
+		// Zero width does no wrapping.
+
+		$renderer->setWidths( array( 0 ) );
+
+		$out = $renderer->row( array( '1あいうえおか2きくｶけこ' ) );
+		$result = $strip_borders( explode( "\n", $out ) );
+
+		$this->assertSame( 1, count( $result ) );
+	}
+
 	public function test_ascii_pre_colorized_widths() {
 
 		Colors::enable( true );
