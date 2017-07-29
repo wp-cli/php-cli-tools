@@ -202,7 +202,7 @@ function safe_substr( $str, $start, $length = false, $is_width = false, $encodin
 			// Set the East Asian Width regex.
 			$eaw_regex = get_unicode_regexs( 'eaw' );
 			// If there's any East Asian double-width chars...
-			if ( preg_match( $eaw_regex, $substr ) ) {
+			if ( preg_match( $eaw_regex, $substr, $dummy /*needed for PHP 5.3*/ ) ) {
 				// Note that if the length ends in the middle of a double-width char, the char is included, not excluded.
 
 				// See if it's all EAW - the most likely case.
