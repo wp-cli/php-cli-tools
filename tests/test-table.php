@@ -46,10 +46,11 @@ class Test_Table extends PHPUnit_Framework_TestCase {
 		$renderer->setConstraintWidth( $constraint_width );
 		$table->setRenderer( $renderer );
 		$table->setHeaders( array( 'Field', 'Value' ) );
-		$table->addRow( array( 'この文章はダミーです。文字の大きさ、量、字間、行間等を確認するために入れています。この文章はダミーです。文字の大きさ、量、字間、行間等を確認するために入れています。この文章はダミーです。文字の大きさ、', 'こんにちは' ) );
+		$table->addRow( array( '1この文章はダミーです。文字の大きさ、量、字間、行間等を確認するために入れています。この文章はダミーです。文字の大きさ、量、字間、行間等を確認するために入れています。', 'こんにちは' ) );
 		$table->addRow( array( 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.', 'Hello' ) );
 
 		$out = $table->getDisplayLines();
+		print_r($out);
 		for ( $i = 0; $i < count( $out ); $i++ ) {
 			$this->assertEquals( $constraint_width, \cli\strwidth( $out[$i] ) + 1 );
 		}
