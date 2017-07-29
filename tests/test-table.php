@@ -50,7 +50,6 @@ class Test_Table extends PHPUnit_Framework_TestCase {
 		$table->addRow( array( 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.', 'Hello' ) );
 
 		$out = $table->getDisplayLines();
-		print_r($out);
 		for ( $i = 0; $i < count( $out ); $i++ ) {
 			$this->assertEquals( $constraint_width, \cli\strwidth( $out[$i] ) + 1 );
 		}
