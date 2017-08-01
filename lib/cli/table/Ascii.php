@@ -136,7 +136,7 @@ class Ascii extends Renderer {
 				$col_width = $this->_widths[ $col ];
 				$encoding = function_exists( 'mb_detect_encoding' ) ? mb_detect_encoding( $value, null, true /*strict*/ ) : false;
 				$original_val_width = Colors::width( $value, self::isPreColorized( $col ), $encoding );
-				if ( $original_val_width > $col_width ) {
+				if ( $col_width && $original_val_width > $col_width ) {
 					$row[ $col ] = \cli\safe_substr( $value, 0, $col_width, true /*is_width*/, $encoding );
 					$value = \cli\safe_substr( $value, \cli\safe_strlen( $row[ $col ], $encoding ), null /*length*/, false /*is_width*/, $encoding );
 					$i = 0;

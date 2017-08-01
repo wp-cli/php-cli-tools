@@ -95,8 +95,8 @@ class testsCli extends PHPUnit_Framework_TestCase {
 		$this->assertSame( 'he',  \cli\safe_substr( Colors::pad( 'hello', 6 ), 0, 2, true /*is_width*/ ) );
 		$this->assertSame( 'ór', \cli\safe_substr( Colors::pad( 'óra', 6 ), 0, 2, true /*is_width*/ ) );
 		$this->assertSame( '日', \cli\safe_substr( Colors::pad( '日本語', 8 ), 0, 2, true /*is_width*/ ) );
+		$this->assertSame( '日', \cli\safe_substr( Colors::pad( '日本語', 8 ), 0, 3, true /*is_width*/ ) );
 		$this->assertSame( '日本', \cli\safe_substr( Colors::pad( '日本語', 8 ), 0, 4, true /*is_width*/ ) );
-		$this->assertSame( '日本', \cli\safe_substr( Colors::pad( '日本語', 8 ), 0, 3, true /*is_width*/ ) );
 		$this->assertSame( '日本語', \cli\safe_substr( Colors::pad( '日本語', 8 ), 0, 6, true /*is_width*/ ) );
 		$this->assertSame( '日本語 ', \cli\safe_substr( Colors::pad( '日本語', 8 ), 0, 7, true /*is_width*/ ) );
 
@@ -107,12 +107,12 @@ class testsCli extends PHPUnit_Framework_TestCase {
 
 		$this->assertSame( '', \cli\safe_substr( '1日4本語90', 0, 0, true /*is_width*/ ) );
 		$this->assertSame( '1', \cli\safe_substr( '1日4本語90', 0, 1, true /*is_width*/ ) );
-		$this->assertSame( '1日', \cli\safe_substr( '1日4本語90', 0, 2, true /*is_width*/ ) );
+		$this->assertSame( '1', \cli\safe_substr( '1日4本語90', 0, 2, true /*is_width*/ ) );
 		$this->assertSame( '1日', \cli\safe_substr( '1日4本語90', 0, 3, true /*is_width*/ ) );
 		$this->assertSame( '1日4', \cli\safe_substr( '1日4本語90', 0, 4, true /*is_width*/ ) );
-		$this->assertSame( '1日4本', \cli\safe_substr( '1日4本語90', 0, 5, true /*is_width*/ ) );
+		$this->assertSame( '1日4', \cli\safe_substr( '1日4本語90', 0, 5, true /*is_width*/ ) );
 		$this->assertSame( '1日4本', \cli\safe_substr( '1日4本語90', 0, 6, true /*is_width*/ ) );
-		$this->assertSame( '1日4本語', \cli\safe_substr( '1日4本語90', 0, 7, true /*is_width*/ ) );
+		$this->assertSame( '1日4本', \cli\safe_substr( '1日4本語90', 0, 7, true /*is_width*/ ) );
 		$this->assertSame( '1日4本語', \cli\safe_substr( '1日4本語90', 0, 8, true /*is_width*/ ) );
 		$this->assertSame( '1日4本語9', \cli\safe_substr( '1日4本語90', 0, 9, true /*is_width*/ ) );
 		$this->assertSame( '1日4本語90', \cli\safe_substr( '1日4本語90', 0, 10, true /*is_width*/ ) );
@@ -124,7 +124,7 @@ class testsCli extends PHPUnit_Framework_TestCase {
 
 		$this->assertSame( '本', \cli\safe_substr( '1日4本語90', 3, 1, true /*is_width*/ ) );
 		$this->assertSame( '本', \cli\safe_substr( '1日4本語90', 3, 2, true /*is_width*/ ) );
-		$this->assertSame( '本語', \cli\safe_substr( '1日4本語90', 3, 3, true /*is_width*/ ) );
+		$this->assertSame( '本', \cli\safe_substr( '1日4本語90', 3, 3, true /*is_width*/ ) );
 		$this->assertSame( '本語', \cli\safe_substr( '1日4本語90', 3, 4, true /*is_width*/ ) );
 		$this->assertSame( '本語9', \cli\safe_substr( '1日4本語90', 3, 5, true /*is_width*/ ) );
 

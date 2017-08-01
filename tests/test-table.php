@@ -46,13 +46,57 @@ class Test_Table extends PHPUnit_Framework_TestCase {
 		$renderer->setConstraintWidth( $constraint_width );
 		$table->setRenderer( $renderer );
 		$table->setHeaders( array( 'Field', 'Value' ) );
-		$table->addRow( array( 'この文章はダミーです。文字の大きさ、量、字間、行間等を確認するために入れています。この文章はダミーです。文字の大きさ、量、字間、行間等を確認するために入れています。この文章はダミーです。文字の大きさ、', 'こんにちは' ) );
+		$table->addRow( array( '1この文章はダミーです。文字の大きさ、量、字間、行間等を確認するために入れています。2この文章はダミーです。文字の大きさ、量、字間、行間等を確認するために入れています。', 'こんにちは' ) );
 		$table->addRow( array( 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.', 'Hello' ) );
 
 		$out = $table->getDisplayLines();
 		for ( $i = 0; $i < count( $out ); $i++ ) {
 			$this->assertEquals( $constraint_width, \cli\strwidth( $out[$i] ) + 1 );
 		}
+	}
+
+	public function test_column_odd_single_width_with_double_width() {
+
+		$dummy = new cli\Table;
+		$renderer = new cli\Table\Ascii;
+
+		$strip_borders = function ( $a ) {
+			return array_map( function ( $v ) {
+				return substr( $v, 2, -2 );
+			}, $a );
+		};
+
+		$renderer->setWidths( array( 10 ) );
+
+		// 1 single-width, 6 double-width, 1 single-width, 2 double-width, 1 half-width, 2 double-width.
+		$out = $renderer->row( array( '1あいうえおか2きくｶけこ' ) );
+		$result = $strip_borders( explode( "\n", $out ) );
+
+		$this->assertSame( 3, count( $result ) );
+		$this->assertSame( '1あいうえ ', $result[0] ); // 1 single width, 4 double-width, space = 10.
+		$this->assertSame( 'おか2きくｶ', $result[1] ); // 2 double-width, 1 single-width, 2 double-width, 1 half-width = 10.
+		$this->assertSame( 'けこ      ', $result[2] ); // 2 double-width, 8 spaces = 10.
+
+		// Minimum width 1.
+
+		$renderer->setWidths( array( 1 ) );
+
+		$out = $renderer->row( array( '1あいうえおか2きくｶけこ' ) );
+		$result = $strip_borders( explode( "\n", $out ) );
+
+		$this->assertSame( 13, count( $result ) );
+		// Uneven rows.
+		$this->assertSame( '1', $result[0] );
+		$this->assertSame( 'あ', $result[1] );
+
+		// Zero width does no wrapping.
+
+		$renderer->setWidths( array( 0 ) );
+
+		$out = $renderer->row( array( '1あいうえおか2きくｶけこ' ) );
+		$result = $strip_borders( explode( "\n", $out ) );
+
+		$this->assertSame( 1, count( $result ) );
 	}
 
 	public function test_ascii_pre_colorized_widths() {
