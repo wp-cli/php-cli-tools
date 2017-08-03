@@ -87,10 +87,105 @@ class testsCli extends PHPUnit_Framework_TestCase {
 
 		$this->assertSame( '本語', \cli\safe_substr( Colors::pad( '日本語', 8 ), 1, 2 ) );
 		$this->assertSame( '語 ', \cli\safe_substr( Colors::pad( '日本語', 8 ), 2, 2 ) );
-
+		$this->assertSame( ' ', \cli\safe_substr( Colors::pad( '日本語', 8 ), -1 ) );
+		$this->assertSame( ' ', \cli\safe_substr( Colors::pad( '日本語', 8 ), -1, 2 ) );
+		$this->assertSame( '語  ', \cli\safe_substr( Colors::pad( '日本語', 8 ), -3, 3 ) );
 	}
 
-	function test_encoded_substr_is_width() {
+	function test_various_substr() {
+		// Save.
+		$test_safe_substr = getenv( 'PHP_CLI_TOOLS_TEST_SAFE_SUBSTR' );
+		if ( function_exists( 'mb_detect_order' ) ) {
+			$mb_detect_order = mb_detect_order();
+		}
+
+		putenv( 'PHP_CLI_TOOLS_TEST_SAFE_SUBSTR' );
+
+		// Latin, kana, Latin, Latin combining, Thai combining, Hangul.
+		$str = 'lムnöม้p를';
+
+		if ( function_exists( 'grapheme_substr' ) ) {
+			putenv( 'PHP_CLI_TOOLS_TEST_SAFE_SUBSTR=1' ); // Tests grapheme_substr().
+			$this->assertSame( '', \cli\safe_substr( $str, 0, 0 ) );
+			$this->assertSame( 'l', \cli\safe_substr( $str, 0, 1 ) );
+			$this->assertSame( 'lム', \cli\safe_substr( $str, 0, 2 ) );
+			$this->assertSame( 'lムn', \cli\safe_substr( $str, 0, 3 ) );
+			$this->assertSame( 'lムnö', \cli\safe_substr( $str, 0, 4 ) );
+			$this->assertSame( 'lムnöม้', \cli\safe_substr( $str, 0, 5 ) );
+			$this->assertSame( 'lムnöม้p', \cli\safe_substr( $str, 0, 6 ) );
+			$this->assertSame( 'lムnöม้p를', \cli\safe_substr( $str, 0, 7 ) );
+			$this->assertSame( 'lムnöม้p를', \cli\safe_substr( $str, 0, 8 ) );
+			$this->assertSame( '를', \cli\safe_substr( $str, -1 ) );
+			$this->assertSame( 'p를', \cli\safe_substr( $str, -2 ) );
+			$this->assertSame( 'ม้p를', \cli\safe_substr( $str, -3 ) );
+			$this->assertSame( 'öม้p를', \cli\safe_substr( $str, -4 ) );
+			$this->assertSame( 'öม้p', \cli\safe_substr( $str, -4, 3 ) );
+			$this->assertSame( 'nö', \cli\safe_substr( $str, -5, 2 ) );
+			$this->assertSame( 'ム', \cli\safe_substr( $str, -6, 1 ) );
+			$this->assertSame( 'ムnöม้p를', \cli\safe_substr( $str, -6 ) );
+			$this->assertSame( 'lムnöม้p를', \cli\safe_substr( $str, -7 ) );
+			$this->assertSame( 'lムnö', \cli\safe_substr( $str, -7, 4 ) );
+			// $this->assertSame( 'lムnöม้p를', \cli\safe_substr( $str, -8 ) ); // grapheme_substr() returns false on this.
+		}
+
+		if ( \cli\can_use_pcre_x() ) {
+			putenv( 'PHP_CLI_TOOLS_TEST_SAFE_SUBSTR=2' ); // Tests preg_match( '/\X/u' ).
+			$this->assertSame( '', \cli\safe_substr( $str, 0, 0 ) );
+			$this->assertSame( 'l', \cli\safe_substr( $str, 0, 1 ) );
+			$this->assertSame( 'lム', \cli\safe_substr( $str, 0, 2 ) );
+			$this->assertSame( 'lムn', \cli\safe_substr( $str, 0, 3 ) );
+			$this->assertSame( 'lムnö', \cli\safe_substr( $str, 0, 4 ) );
+			$this->assertSame( 'lムnöม้', \cli\safe_substr( $str, 0, 5 ) );
+			$this->assertSame( 'lムnöม้p', \cli\safe_substr( $str, 0, 6 ) );
+			$this->assertSame( 'lムnöม้p를', \cli\safe_substr( $str, 0, 7 ) );
+			$this->assertSame( 'lムnöม้p를', \cli\safe_substr( $str, 0, 8 ) );
+			$this->assertSame( '를', \cli\safe_substr( $str, -1 ) );
+			$this->assertSame( 'p를', \cli\safe_substr( $str, -2 ) );
+			$this->assertSame( 'ม้p를', \cli\safe_substr( $str, -3 ) );
+			$this->assertSame( 'öม้p를', \cli\safe_substr( $str, -4 ) );
+			$this->assertSame( 'öม้p', \cli\safe_substr( $str, -4, 3 ) );
+			$this->assertSame( 'nö', \cli\safe_substr( $str, -5, 2 ) );
+			$this->assertSame( 'ム', \cli\safe_substr( $str, -6, 1 ) );
+			$this->assertSame( 'ムnöม้p를', \cli\safe_substr( $str, -6 ) );
+			$this->assertSame( 'lムnöม้p를', \cli\safe_substr( $str, -7 ) );
+			$this->assertSame( 'lムnö', \cli\safe_substr( $str, -7, 4 ) );
+			$this->assertSame( 'lムnöม้p를', \cli\safe_substr( $str, -8 ) );
+		}
+
+		if ( function_exists( 'mb_substr' ) ) {
+			putenv( 'PHP_CLI_TOOLS_TEST_SAFE_SUBSTR=4' ); // Tests mb_substr().
+			$this->assertSame( '', \cli\safe_substr( $str, 0, 0 ) );
+			$this->assertSame( 'l', \cli\safe_substr( $str, 0, 1 ) );
+			$this->assertSame( 'lム', \cli\safe_substr( $str, 0, 2 ) );
+			$this->assertSame( 'lムn', \cli\safe_substr( $str, 0, 3 ) );
+			$this->assertSame( 'lムno', \cli\safe_substr( $str, 0, 4 ) ); // Wrong.
+		}
+
+		putenv( 'PHP_CLI_TOOLS_TEST_SAFE_SUBSTR=8' ); // Tests substr().
+		$this->assertSame( '', \cli\safe_substr( $str, 0, 0 ) );
+		$this->assertSame( 'l', \cli\safe_substr( $str, 0, 1 ) );
+		$this->assertSame( "l\xe3", \cli\safe_substr( $str, 0, 2 ) ); // Corrupt.
+
+		// Non-UTF-8 - both grapheme_substr() and preg_match( '/\X/u' ) will fail.
+
+		putenv( 'PHP_CLI_TOOLS_TEST_SAFE_SUBSTR' );
+
+		if ( function_exists( 'mb_substr' ) && function_exists( 'mb_detect_order' ) ) {
+			// Latin-1
+			mb_detect_order( array( 'UTF-8', 'ISO-8859-1' ) );
+			$str = "\xe0b\xe7"; // "àbç" in ISO-8859-1
+			$this->assertSame( "\xe0b", \cli\safe_substr( $str, 0, 2 ) );
+			$this->assertSame( "\xe0b", mb_substr( $str, 0, 2, 'ISO-8859-1' ) );
+		}
+
+		// Restore.
+		putenv( false == $test_safe_substr ? 'PHP_CLI_TOOLS_TEST_SAFE_SUBSTR' : "PHP_CLI_TOOLS_TEST_SAFE_SUBSTR=$test_safe_substr" );
+		if ( function_exists( 'mb_detect_order' ) ) {
+			mb_detect_order( $mb_detect_order );
+		}
+	}
+
+	function test_is_width_encoded_substr() {
 
 		$this->assertSame( 'he',  \cli\safe_substr( Colors::pad( 'hello', 6 ), 0, 2, true /*is_width*/ ) );
 		$this->assertSame( 'ór', \cli\safe_substr( Colors::pad( 'óra', 6 ), 0, 2, true /*is_width*/ ) );
@@ -131,6 +226,11 @@ class testsCli extends PHPUnit_Framework_TestCase {
 		$this->assertSame( '0', \cli\safe_substr( '1日4本語90', 6, 1, true /*is_width*/ ) );
 		$this->assertSame( '', \cli\safe_substr( '1日4本語90', 7, 1, true /*is_width*/ ) );
 		$this->assertSame( '', \cli\safe_substr( '1日4本語90', 6, 0, true /*is_width*/ ) );
+
+		$this->assertSame( '0', \cli\safe_substr( '1日4本語90', -1, 3, true /*is_width*/ ) );
+		$this->assertSame( '90', \cli\safe_substr( '1日4本語90', -2, 3, true /*is_width*/ ) );
+		$this->assertSame( '語9', \cli\safe_substr( '1日4本語90', -3, 3, true /*is_width*/ ) );
+		$this->assertSame( '本語9', \cli\safe_substr( '1日4本語90', -4, 5, true /*is_width*/ ) );
 	}
 
 	function test_colorized_string_length() {
@@ -296,8 +396,10 @@ class testsCli extends PHPUnit_Framework_TestCase {
 		}
 
 		putenv( 'PHP_CLI_TOOLS_TEST_STRWIDTH=8' ); // Test safe_strlen().
-		if ( function_exists( 'mb_strlen' ) && function_exists( 'mb_detect_order' ) ) {
-			$this->assertSame( 6, \cli\strwidth( $str ) ); // mb_strlen() - counts the 2 combining chars but not the double-width Han so out by 1.
+		if ( function_exists( 'grapheme_strlen' ) || \cli\can_use_pcre_x() ) {
+			$this->assertSame( 4, \cli\strwidth( $str ) ); // safe_strlen() (correctly) does not account for double-width Han so out by 1.
+		} elseif ( function_exists( 'mb_strlen' ) && function_exists( 'mb_detect_order' ) ) {
+			$this->assertSame( 4, \cli\strwidth( $str ) ); // safe_strlen() (correctly) does not account for double-width Han so out by 1.
 			$this->assertSame( 6, mb_strlen( $str, 'UTF-8' ) );
 		} else {
 			$this->assertSame( 16, \cli\strwidth( $str ) ); // strlen() - no. of bytes.
@@ -352,6 +454,61 @@ class testsCli extends PHPUnit_Framework_TestCase {
 
 		// Restore.
 		putenv( false == $test_strwidth ? 'PHP_CLI_TOOLS_TEST_STRWIDTH' : "PHP_CLI_TOOLS_TEST_STRWIDTH=$test_strwidth" );
+		if ( function_exists( 'mb_detect_order' ) ) {
+			mb_detect_order( $mb_detect_order );
+		}
+	}
+
+	function test_safe_strlen() {
+		// Save.
+		$test_safe_strlen = getenv( 'PHP_CLI_TOOLS_TEST_SAFE_STRLEN' );
+		if ( function_exists( 'mb_detect_order' ) ) {
+			$mb_detect_order = mb_detect_order();
+		}
+
+		putenv( 'PHP_CLI_TOOLS_TEST_SAFE_STRLEN' );
+
+		// UTF-8.
+
+		// ASCII l, 3-byte kana, ASCII n, ASCII o + 2-byte combining umlaut, 6-byte Thai combining, ASCII, 3-byte Hangul. grapheme length 7, bytes 18.
+		$str = 'lムnöม้p를';
+
+		if ( function_exists( 'grapheme_strlen' ) ) {
+			putenv( 'PHP_CLI_TOOLS_TEST_SAFE_STRLEN' ); // Test grapheme_strlen().
+			$this->assertSame( 7, \cli\safe_strlen( $str ) );
+			if ( \cli\can_use_pcre_x() ) {
+				putenv( 'PHP_CLI_TOOLS_TEST_SAFE_STRLEN=2' ); // Test preg_match_all( '/\X/u' ).
+				$this->assertSame( 7, \cli\safe_strlen( $str ) );
+			}
+		} elseif ( \cli\can_use_pcre_x() ) {
+			$this->assertSame( 7, \cli\safe_strlen( $str ) ); // Tests preg_match_all( '/\X/u' ).
+		} else {
+			putenv( 'PHP_CLI_TOOLS_TEST_SAFE_STRLEN=8' ); // Test strlen().
+			$this->assertSame( 18, \cli\safe_strlen( $str ) ); // strlen() - no. of bytes.
+			$this->assertSame( 18, strlen( $str ) );
+		}
+
+		if ( function_exists( 'mb_strlen' ) && function_exists( 'mb_detect_order' ) ) {
+			putenv( 'PHP_CLI_TOOLS_TEST_SAFE_STRLEN=4' ); // Test mb_strlen().
+			mb_detect_order( array( 'UTF-8', 'ISO-8859-1' ) );
+			$this->assertSame( 7, \cli\safe_strlen( $str ) );
+			$this->assertSame( 9, mb_strlen( $str, 'UTF-8' ) ); // mb_strlen() - counts the 2 combining chars.
+		}
+
+		// Non-UTF-8 - both grapheme_strlen() and preg_match_all( '/\X/u' ) will fail.
+
+		putenv( 'PHP_CLI_TOOLS_TEST_SAFE_STRLEN' );
+
+		if ( function_exists( 'mb_strlen' ) && function_exists( 'mb_detect_order' ) ) {
+			// Latin-1
+			mb_detect_order( array( 'UTF-8', 'ISO-8859-1' ) );
+			$str = "\xe0b\xe7"; // "àbç" in ISO-8859-1
+			$this->assertSame( 3, \cli\safe_strlen( $str ) ); // Test mb_strlen().
+			$this->assertSame( 3, mb_strlen( $str, 'ISO-8859-1' ) );
+		}
+
+		// Restore.
+		putenv( false == $test_safe_strlen ? 'PHP_CLI_TOOLS_TEST_SAFE_STRLEN' : "PHP_CLI_TOOLS_TEST_SAFE_STRLEN=$test_safe_strlen" );
 		if ( function_exists( 'mb_detect_order' ) ) {
 			mb_detect_order( $mb_detect_order );
 		}

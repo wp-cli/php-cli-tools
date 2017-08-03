@@ -153,87 +153,148 @@ function menu( $items, $default = null, $title = 'Choose an item' ) {
 }
 
 /**
- * Attempts an encoding-safe way of getting string length. If mb_string extensions aren't
- * installed, falls back to basic strlen if no encoding is present
+ * Attempts an encoding-safe way of getting string length. If intl extension or PCRE with '\X' or mb_string extension aren't
+ * available, falls back to basic strlen.
  *
  * @param  string      $str      The string to check.
  * @param  string|bool $encoding Optional. The encoding of the string. Default false.
  * @return int  Numeric value that represents the string's length
  */
 function safe_strlen( $str, $encoding = false ) {
+	// Allow for selective testings - "1" bit set tests grapheme_strlen(), "2" preg_match_all( '/\X/u' ), "4" mb_strlen(), "other" strlen().
+	$test_safe_strlen = getenv( 'PHP_CLI_TOOLS_TEST_SAFE_STRLEN' );
+
+	// Assume UTF-8 if no encoding given - `grapheme_strlen()` will return null if given non-UTF-8 string.
+	if ( ( ! $encoding || 'UTF-8' === $encoding ) && function_exists( 'grapheme_strlen' ) && null !== ( $length = grapheme_strlen( $str ) ) ) {
+		if ( ! $test_safe_strlen || ( $test_safe_strlen & 1 ) ) {
+			return $length;
+		}
+	}
+	// Assume UTF-8 if no encoding given - `preg_match_all()` will return false if given non-UTF-8 string.
+	if ( ( ! $encoding || 'UTF-8' === $encoding ) && can_use_pcre_x() && false !== ( $length = preg_match_all( '/\X/u', $str, $dummy /*needed for PHP 5.3*/ ) ) ) {
+		if ( ! $test_safe_strlen || ( $test_safe_strlen & 2 ) ) {
+			return $length;
+		}
+	}
+	// Legacy encodings and old PHPs will reach here.
 	if ( function_exists( 'mb_strlen' ) && ( $encoding || function_exists( 'mb_detect_encoding' ) ) ) {
 		if ( ! $encoding ) {
 			$encoding = mb_detect_encoding( $str, null, true /*strict*/ );
 		}
-		$length =  mb_strlen( $str, $encoding );
-	} else {
-		// iconv will return PHP notice if non-ascii characters are present in input string
-		$str = iconv( $encoding ? $encoding : 'ASCII', 'ASCII', $str );
-
-		$length = strlen( $str );
+		$length = mb_strlen( $str, $encoding );
+		if ( 'UTF-8' === $encoding ) {
+			// Subtract combining characters.
+			$length -= preg_match_all( get_unicode_regexs( 'm' ), $str, $dummy /*needed for PHP 5.3*/ );
+		}
+		if ( ! $test_safe_strlen || ( $test_safe_strlen & 4 ) ) {
+			return $length;
+		}
 	}
-
-	return $length;
+	return strlen( $str );
 }
 
 /**
- * Attempts an encoding-safe way of getting a substring. If mb_string extensions aren't
- * installed, falls back to ascii substring if no encoding is present
+ * Attempts an encoding-safe way of getting a substring. If intl extension or PCRE with '\X' or mb_string extension aren't
+ * available, falls back to substr().
  * 		
  * @param  string        $str      The input string.
  * @param  int           $start    The starting position of the substring.
- * @param  int|bool|null $length   Optional. Maximum length of the substring. Default false.
- * @param  int|bool      $is_width Optional. If set and encoding is UTF-8, $length is interpreted as spacing width. Default false.
+ * @param  int|bool|null $length   Optional, unless $is_width is set. Maximum length of the substring. Default false. Negative not supported.
+ * @param  int|bool      $is_width Optional. If set and encoding is UTF-8, $length (which must be specified) is interpreted as spacing width. Default false.
  * @param  string|bool   $encoding Optional. The encoding of the string. Default false.
- * @return string  Substring of string specified by start and length parameters
+ * @return bool|string  False if given unsupported args, otherwise substring of string specified by start and length parameters
  */
 function safe_substr( $str, $start, $length = false, $is_width = false, $encoding = false ) {
+	// Negative $length or $is_width and $length not specified not supported.
+	if ( $length < 0 || ( $is_width && ( null === $length || false === $length ) ) ) {
+		return false;
+	}
+	$have_safe_strlen = false;
 	// PHP 5.3 substr takes false as full length, PHP > 5.3 takes null - for compat. do `safe_strlen()`.
 	if ( null === $length || false === $length ) {
 		$length = safe_strlen( $str, $encoding );
+		$have_safe_strlen = true;
 	}
+
+	// Allow for selective testings - "1" bit set tests grapheme_substr(), "2" preg_match( '/\X/' ), "4" mb_substr(), "8" substr().
+	$test_safe_substr = getenv( 'PHP_CLI_TOOLS_TEST_SAFE_SUBSTR' );
+
+	// Assume UTF-8 if no encoding given - `grapheme_substr()` will return false (not null like `grapheme_strlen()`) if given non-UTF-8 string.
+	if ( ( ! $encoding || 'UTF-8' === $encoding ) && function_exists( 'grapheme_substr' ) && false !== ( $try = grapheme_substr( $str, $start, $length ) ) ) {
+		if ( ! $test_safe_substr || ( $test_safe_substr & 1 ) ) {
+			return $is_width ? _safe_substr_eaw( $try, $length ) : $try;
+		}
+	}
+	// Assume UTF-8 if no encoding given - `preg_match()` will return false if given non-UTF-8 string.
+	if ( ( ! $encoding || 'UTF-8' === $encoding ) && can_use_pcre_x() ) {
+		if ( $start < 0 ) {
+			$start = max( $start + ( $have_safe_strlen ? $length : safe_strlen( $str, $encoding ) ), 0 );
+		}
+		if ( $start ) {
+			if ( preg_match( '/^\X{' . $start . '}(\X{0,' . $length . '})/u', $str, $matches ) ) {
+				if ( ! $test_safe_substr || ( $test_safe_substr & 2 ) ) {
+					return $is_width ? _safe_substr_eaw( $matches[1], $length ) : $matches[1];
+				}
+			}
+		} else {
+			if ( preg_match( '/^\X{0,' . $length . '}/u', $str, $matches ) ) {
+				if ( ! $test_safe_substr || ( $test_safe_substr & 2 ) ) {
+					return $is_width ? _safe_substr_eaw( $matches[0], $length ) : $matches[0];
+				}
+			}
+		}
+	}
+	// Legacy encodings and old PHPs will reach here.
 	if ( function_exists( 'mb_substr' ) && ( $encoding || function_exists( 'mb_detect_encoding' ) ) ) {
 		if ( ! $encoding ) {
 			$encoding = mb_detect_encoding( $str, null, true /*strict*/ );
 		}
-		$substr = mb_substr( $str, $start, $length, $encoding );
-
-		if ( $is_width && 'UTF-8' === $encoding ) {
-			// Set the East Asian Width regex.
-			$eaw_regex = get_unicode_regexs( 'eaw' );
-			// If there's any East Asian double-width chars...
-			if ( preg_match( $eaw_regex, $substr ) ) {
-				// Note that if the length ends in the middle of a double-width char, the char is excluded, not included.
-
-				// See if it's all EAW - the most likely case.
-				if ( preg_match_all( $eaw_regex, $substr, $dummy /*needed for PHP 5.3*/ ) === $length ) {
-					// Just halve the length so (rounded down to a minimum of 1).
-					$substr = mb_substr( $substr, 0, max( (int) ( $length / 2 ), 1 ), $encoding );
-				} else {
-					// Explode string into an array of UTF-8 chars. Based on core `_mb_substr()` in "wp-includes/compat.php".
-					$chars = preg_split( '/([\x00-\x7f\xc2-\xf4][^\x00-\x7f\xc2-\xf4]*)/', $substr, $length + 1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY );
-					$cnt = min( count( $chars ), $length );
-					$width = $length;
-
-					for ( $length = 0; $length < $cnt && $width > 0; $length++ ) {
-						$width -= preg_match( $eaw_regex, $chars[ $length ] ) ? 2 : 1;
-					}
-					// Round down to a minimum of 1.
-					if ( $width < 0 && $length > 1 ) {
-						$length--;
-					}
-					return join( '', array_slice( $chars, 0, $length ) );
-				}
-			}
+		// Bug: not adjusting for combining chars.
+		$try = mb_substr( $str, $start, $length, $encoding );
+		if ( 'UTF-8' === $encoding && $is_width ) {
+			$try = _safe_substr_eaw( $try, $length );
 		}
-	} else {
-		// iconv will return PHP notice if non-ascii characters are present in input string
-		$str = iconv( $encoding ? $encoding : 'ASCII', 'ASCII', $str );
-		
-		$substr = substr( $str, $start, $length );
+		if ( ! $test_safe_substr || ( $test_safe_substr & 4 ) ) {
+			return $try;
+		}
 	}
+	return substr( $str, $start, $length );
+}
 
-	return $substr;
+/**
+ * Internal function used by `safe_substr()` to adjust for East Asian double-width chars.
+ *
+ * @return string
+ */
+function _safe_substr_eaw( $str, $length ) {
+	// Set the East Asian Width regex.
+	$eaw_regex = get_unicode_regexs( 'eaw' );
+
+	// If there's any East Asian double-width chars...
+	if ( preg_match( $eaw_regex, $str ) ) {
+		// Note that if the length ends in the middle of a double-width char, the char is excluded, not included.
+
+		// See if it's all EAW.
+		if ( preg_match_all( $eaw_regex, $str, $dummy /*needed for PHP 5.3*/ ) === $length ) {
+			// Just halve the length so (rounded down to a minimum of 1).
+			$str = mb_substr( $str, 0, max( (int) ( $length / 2 ), 1 ), 'UTF-8' );
+		} else {
+			// Explode string into an array of UTF-8 chars. Based on core `_mb_substr()` in "wp-includes/compat.php".
+			$chars = preg_split( '/([\x00-\x7f\xc2-\xf4][^\x00-\x7f\xc2-\xf4]*)/', $str, $length + 1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY );
+			$cnt = min( count( $chars ), $length );
+			$width = $length;
+
+			for ( $length = 0; $length < $cnt && $width > 0; $length++ ) {
+				$width -= preg_match( $eaw_regex, $chars[ $length ] ) ? 2 : 1;
+			}
+			// Round down to a minimum of 1.
+			if ( $width < 0 && $length > 1 ) {
+				$length--;
+			}
+			return join( '', array_slice( $chars, 0, $length ) );
+		}
+	}
+	return $str;
 }
 
 /**
@@ -266,18 +327,19 @@ function strwidth( $string, $encoding = false ) {
 	// Allow for selective testings - "1" bit set tests grapheme_strlen(), "2" preg_match_all( '/\X/u' ), "4" mb_strwidth(), "other" safe_strlen().
 	$test_strwidth = getenv( 'PHP_CLI_TOOLS_TEST_STRWIDTH' );
 
-	// Assume UTF-8 - `grapheme_strlen()` will return null if given non-UTF-8 string.
-	if ( function_exists( 'grapheme_strlen' ) && null !== ( $width = grapheme_strlen( $string ) ) ) {
+	// Assume UTF-8 if no encoding given - `grapheme_strlen()` will return null if given non-UTF-8 string.
+	if ( ( ! $encoding || 'UTF-8' === $encoding ) && function_exists( 'grapheme_strlen' ) && null !== ( $width = grapheme_strlen( $string ) ) ) {
 		if ( ! $test_strwidth || ( $test_strwidth & 1 ) ) {
 			return $width + preg_match_all( $eaw_regex, $string, $dummy /*needed for PHP 5.3*/ );
 		}
 	}
-	// Assume UTF-8 - `preg_match_all()` will return false if given non-UTF-8 string (or if PCRE UTF-8 mode is unavailable).
-	if ( false !== ( $width = preg_match_all( '/\X/u', $string, $dummy /*needed for PHP 5.3*/ ) ) ) {
+	// Assume UTF-8 if no encoding given - `preg_match_all()` will return false if given non-UTF-8 string.
+	if ( ( ! $encoding || 'UTF-8' === $encoding ) && can_use_pcre_x() && false !== ( $width = preg_match_all( '/\X/u', $string, $dummy /*needed for PHP 5.3*/ ) ) ) {
 		if ( ! $test_strwidth || ( $test_strwidth & 2 ) ) {
 			return $width + preg_match_all( $eaw_regex, $string, $dummy /*needed for PHP 5.3*/ );
 		}
 	}
+	// Legacy encodings and old PHPs will reach here.
 	if ( function_exists( 'mb_strwidth' ) && ( $encoding || function_exists( 'mb_detect_encoding' ) ) ) {
 		if ( ! $encoding ) {
 			$encoding = mb_detect_encoding( $string, null, true /*strict*/ );
@@ -292,6 +354,24 @@ function strwidth( $string, $encoding = false ) {
 		}
 	}
 	return safe_strlen( $string, $encoding );
+}
+
+/**
+ * Returns whether PCRE Unicode extended grapheme cluster '\X' is available for use.
+ *
+ * @return bool
+ */
+function can_use_pcre_x() {
+	static $can_use_pcre_x = null;
+
+	if ( null === $can_use_pcre_x ) {
+		// '\X' introduced (as Unicde extended grapheme cluster) in PCRE 8.32 - see https://vcs.pcre.org/pcre/code/tags/pcre-8.32/ChangeLog?view=markup line 53.
+		// Older versions of PCRE were bundled with PHP <= 5.3.23 & <= 5.4.13.
+		$unfc_pcre_version = substr( PCRE_VERSION, 0, strspn( PCRE_VERSION, '0123456789.' ) ); // Remove any trailing date stuff.
+		$can_use_pcre_x = version_compare( $unfc_pcre_version, '8.32', '>=' ) && false !== @preg_match( '/\X/u', '' );
+	}
+
+	return $can_use_pcre_x;
 }
 
 /**
