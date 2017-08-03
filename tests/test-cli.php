@@ -104,7 +104,7 @@ class testsCli extends PHPUnit_Framework_TestCase {
 		// Latin, kana, Latin, Latin combining, Thai combining, Hangul.
 		$str = 'lムnöม้p를';
 
-		if ( function_exists( 'grapheme_substr' ) ) {
+		if ( \cli\can_use_icu() ) {
 			putenv( 'PHP_CLI_TOOLS_TEST_SAFE_SUBSTR=1' ); // Tests grapheme_substr().
 			$this->assertSame( '', \cli\safe_substr( $str, 0, 0 ) );
 			$this->assertSame( 'l', \cli\safe_substr( $str, 0, 1 ) );
@@ -381,7 +381,7 @@ class testsCli extends PHPUnit_Framework_TestCase {
 		// 4 characters, one a double-width Han = 5 spacing chars, with 2 combining chars. Adapted from http://unicode.org/faq/char_combmark.html#7 (combining acute accent added after "a").
 		$str = "a\xCC\x81\xE0\xA4\xA8\xE0\xA4\xBF\xE4\xBA\x9C\xF0\x90\x82\x83";
 
-		if ( function_exists( 'grapheme_strlen' ) ) {
+		if ( \cli\can_use_icu() ) {
 			$this->assertSame( 5, \cli\strwidth( $str ) ); // Tests grapheme_strlen().
 			putenv( 'PHP_CLI_TOOLS_TEST_STRWIDTH=2' ); // Test preg_match_all( '/\X/u' ).
 			$this->assertSame( 5, \cli\strwidth( $str ) );
@@ -396,7 +396,7 @@ class testsCli extends PHPUnit_Framework_TestCase {
 		}
 
 		putenv( 'PHP_CLI_TOOLS_TEST_STRWIDTH=8' ); // Test safe_strlen().
-		if ( function_exists( 'grapheme_strlen' ) || \cli\can_use_pcre_x() ) {
+		if ( \cli\can_use_icu() || \cli\can_use_pcre_x() ) {
 			$this->assertSame( 4, \cli\strwidth( $str ) ); // safe_strlen() (correctly) does not account for double-width Han so out by 1.
 		} elseif ( function_exists( 'mb_strlen' ) && function_exists( 'mb_detect_order' ) ) {
 			$this->assertSame( 4, \cli\strwidth( $str ) ); // safe_strlen() (correctly) does not account for double-width Han so out by 1.
@@ -411,7 +411,7 @@ class testsCli extends PHPUnit_Framework_TestCase {
 
 		putenv( 'PHP_CLI_TOOLS_TEST_STRWIDTH' );
 
-		if ( function_exists( 'grapheme_strlen' ) ) {
+		if ( \cli\can_use_icu() ) {
 			$this->assertSame( 11, \cli\strwidth( $str ) ); // Tests grapheme_strlen().
 			putenv( 'PHP_CLI_TOOLS_TEST_STRWIDTH=2' ); // Test preg_match_all( '/\X/u' ).
 			$this->assertSame( 11, \cli\strwidth( $str ) );
@@ -473,7 +473,7 @@ class testsCli extends PHPUnit_Framework_TestCase {
 		// ASCII l, 3-byte kana, ASCII n, ASCII o + 2-byte combining umlaut, 6-byte Thai combining, ASCII, 3-byte Hangul. grapheme length 7, bytes 18.
 		$str = 'lムnöม้p를';
 
-		if ( function_exists( 'grapheme_strlen' ) ) {
+		if ( \cli\can_use_icu() ) {
 			putenv( 'PHP_CLI_TOOLS_TEST_SAFE_STRLEN' ); // Test grapheme_strlen().
 			$this->assertSame( 7, \cli\safe_strlen( $str ) );
 			if ( \cli\can_use_pcre_x() ) {

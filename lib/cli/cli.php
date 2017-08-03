@@ -165,7 +165,7 @@ function safe_strlen( $str, $encoding = false ) {
 	$test_safe_strlen = getenv( 'PHP_CLI_TOOLS_TEST_SAFE_STRLEN' );
 
 	// Assume UTF-8 if no encoding given - `grapheme_strlen()` will return null if given non-UTF-8 string.
-	if ( ( ! $encoding || 'UTF-8' === $encoding ) && function_exists( 'grapheme_strlen' ) && null !== ( $length = grapheme_strlen( $str ) ) ) {
+	if ( ( ! $encoding || 'UTF-8' === $encoding ) && can_use_icu() && null !== ( $length = grapheme_strlen( $str ) ) ) {
 		if ( ! $test_safe_strlen || ( $test_safe_strlen & 1 ) ) {
 			return $length;
 		}
@@ -220,7 +220,7 @@ function safe_substr( $str, $start, $length = false, $is_width = false, $encodin
 	$test_safe_substr = getenv( 'PHP_CLI_TOOLS_TEST_SAFE_SUBSTR' );
 
 	// Assume UTF-8 if no encoding given - `grapheme_substr()` will return false (not null like `grapheme_strlen()`) if given non-UTF-8 string.
-	if ( ( ! $encoding || 'UTF-8' === $encoding ) && function_exists( 'grapheme_substr' ) && false !== ( $try = grapheme_substr( $str, $start, $length ) ) ) {
+	if ( ( ! $encoding || 'UTF-8' === $encoding ) && can_use_icu() && false !== ( $try = grapheme_substr( $str, $start, $length ) ) ) {
 		if ( ! $test_safe_substr || ( $test_safe_substr & 1 ) ) {
 			return $is_width ? _safe_substr_eaw( $try, $length ) : $try;
 		}
@@ -328,7 +328,7 @@ function strwidth( $string, $encoding = false ) {
 	$test_strwidth = getenv( 'PHP_CLI_TOOLS_TEST_STRWIDTH' );
 
 	// Assume UTF-8 if no encoding given - `grapheme_strlen()` will return null if given non-UTF-8 string.
-	if ( ( ! $encoding || 'UTF-8' === $encoding ) && function_exists( 'grapheme_strlen' ) && null !== ( $width = grapheme_strlen( $string ) ) ) {
+	if ( ( ! $encoding || 'UTF-8' === $encoding ) && can_use_icu() && null !== ( $width = grapheme_strlen( $string ) ) ) {
 		if ( ! $test_strwidth || ( $test_strwidth & 1 ) ) {
 			return $width + preg_match_all( $eaw_regex, $string, $dummy /*needed for PHP 5.3*/ );
 		}
@@ -357,6 +357,22 @@ function strwidth( $string, $encoding = false ) {
 }
 
 /**
+ * Returns whether ICU is modern enough not to flake out.
+ *
+ * @return bool
+ */
+function can_use_icu() {
+	static $can_use_icu = null;
+
+	if ( null === $can_use_icu ) {
+		// Choosing ICU 54, Unicode 7.0.
+		$can_use_icu = defined( 'INTL_ICU_VERSION' ) && version_compare( INTL_ICU_VERSION, '54.1', '>=' ) && function_exists( 'grapheme_strlen' ) && function_exists( 'grapheme_substr' );
+	}
+
+	return $can_use_icu;
+}
+
+/**
  * Returns whether PCRE Unicode extended grapheme cluster '\X' is available for use.
  *
  * @return bool
@@ -367,8 +383,8 @@ function can_use_pcre_x() {
 	if ( null === $can_use_pcre_x ) {
 		// '\X' introduced (as Unicde extended grapheme cluster) in PCRE 8.32 - see https://vcs.pcre.org/pcre/code/tags/pcre-8.32/ChangeLog?view=markup line 53.
 		// Older versions of PCRE were bundled with PHP <= 5.3.23 & <= 5.4.13.
-		$unfc_pcre_version = substr( PCRE_VERSION, 0, strspn( PCRE_VERSION, '0123456789.' ) ); // Remove any trailing date stuff.
-		$can_use_pcre_x = version_compare( $unfc_pcre_version, '8.32', '>=' ) && false !== @preg_match( '/\X/u', '' );
+		$pcre_version = substr( PCRE_VERSION, 0, strspn( PCRE_VERSION, '0123456789.' ) ); // Remove any trailing date stuff.
+		$can_use_pcre_x = version_compare( $pcre_version, '8.32', '>=' ) && false !== @preg_match( '/\X/u', '' );
 	}
 
 	return $can_use_pcre_x;
