@@ -40,8 +40,8 @@ class Ascii extends Renderer {
 			$this->_constraintWidth = (int) Shell::columns();
 		}
 		$col_count = count( $widths );
-		$col_borders_count = $col_count * strlen( $this->_characters['border'] );
-		$table_borders_count = strlen( $this->_characters['border'] ) * 1;
+		$col_borders_count = $col_count ? ( ( $col_count - 1 ) * strlen( $this->_characters['border'] ) ) : 0;
+		$table_borders_count = strlen( $this->_characters['border'] ) * 2;
 		$col_padding_count = $col_count * strlen( $this->_characters['padding'] ) * 2;
 		$max_width = $this->_constraintWidth - $col_borders_count - $table_borders_count - $col_padding_count;
 
@@ -63,11 +63,11 @@ class Ascii extends Renderer {
 				foreach( $widths as &$width ) {
 					if ( in_array( $width, $resize_widths ) ) {
 						$width = $avg + $avg_extra_width;
-						$extra_width = $extra_width - $avg_extra_width;
 						array_shift( $resize_widths );
 						// Last item gets the cake
 						if ( empty( $resize_widths ) ) {
-							$width = $width + $extra_width;
+							$width = 0; // Zero it so not in sum.
+							$width = $max_width - array_sum( $widths );
 						}
 					}
 				}
@@ -131,7 +131,7 @@ class Ascii extends Renderer {
 
 			foreach( $row as $col => $value ) {
 
-				$value = str_replace( PHP_EOL, ' ', $value );
+				$value = str_replace( array( "\r\n", "\n" ), ' ', $value );
 
 				$col_width = $this->_widths[ $col ];
 				$encoding = function_exists( 'mb_detect_encoding' ) ? mb_detect_encoding( $value, null, true /*strict*/ ) : false;

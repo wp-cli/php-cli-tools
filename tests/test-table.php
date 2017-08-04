@@ -7,7 +7,7 @@ use cli\Colors, cli\Table, cli\Table\Ascii;
  */
 class Test_Table extends PHPUnit_Framework_TestCase {
 
-	public function test_column_value_too_long() {
+	public function test_column_value_too_long_ascii() {
 
 		$constraint_width = 80;
 
@@ -20,21 +20,30 @@ class Test_Table extends PHPUnit_Framework_TestCase {
 		$table->addRow( array( 'author', '<a href="http://wordpress.org/" title="Visit author homepage">the WordPress team</a>' ) );
 
 		$out = $table->getDisplayLines();
-		// "+ 1" accommodates "\n"
 		$this->assertCount( 12, $out );
-		$this->assertEquals( $constraint_width, strlen( $out[0] ) + 1 );
-		$this->assertEquals( $constraint_width, strlen( $out[1] ) + 1 );
-		$this->assertEquals( $constraint_width, strlen( $out[2] ) + 1 );
-		$this->assertEquals( $constraint_width, strlen( $out[3] ) + 1 );
-		$this->assertEquals( $constraint_width, strlen( $out[4] ) + 1 );
-		$this->assertEquals( $constraint_width, strlen( $out[5] ) + 1 );
-		$this->assertEquals( $constraint_width, strlen( $out[6] ) + 1 );
-		$this->assertEquals( $constraint_width, strlen( $out[7] ) + 1 );
-		$this->assertEquals( $constraint_width, strlen( $out[8] ) + 1 );
-		$this->assertEquals( $constraint_width, strlen( $out[9] ) + 1 );
-		$this->assertEquals( $constraint_width, strlen( $out[10] ) + 1 );
-		$this->assertEquals( $constraint_width, strlen( $out[11] ) + 1 );
+		$this->assertEquals( $constraint_width, strlen( $out[0] ) );
+		$this->assertEquals( $constraint_width, strlen( $out[1] ) );
+		$this->assertEquals( $constraint_width, strlen( $out[2] ) );
+		$this->assertEquals( $constraint_width, strlen( $out[3] ) );
+		$this->assertEquals( $constraint_width, strlen( $out[4] ) );
+		$this->assertEquals( $constraint_width, strlen( $out[5] ) );
+		$this->assertEquals( $constraint_width, strlen( $out[6] ) );
+		$this->assertEquals( $constraint_width, strlen( $out[7] ) );
+		$this->assertEquals( $constraint_width, strlen( $out[8] ) );
+		$this->assertEquals( $constraint_width, strlen( $out[9] ) );
+		$this->assertEquals( $constraint_width, strlen( $out[10] ) );
+		$this->assertEquals( $constraint_width, strlen( $out[11] ) );
 
+		$constraint_width = 81;
+
+		$renderer = new cli\Table\Ascii;
+		$renderer->setConstraintWidth( $constraint_width );
+		$table->setRenderer( $renderer );
+
+		$out = $table->getDisplayLines();
+		for ( $i = 0; $i < count( $out ); $i++ ) {
+			$this->assertEquals( $constraint_width, strlen( $out[ $i ] ) );
+		}
 	}
 
 	public function test_column_value_too_long_with_multibytes() {
@@ -51,7 +60,18 @@ class Test_Table extends PHPUnit_Framework_TestCase {
 
 		$out = $table->getDisplayLines();
 		for ( $i = 0; $i < count( $out ); $i++ ) {
-			$this->assertEquals( $constraint_width, \cli\strwidth( $out[$i] ) + 1 );
+			$this->assertEquals( $constraint_width, \cli\strwidth( $out[$i] ) );
+		}
+
+		$constraint_width = 81;
+
+		$renderer = new cli\Table\Ascii;
+		$renderer->setConstraintWidth( $constraint_width );
+		$table->setRenderer( $renderer );
+
+		$out = $table->getDisplayLines();
+		for ( $i = 0; $i < count( $out ); $i++ ) {
+			$this->assertEquals( $constraint_width, \cli\strwidth( $out[$i] ) );
 		}
 	}
 
@@ -97,6 +117,61 @@ class Test_Table extends PHPUnit_Framework_TestCase {
 		$result = $strip_borders( explode( "\n", $out ) );
 
 		$this->assertSame( 1, count( $result ) );
+	}
+
+	public function test_column_fullwidth_and_combining() {
+
+		$constraint_width = 80;
+
+		$table = new cli\Table;
+		$renderer = new cli\Table\Ascii;
+		$renderer->setConstraintWidth( $constraint_width );
+		$table->setRenderer( $renderer );
+		$table->setHeaders( array( 'Field', 'Value' ) );
+		$table->addRow( array( 'ID', 2151 ) );
+		$table->addRow( array( 'post_author', 1 ) );
+		$table->addRow( array( 'post_title', 'only-english-lorem-ipsum-dolor-sit-amet-consectetur-adipisicing-elit-sed-do-eiusmod-tempor-incididunt-ut-labore' ) );
+		$table->addRow( array( 'post_content',
+			//'ให้รู้จัก ให้หาหนทางใหม่' .
+			'♫ มีอีกหลายต่อหลายคน เขาอดทนก็เพื่อรัก' . "\n" .
+			'รักผลักดันให้รู้จัก ให้หาหนทางใหม่' . "\r\n" .
+			'ฉันจะล้มตั้งหลายที ดีที่รักมาฉุดไว้' . "\r\n" .
+			'รักสร้างสรรค์สิ่งมากมาย และหลอมละลายทุกหัวใจ' . "\r\n" .
+			'จะมาร้ายดียังไง แต่ใจก็ยังต้องการ' . "\r\n" .
+			'ในทุกๆ วัน โลกหมุนด้วยความรัก ♫' . "\n" .
+			'ขอแสดงความยินดี งานแต่งพี่ Earn & Menn' ."\r\n" .
+			'เที่ยวปายหน้าร้อน ก็เที่ยวได้เหมือนกันน่ะ' . "\r\n" .
+			' ジョバンニはまっ赤になってうなずきました。けれどもいつかジョバンニの眼のなかには涙がいっぱいになりました。そうだ僕は知っていたのだ、もちろんカムパネルラも知っている。' ."\r\n" .
+			'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore' . "\n" .
+			''
+		) );
+
+		$out = $table->getDisplayLines();
+		for ( $i = 0; $i < count( $out ); $i++ ) {
+			$this->assertEquals( $constraint_width, \cli\strwidth( $out[$i] ) );
+		}
+
+		$constraint_width = 81;
+
+		$renderer = new cli\Table\Ascii;
+		$renderer->setConstraintWidth( $constraint_width );
+		$table->setRenderer( $renderer );
+
+		$out = $table->getDisplayLines();
+		for ( $i = 0; $i < count( $out ); $i++ ) {
+			$this->assertEquals( $constraint_width, \cli\strwidth( $out[$i] ) );
+		}
+
+		$constraint_width = 200;
+
+		$renderer = new cli\Table\Ascii;
+		$renderer->setConstraintWidth( $constraint_width );
+		$table->setRenderer( $renderer );
+
+		$out = $table->getDisplayLines();
+		for ( $i = 0; $i < count( $out ); $i++ ) {
+			$this->assertEquals( $constraint_width, \cli\strwidth( $out[$i] ) );
+		}
 	}
 
 	public function test_ascii_pre_colorized_widths() {

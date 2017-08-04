@@ -22,6 +22,7 @@ class TestShell extends PHPUnit_Framework_TestCase {
 		// No TERM should result in default 80.
 
 		putenv( 'TERM' );
+		putenv( 'COLUMNS=80' );
 
 		putenv( 'WP_CLI_TEST_IS_WINDOWS=0' );
 		$columns = cli\Shell::columns();
