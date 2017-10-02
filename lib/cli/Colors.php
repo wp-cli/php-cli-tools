@@ -207,14 +207,15 @@ class Colors {
 	 * @param int         $length        The display length.
 	 * @param bool        $pre_colorized Optional. Set if the string is pre-colorized. Default false.
 	 * @param string|bool $encoding      Optional. The encoding of the string. Default false.
+	 * @param int         $pad_type      Optional. Can be STR_PAD_RIGHT, STR_PAD_LEFT, or STR_PAD_BOTH. If pad_type is not specified it is assumed to be STR_PAD_RIGHT.
      * @return string
 	 */
-	static public function pad( $string, $length, $pre_colorized = false, $encoding = false ) {
+	static public function pad( $string, $length, $pre_colorized = false, $encoding = false, $pad_type = STR_PAD_RIGHT ) {
 		$real_length = self::width( $string, $pre_colorized, $encoding );
 		$diff = strlen( $string ) - $real_length;
 		$length += $diff;
 
-		return str_pad( $string, $length );
+		return str_pad( $string, $length, ' ', $pad_type );
 	}
 
 	/**
