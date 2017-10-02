@@ -44,6 +44,9 @@ class testsCli extends PHPUnit_Framework_TestCase {
 		$this->assertEquals( 7, strlen( \cli\Colors::pad( 'óra', 6 ) ) ); // special characters take one byte
 		$this->assertEquals( 9, strlen( \cli\Colors::pad( '日本語', 6 ) ) ); // each character takes two bytes
 		$this->assertEquals( 17, strlen( \cli\Colors::pad( 'עִבְרִית', 6 ) ) ); // process Hebrew vowels
+		$this->assertEquals( 6, strlen( \cli\Colors::pad( 'hello', 6, false, false, STR_PAD_RIGHT ) ) );
+		$this->assertEquals( 7, strlen( \cli\Colors::pad( 'óra', 6, false, false, STR_PAD_LEFT ) ) ); // special characters take one byte
+		$this->assertEquals( 9, strlen( \cli\Colors::pad( '日本語', 6, false, false, STR_PAD_BOTH ) ) ); // each character takes two bytes
 	}
 
 	function test_colorized_string_pad() {
