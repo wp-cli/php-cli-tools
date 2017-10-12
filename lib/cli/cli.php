@@ -181,7 +181,7 @@ function safe_strlen( $str, $encoding = false ) {
 		if ( ! $encoding ) {
 			$encoding = mb_detect_encoding( $str, null, true /*strict*/ );
 		}
-		$length = mb_strlen( $str, $encoding );
+		$length = $encoding ? mb_strlen( $str, $encoding ) : mb_strlen( $str ); // mbstring funcs can fail if given `$encoding` arg that evals to false.
 		if ( 'UTF-8' === $encoding ) {
 			// Subtract combining characters.
 			$length -= preg_match_all( get_unicode_regexs( 'm' ), $str, $dummy /*needed for PHP 5.3*/ );
@@ -209,14 +209,22 @@ function safe_substr( $str, $start, $length = false, $is_width = false, $encodin
 	if ( $length < 0 || ( $is_width && ( null === $length || false === $length ) ) ) {
 		return false;
 	}
-	$have_safe_strlen = false;
-	// PHP 5.3 substr takes false as full length, PHP > 5.3 takes null - for compat. do `safe_strlen()`.
+	// Need this for normalization below and other uses.
+	$safe_strlen = safe_strlen( $str, $encoding );
+
+	// Normalize `$length` when not specified - PHP 5.3 substr takes false as full length, PHP > 5.3 takes null.
 	if ( null === $length || false === $length ) {
-		$length = safe_strlen( $str, $encoding );
-		$have_safe_strlen = true;
+		$length = $safe_strlen;
+	}
+	// Normalize `$start` - various methods treat this differently.
+	if ( $start > $safe_strlen ) {
+		return '';
+	}
+	if ( $start < 0 && -$start > $safe_strlen ) {
+		$start = 0;
 	}
 
-	// Allow for selective testings - "1" bit set tests grapheme_substr(), "2" preg_match( '/\X/' ), "4" mb_substr(), "8" substr().
+	// Allow for selective testings - "1" bit set tests grapheme_substr(), "2" preg_split( '/\X/' ), "4" mb_substr(), "8" substr().
 	$test_safe_substr = getenv( 'PHP_CLI_TOOLS_TEST_SAFE_SUBSTR' );
 
 	// Assume UTF-8 if no encoding given - `grapheme_substr()` will return false (not null like `grapheme_strlen()`) if given non-UTF-8 string.
@@ -225,22 +233,12 @@ function safe_substr( $str, $start, $length = false, $is_width = false, $encodin
 			return $is_width ? _safe_substr_eaw( $try, $length ) : $try;
 		}
 	}
-	// Assume UTF-8 if no encoding given - `preg_match()` will return false if given non-UTF-8 string.
+	// Assume UTF-8 if no encoding given - `preg_split()` returns a one element array if given non-UTF-8 string (PHP bug) so need to check `preg_last_error()`.
 	if ( ( ! $encoding || 'UTF-8' === $encoding ) && can_use_pcre_x() ) {
-		if ( $start < 0 ) {
-			$start = max( $start + ( $have_safe_strlen ? $length : safe_strlen( $str, $encoding ) ), 0 );
-		}
-		if ( $start ) {
-			if ( preg_match( '/^\X{' . $start . '}(\X{0,' . $length . '})/u', $str, $matches ) ) {
-				if ( ! $test_safe_substr || ( $test_safe_substr & 2 ) ) {
-					return $is_width ? _safe_substr_eaw( $matches[1], $length ) : $matches[1];
-				}
-			}
-		} else {
-			if ( preg_match( '/^\X{0,' . $length . '}/u', $str, $matches ) ) {
-				if ( ! $test_safe_substr || ( $test_safe_substr & 2 ) ) {
-					return $is_width ? _safe_substr_eaw( $matches[0], $length ) : $matches[0];
-				}
+		if ( false !== ( $try = preg_split( '/(\X)/u', $str, $safe_strlen + 1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY ) ) && ! preg_last_error() ) {
+			$try = implode( '', array_slice( $try, $start, $length ) );
+			if ( ! $test_safe_substr || ( $test_safe_substr & 2 ) ) {
+				return $is_width ? _safe_substr_eaw( $try, $length ) : $try;
 			}
 		}
 	}
@@ -250,7 +248,7 @@ function safe_substr( $str, $start, $length = false, $is_width = false, $encodin
 			$encoding = mb_detect_encoding( $str, null, true /*strict*/ );
 		}
 		// Bug: not adjusting for combining chars.
-		$try = mb_substr( $str, $start, $length, $encoding );
+		$try = $encoding ? mb_substr( $str, $start, $length, $encoding ) : mb_substr( $str, $start, $length ); // mbstring funcs can fail if given `$encoding` arg that evals to false.
 		if ( 'UTF-8' === $encoding && $is_width ) {
 			$try = _safe_substr_eaw( $try, $length );
 		}
@@ -275,7 +273,7 @@ function _safe_substr_eaw( $str, $length ) {
 		// Note that if the length ends in the middle of a double-width char, the char is excluded, not included.
 
 		// See if it's all EAW.
-		if ( preg_match_all( $eaw_regex, $str, $dummy /*needed for PHP 5.3*/ ) === $length ) {
+		if ( function_exists( 'mb_substr' ) && preg_match_all( $eaw_regex, $str, $dummy /*needed for PHP 5.3*/ ) === $length ) {
 			// Just halve the length so (rounded down to a minimum of 1).
 			$str = mb_substr( $str, 0, max( (int) ( $length / 2 ), 1 ), 'UTF-8' );
 		} else {
@@ -344,7 +342,7 @@ function strwidth( $string, $encoding = false ) {
 		if ( ! $encoding ) {
 			$encoding = mb_detect_encoding( $string, null, true /*strict*/ );
 		}
-		$width = mb_strwidth( $string, $encoding );
+		$width = $encoding ? mb_strwidth( $string, $encoding ) : mb_strwidth( $string ); // mbstring funcs can fail if given `$encoding` arg that evals to false.
 		if ( 'UTF-8' === $encoding ) {
 			// Subtract combining characters.
 			$width -= preg_match_all( $m_regex, $string, $dummy /*needed for PHP 5.3*/ );
