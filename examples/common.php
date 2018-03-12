@@ -17,7 +17,7 @@ foreach(array(__DIR__ . '/../vendor', __DIR__ . '/../../../../vendor') as $vendo
 }
 
 function test_notify(cli\Notify $notify, $cycle = 1000000, $sleep = null) {
-	for ($i = 0; $i <= $cycle; $i++) {
+	for ($i = 0; $i < $cycle; $i++) {
 		$notify->tick();
 		if ($sleep) usleep($sleep);
 	}
