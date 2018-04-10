@@ -165,7 +165,7 @@ class Streams {
 			self::out( $question . $marker );
 			$line = self::input( null, $hide );
 
-			if( !empty( $line ) )
+			if ( trim( $line ) !== '' )
 				return $line;
 			if( $default !== false )
 				return $default;
