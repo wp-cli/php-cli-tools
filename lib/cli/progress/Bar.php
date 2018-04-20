@@ -13,7 +13,6 @@
 namespace cli\progress;
 
 use cli;
-use cli\Notify;
 use cli\Progress;
 use cli\Shell;
 use cli\Streams;
@@ -56,6 +55,10 @@ class Bar extends Progress {
 		$timing    = Streams::render($this->_formatTiming, compact('elapsed', 'estimated'));
 
 		$size = Shell::columns();
+		if ( $this->_sameLine ) {
+			$size--;
+			$this->_format = "\r".$this->_format;
+		}
 		$size -= strlen($msg . $timing);
 		if ( $size < 0 ) {
 			$size = 0;
@@ -66,20 +69,5 @@ class Bar extends Progress {
 		$bar = substr(str_pad($bar, $size, ' '), 0, $size);
 
 		Streams::out($this->_format, compact('msg', 'bar', 'timing'));
-	}
-
-	/**
-	 * This method augments the base definition from cli\Notify to optionally
-	 * allow passing a new message.
-	 *
-	 * @param int    $increment The amount to increment by.
-	 * @param string $msg       The text to display next to the Notifier. (optional)
-	 * @see cli\Notify::tick()
-	 */
-	public function tick($increment = 1, $msg = null) {
-		if ($msg) {
-			$this->_message = $msg;
-		}
-		Notify::tick($increment);
 	}
 }

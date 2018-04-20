@@ -21,6 +21,7 @@ namespace cli;
  */
 abstract class Progress extends \cli\Notify {
 	protected $_total = 0;
+	protected $_sameLine = false;
 
 	/**
 	 * Instantiates a Progress Notifier.
@@ -28,11 +29,15 @@ abstract class Progress extends \cli\Notify {
 	 * @param string  $msg       The text to display next to the Notifier.
 	 * @param int     $total     The total number of ticks we will be performing.
 	 * @param int     $interval  The interval in milliseconds between updates.
+	 * @param bool    $same_line To set if the progressbar must update themself on the same line or not
 	 * @see cli\Progress::setTotal()
 	 */
-	public function __construct($msg, $total, $interval = 100) {
+	public function __construct($msg, $total, $interval = 100, $same_line = false) {
 		parent::__construct($msg, $interval);
 		$this->setTotal($total);
+		if ((bool)$same_line) {
+			$this->keepSameLine();
+		}
 	}
 
 	/**
@@ -130,5 +135,19 @@ abstract class Progress extends \cli\Notify {
 		}
 
 		return ($this->_current / $this->_total);
+	}
+
+	/**
+	 * Set the progress bar to override the current line.
+	 */
+	public function keepSameLine() {
+		$this->_sameLine = true;
+	}
+
+	/**
+	 * Set the progress bar to go to a new line.
+	 */
+	public function goToNewLine() {
+		$this->_sameLine = false;
 	}
 }
