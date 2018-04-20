@@ -47,7 +47,7 @@ class Bar extends Progress {
 	public function display($finish = false) {
 		$_percent = $this->percent();
 
-		$percent = str_pad(floor($_percent * 100), 3);;
+		$percent = str_pad(floor($_percent * 100), 3);
 		$msg = $this->_message;
 		$msg = Streams::render($this->_formatMessage, compact('msg', 'percent'));
 
