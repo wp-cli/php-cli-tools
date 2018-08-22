@@ -32,9 +32,16 @@ class Ascii extends Renderer {
 	/**
 	 * Set the widths of each column in the table.
 	 *
-	 * @param array  $widths  The widths of the columns.
+	 * @param array  $widths    The widths of the columns.
+	 * @param bool   $fallback  Whether to use these values as fallback only.
 	 */
-	public function setWidths(array $widths) {
+	public function setWidths(array $widths, $fallback = false) {
+		if ($fallback) {
+			foreach ( $this->_widths as $index => $value ) {
+			    $widths[$index] = $value;
+			}
+		}
+		$this->_widths = $widths;
 
 		if ( is_null( $this->_constraintWidth ) ) {
 			$this->_constraintWidth = (int) Shell::columns();

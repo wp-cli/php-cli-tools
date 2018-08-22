@@ -136,7 +136,7 @@ class Table {
 	 * @return array
 	 */
 	public function getDisplayLines() {
-		$this->_renderer->setWidths($this->_width);
+		$this->_renderer->setWidths($this->_width, $fallback = true);
 		$border = $this->_renderer->border();
 
 		$out = array();
