@@ -28,8 +28,8 @@ Function List
 Progress Indicators
 -------------------
 
- * `cli\notifier\Dots($msg, $dots = 3, $interval = 100)`
- * `cli\notifier\Spinner($msg, $interval = 100)`
+ * `cli\notify\Dots($msg, $dots = 3, $interval = 100)`
+ * `cli\notify\Spinner($msg, $interval = 100)`
  * `cli\progress\Bar($msg, $total, $interval = 100)`
 
 Tabular Display
