@@ -18,10 +18,12 @@ use cli\Arguments;
  * Arguments help screen renderer
  */
 class HelpScreen {
+	protected $_commands = array();
+	protected $_commandMax = 0;
 	protected $_flags = array();
-	protected $_maxFlag = 0;
+	protected $_flagMax = 0;
 	protected $_options = array();
-	protected $_maxOption = 0;
+	protected $_optionMax = 0;
 
 	public function __construct(Arguments $arguments) {
 		$this->setArguments($arguments);
@@ -32,8 +34,16 @@ class HelpScreen {
 	}
 
 	public function setArguments(Arguments $arguments) {
+		$this->consumeArgumentCommands($arguments);
 		$this->consumeArgumentFlags($arguments);
 		$this->consumeArgumentOptions($arguments);
+	}
+
+	public function consumeArgumentCommands(Arguments $arguments) {
+		$data = $this->_consume($arguments->getCommands(), '');
+
+		$this->_commands = $data[0];
+		$this->_commandMax = $data[1];
 	}
 
 	public function consumeArgumentFlags(Arguments $arguments) {
@@ -53,10 +63,19 @@ class HelpScreen {
 	public function render() {
 		$help = array();
 
+		array_push($help, $this->_renderCommands());
 		array_push($help, $this->_renderFlags());
 		array_push($help, $this->_renderOptions());
 
 		return join($help, "\n\n");
+	}
+
+	private function _renderCommands() {
+		if (empty($this->_commands)) {
+			return null;
+		}
+
+		return "Commands\n" . $this->_renderScreen($this->_commands, $this->_commandMax);
 	}
 
 	private function _renderFlags() {
@@ -85,7 +104,7 @@ class HelpScreen {
 			$description = str_split($settings['description'], $dlen);
 			$formatted.= '  ' . array_shift($description);
 
-			if ($settings['default']) {
+			if (isset($settings['default']) && $settings['default']) {
 				$formatted .= ' [default: ' . $settings['default'] . ']';
 			}
 
@@ -100,15 +119,17 @@ class HelpScreen {
 		return join($help, "\n");
 	}
 
-	private function _consume($options) {
+	private function _consume($options, $prefix = '--') {
 		$max = 0;
 		$out = array();
 
 		foreach ($options as $option => $settings) {
-			$names = array('--' . $option);
+			$names = array($prefix . $option);
 
-			foreach ($settings['aliases'] as $alias) {
-				array_push($names, '-' . $alias);
+			if (isset($settings['aliases'])) {
+				foreach ($settings['aliases'] as $alias) {
+					array_push($names, '-' . $alias);
+				}
 			}
 
 			$names = join($names, ', ');
@@ -119,4 +140,3 @@ class HelpScreen {
 		return array($out, $max);
 	}
 }
-

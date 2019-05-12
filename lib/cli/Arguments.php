@@ -21,6 +21,8 @@ use cli\arguments\Lexer;
  * Parses command line arguments.
  */
 class Arguments implements \ArrayAccess {
+	protected $_parsedCommand = false;
+	protected $_commands = array();
 	protected $_flags = array();
 	protected $_options = array();
 	protected $_strict = false;
@@ -47,6 +49,9 @@ class Arguments implements \ArrayAccess {
 		$this->_input = $options['input'];
 		$this->setStrict($options['strict']);
 
+		if (isset($options['commands'])) {
+			$this->addCommands($options['commands']);
+		}
 		if (isset($options['flags'])) {
 			$this->addFlags($options['flags']);
 		}
@@ -135,6 +140,52 @@ class Arguments implements \ArrayAccess {
 		}
 
 		unset($this->_parsed[$offset]);
+	}
+
+	/**
+	 * Adds a command to the argument list.
+	 *
+	 * @param string  $command  A string representing the command.
+	 * @param array  $settings  An array of settings for this flag.
+	 * @setting string  description  A description to be shown in --help.
+	 * @return $this
+	 */
+	public function addCommand($command, $settings = array()) {
+		if (is_string($settings)) {
+			$settings = array('description' => $settings);
+		}
+		if (isset($this->_commands[$command])) {
+			$this->_warn('command already exists: ' . $command);
+			return $this;
+		}
+
+		$settings += array(
+			'description' => null
+		);
+
+		$this->_commands[$command] = $settings;
+		return $this;
+	}
+
+	/**
+	 * Add multiple commands at once. The input array should be keyed with the
+	 * primary command string, and the values should be the settings array
+	 * used by {addCommand}.
+	 *
+	 * @param array  $commands  An array of commands to add
+	 * @return $this
+	 */
+	public function addCommands($commands) {
+		foreach ($commands as $command => $settings) {
+			if (is_numeric($command)) {
+				$this->_warn('No command string given');
+				continue;
+			}
+
+			$this->addCommand($command, $settings);
+		}
+
+		return $this;
 	}
 
 	/**
@@ -272,6 +323,42 @@ class Arguments implements \ArrayAccess {
 	}
 
 	/**
+	 * Get a command by primary matcher or any defined aliases.
+	 *
+	 * @param mixed  $command Either a string representing the option or an
+	 *                        cli\arguments\Argument object.
+	 * @return array
+	 */
+	public function getCommand($command) {
+		if ($command instanceOf Argument) {
+			$command = $command->value;
+		}
+
+		if (isset($this->_commands[$command])) {
+			return $this->_commands[$command];
+		}
+	}
+
+	public function getCommands() {
+		return $this->_commands;
+	}
+
+	public function hasCommands() {
+		return !empty($this->_commands);
+	}
+
+	/**
+	 * Returns true if the given argument is defined as a command.
+	 *
+	 * @param mixed  $argument  Either a string representing the command or an
+	 *                          cli\arguments\Argument object.
+	 * @return bool
+	 */
+	public function isCommand($argument) {
+		return (null != $this->getCommand($argument));
+	}
+
+	/**
 	 * Get a flag by primary matcher or any defined aliases.
 	 *
 	 * @param mixed  $flag  Either a string representing the flag or an
@@ -281,6 +368,9 @@ class Arguments implements \ArrayAccess {
 	public function getFlag($flag) {
 		if ($flag instanceOf Argument) {
 			$obj  = $flag;
+			if ($obj->isCommand()) {
+				return null;
+			}
 			$flag = $flag->value;
 		}
 
@@ -395,6 +485,9 @@ class Arguments implements \ArrayAccess {
 		$this->_applyDefaults();
 
 		foreach ($this->_lexer as $argument) {
+			if ($this->_parseCommand($argument)) {
+				continue;
+			}
 			if ($this->_parseFlag($argument)) {
 				continue;
 			}
@@ -416,20 +509,42 @@ class Arguments implements \ArrayAccess {
 	 * it will be available.
 	 */
 	private function _applyDefaults() {
+		$flags = $this['flags'];
 		foreach($this->_flags as $flag => $settings) {
-			$this[$flag] = $settings['default'];
+			$flags[$flag] = $settings['default'];
 		}
+		$this['flags'] = $flags;
 
+		$options = $this['options'];
 		foreach($this->_options as $option => $settings) {
 			// If the default is 0 we should still let it be set.
 			if (!empty($settings['default']) || $settings['default'] === 0) {
-				$this[$option] = $settings['default'];
+				$options[$option] = $settings['default'];
 			}
 		}
+		$this['options'] = $options;
 	}
 
 	private function _warn($message) {
 		trigger_error('[' . __CLASS__ .'] ' . $message, E_USER_WARNING);
+	}
+
+	private function _parseCommand($argument) {
+		if (!$this->isCommand($argument)) {
+			return false;
+		}
+
+		if ($this->_parsedCommand) {
+			$this->_warn('Multiple commands found.');
+		}
+
+		$this->_parsedCommand = true;
+
+		$data = $this['commands'];
+		$data[$argument->key] = true;
+		$this['commands'] = $data;
+
+		return true;
 	}
 
 	private function _parseFlag($argument) {
@@ -437,15 +552,17 @@ class Arguments implements \ArrayAccess {
 			return false;
 		}
 
+		$flags = $this['flags'];
 		if ($this->isStackable($argument)) {
 			if (!isset($this[$argument])) {
-				$this[$argument->key] = 0;
+				$flags[$argument->key] = 0;
 			}
 
-			$this[$argument->key] += 1;
+			$flags[$argument->key] += 1;
 		} else {
-			$this[$argument->key] = true;
+			$flags[$argument->key] = true;
 		}
+		$this['flags'] = $flags;
 
 		return true;
 	}
@@ -455,6 +572,8 @@ class Arguments implements \ArrayAccess {
 			return false;
 		}
 
+		$options = $this['options'];
+
 		// Peak ahead to make sure we get a value.
 		if ($this->_lexer->end() || !$this->_lexer->peek->isValue) {
 			$optionSettings = $this->getOption($option->key);
@@ -462,11 +581,12 @@ class Arguments implements \ArrayAccess {
 			if (empty($optionSettings['default']) && $optionSettings !== 0) {
 				// Oops! Got no value and no default , throw a warning and continue.
 				$this->_warn('no value given for ' . $option->raw);
-				$this[$option->key] = null;
+				$options[$option->key] = null;
 			} else {
 				// No value and we have a default, so we set to the default
-				$this[$option->key] = $optionSettings['default'];
+				$options[$option->key] = $optionSettings['default'];
 			}
+			$this['options'] = $options;
 			return true;
 		}
 
@@ -482,7 +602,8 @@ class Arguments implements \ArrayAccess {
 			}
 		}
 
-		$this[$option->key] = join($values, ' ');
+		$options[$option->key] = join($values, ' ');
+		$this['options'] = $options;
 		return true;
 	}
 }

@@ -39,7 +39,7 @@ class Argument extends Memoize {
 			$this->_argument = substr($this->_raw, 2);
 		} else if ($this->isShort) {
 			$this->_argument = substr($this->_raw, 1);
-		} else {
+		} else if ($this->isCommand) {
 			$this->_argument = $this->_raw;
 		}
 	}
@@ -87,6 +87,15 @@ class Argument extends Memoize {
 	 */
 	public function isShort() {
 		return !$this->isLong && (0 == strncmp($this->_raw, '-', 1));
+	}
+
+	/**
+	 * Returns true if the string matches the pattern for command arguments.
+	 *
+	 * @return bool
+	 */
+	public function isCommand() {
+		return !(0 == strncmp($this->_raw, '-', 1));
 	}
 
 	/**

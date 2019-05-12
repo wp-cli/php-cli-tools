@@ -5,6 +5,14 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 
 $args = new cli\Arguments(array(
+    'commands' => array(
+        'show' => array(
+            'description' => 'Show a JSON dump of the arguments'
+		),
+		'hide' => array(
+			'description' => 'Just to have another command'
+		)
+    ),
 	'flags' => array(
 		'verbose' => array(
 			'description' => 'Turn on verbose mode',
@@ -23,11 +31,17 @@ $args = new cli\Arguments(array(
 	),
 	'strict' => true
 ));
+$args->addFlag(array('help', 'h'), 'Show this help screen');
 
 try {
-    $args->parse();
-} catch (cli\InvalidArguments $e) {
-    echo $e->getMessage() . "\n\n";
+	$args->parse();
+	if ($args['flags']['help']) {
+		echo $args->getHelpScreen() . "\n\n";
+	}
+	if ($args['commands']['show']) {
+		echo $args->asJSON() . "\n";
+	}
+} catch (cli\arguments\InvalidArguments $e) {
+	echo 'Unrecognized parameters: ' . implode(',', $e->getArguments()) . "\n";
+	echo $args->getHelpScreen() . "\n\n";
 }
-
-print_r($args->getArguments());
