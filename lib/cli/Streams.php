@@ -156,7 +156,7 @@ class Streams {
 	 * @return string  The users input.
 	 * @see cli\input()
 	 */
-	public static function prompt( $question, $default = null, $marker = ': ', $hide = false ) {
+	public static function prompt( $question, $default = false, $marker = ': ', $hide = false ) {
 		if( $default && strpos( $question, '[' ) === false ) {
 			$question .= ' [' . $default . ']';
 		}
