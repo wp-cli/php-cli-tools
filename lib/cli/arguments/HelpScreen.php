@@ -56,7 +56,7 @@ class HelpScreen {
 		array_push($help, $this->_renderFlags());
 		array_push($help, $this->_renderOptions());
 
-		return join($help, "\n\n");
+		return join("\n\n", $help);
 	}
 
 	private function _renderFlags() {
@@ -97,7 +97,7 @@ class HelpScreen {
 			array_push($help, $formatted);
 		}
 
-		return join($help, "\n");
+		return join("\n", $help);
 	}
 
 	private function _consume($options) {
@@ -111,7 +111,7 @@ class HelpScreen {
 				array_push($names, '-' . $alias);
 			}
 
-			$names = join($names, ', ');
+			$names = join(', ', $names);
 			$max = max(strlen($names), $max);
 			$out[$names] = $settings;
 		}
