@@ -482,7 +482,7 @@ class Arguments implements \ArrayAccess {
 			}
 		}
 
-		$this[$option->key] = join($values, ' ');
+		$this[$option->key] = join(' ', $values);
 		return true;
 	}
 }
