@@ -14,7 +14,11 @@ class Streams {
 	}
 
 	static public function isTty() {
-		return (function_exists('posix_isatty') && posix_isatty(static::$out));
+		if ( function_exists('stream_isatty') ) {
+			return !stream_isatty(static::$out);
+		} else {
+			return (function_exists('posix_isatty') && !posix_isatty(static::$out));
+		}
 	}
 
 	/**
