@@ -91,7 +91,11 @@ class Shell {
 		if ($shellPipe !== false) {
 			return filter_var($shellPipe, FILTER_VALIDATE_BOOLEAN);
 		} else {
-			return (function_exists('posix_isatty') && !posix_isatty(STDOUT));
+			if ( function_exists('stream_isatty') ) {
+				return !stream_isatty(STDOUT);
+			} else {
+				return (function_exists('posix_isatty') && !posix_isatty(STDOUT));
+			}
 		}
 	}
 
