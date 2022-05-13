@@ -86,6 +86,7 @@ class Arguments implements \ArrayAccess {
 	 * @param mixed  $offset  An Argument object or the name of the argument.
 	 * @return bool
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetExists($offset) {
 		if ($offset instanceOf Argument) {
 			$offset = $offset->key;
@@ -100,6 +101,7 @@ class Arguments implements \ArrayAccess {
 	 * @param mixed  $offset  An Argument object or the name of the argument.
 	 * @return mixed
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetGet($offset) {
 		if ($offset instanceOf Argument) {
 			$offset = $offset->key;
@@ -116,6 +118,7 @@ class Arguments implements \ArrayAccess {
 	 * @param mixed  $offset  An Argument object or the name of the argument.
 	 * @param mixed  $value   The value to set
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetSet($offset, $value) {
 		if ($offset instanceOf Argument) {
 			$offset = $offset->key;
@@ -129,6 +132,7 @@ class Arguments implements \ArrayAccess {
 	 *
 	 * @param mixed  $offset  An Argument object or the name of the argument.
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetUnset($offset) {
 		if ($offset instanceOf Argument) {
 			$offset = $offset->key;
