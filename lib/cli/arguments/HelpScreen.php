@@ -91,7 +91,7 @@ class HelpScreen {
 
 			$pad = str_repeat(' ', $max + 3);
 			while ($desc = array_shift($description)) {
-				$formatted .= "\n${pad}${desc}";
+				$formatted .= "\n{$pad}{$desc}";
 			}
 
 			array_push($help, $formatted);
