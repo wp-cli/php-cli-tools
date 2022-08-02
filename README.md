@@ -1,7 +1,7 @@
 PHP Command Line Tools
 ======================
 
-[![Build Status](https://travis-ci.org/wp-cli/php-cli-tools.png?branch=master)](https://travis-ci.org/wp-cli/php-cli-tools)
+[![Testing](https://github.com/wp-cli/php-cli-tools/actions/workflows/testing.yml/badge.svg)](https://github.com/wp-cli/php-cli-tools/actions/workflows/testing.yml)
 
 A collection of functions and classes to assist with command line development.
 
