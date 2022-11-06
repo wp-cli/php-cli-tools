@@ -59,7 +59,7 @@ class TestArguments extends TestCase
     /**
      * Set up valid flags and options
      */
-    public function setUp(): void
+    public function setUp()
     {
         self::clearArgv();
         self::pushToArgv('my_script.php');

@@ -25,7 +25,7 @@ class Test_Table_Ascii extends TestCase {
 	/**
 	 * Creates instance and redirects STDOUT to temporary file
 	 */
-	public function setUp(): void {
+	public function setUp() {
 		$this->_mockFile = tempnam(sys_get_temp_dir(), 'temp');
 		$resource = fopen($this->_mockFile, 'wb');
 		Streams::setStream('out', $resource);

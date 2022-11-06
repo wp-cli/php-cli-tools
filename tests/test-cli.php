@@ -4,7 +4,7 @@ use cli\Colors;
 use WP_CLI\Tests\TestCase;
 class testsCli extends TestCase {
 
-	function setUp(): void {
+	function setUp() {
 		// Reset enable state
 		\cli\Colors::enable( null );
 
