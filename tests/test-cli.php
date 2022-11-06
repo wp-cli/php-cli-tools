@@ -1,8 +1,7 @@
 <?php
 
 use cli\Colors;
-
-use PHPUnit\Framework\TestCase;
+use WP_CLI\Tests\TestCase;
 class testsCli extends TestCase {
 
 	function setUp(): void {

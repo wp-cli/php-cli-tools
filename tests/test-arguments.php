@@ -1,7 +1,7 @@
 <?php
 
 use cli\Arguments;
-use PHPUnit\Framework\TestCase;
+use WP_CLI\Tests\TestCase;
 
 /**
  * Class TestArguments

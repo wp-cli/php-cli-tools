@@ -1,7 +1,7 @@
 <?php
 
 use cli\Colors;
-use PHPUnit\Framework\TestCase;
+use WP_CLI\Tests\TestCase;
 
 class testsColors extends TestCase {
 

@@ -1,7 +1,7 @@
 <?php
 
 use cli\Shell;
-use PHPUnit\Framework\TestCase;
+use WP_CLI\Tests\TestCase;
 
 /**
  * Class TestShell

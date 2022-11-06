@@ -4,7 +4,7 @@ use cli\Streams;
 use cli\Table;
 use cli\table\Ascii;
 use cli\Colors;
-use PHPUnit\Framework\TestCase;
+use WP_CLI\Tests\TestCase;
 
 /**
  * Class Test_Table_Ascii
