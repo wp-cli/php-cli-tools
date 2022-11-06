@@ -59,7 +59,7 @@ class TestArguments extends TestCase
     /**
      * Set up valid flags and options
      */
-    public function setUp()
+    public function set_up()
     {
         self::clearArgv();
         self::pushToArgv('my_script.php');
@@ -96,7 +96,7 @@ class TestArguments extends TestCase
     /**
      * Tear down fixtures
      */
-    public function tearDown()
+    public function tear_down()
     {
         $this->flags = null;
         $this->options = null;
