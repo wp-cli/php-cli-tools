@@ -37,7 +37,7 @@ class Test_Table_Ascii extends TestCase {
 	/**
 	 * Cleans temporary file
 	 */
-	public function tearDown(): void {
+	public function tearDown() {
 		if (file_exists($this->_mockFile)) {
 			unlink($this->_mockFile);
 		}

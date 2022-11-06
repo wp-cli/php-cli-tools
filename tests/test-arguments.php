@@ -96,7 +96,7 @@ class TestArguments extends TestCase
     /**
      * Tear down fixtures
      */
-    public function tearDown(): void
+    public function tearDown()
     {
         $this->flags = null;
         $this->options = null;
