@@ -1,6 +1,7 @@
 <?php
 
 use cli\Arguments;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class TestArguments
@@ -8,7 +9,7 @@ use cli\Arguments;
  *
  * @backupGlobals enabled
  */
-class TestArguments extends PHPUnit_Framework_TestCase
+class TestArguments extends TestCase
 {
     /**
      * Array of expected settings
@@ -58,7 +59,7 @@ class TestArguments extends PHPUnit_Framework_TestCase
     /**
      * Set up valid flags and options
      */
-    public function setUp()
+    public function setUp(): void
     {
         self::clearArgv();
         self::pushToArgv('my_script.php');
@@ -95,7 +96,7 @@ class TestArguments extends PHPUnit_Framework_TestCase
     /**
      * Tear down fixtures
      */
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->flags = null;
         $this->options = null;

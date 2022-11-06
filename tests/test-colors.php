@@ -1,8 +1,9 @@
 <?php
 
 use cli\Colors;
+use PHPUnit\Framework\TestCase;
 
-class testsColors extends PHPUnit_Framework_TestCase {
+class testsColors extends TestCase {
 
 	/**
      * @dataProvider dataColors

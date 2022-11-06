@@ -1,11 +1,12 @@
 <?php
 
 use cli\Shell;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class TestShell
  */
-class TestShell extends PHPUnit_Framework_TestCase {
+class TestShell extends TestCase {
 
     /**
      * Test getting TERM columns.

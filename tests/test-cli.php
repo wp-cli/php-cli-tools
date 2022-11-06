@@ -2,9 +2,10 @@
 
 use cli\Colors;
 
-class testsCli extends PHPUnit_Framework_TestCase {
+use PHPUnit\Framework\TestCase;
+class testsCli extends TestCase {
 
-	function setUp() {
+	function setUp(): void {
 		// Reset enable state
 		\cli\Colors::enable( null );
 
