@@ -256,11 +256,11 @@ class TestArguments extends TestCase
      * @param  array $args           arguments as they appear in the cli
      * @param  array $expectedValues expected values after parsing
      * @dataProvider settingsWithMissingOptions
-     * @expectedException PHPUnit_Framework_Error_Warning
-     * @expectedExceptionMessage no value given for --option1
      */
     public function testParseWithMissingOptions($cliParams, $expectedValues)
     {
+        $this->expectWarning();
+        $this->expectWarningMessage('no value given for --option1');
         $this->_testParse($cliParams, $expectedValues);
     }
 
