@@ -1,13 +1,5 @@
 <?php
 
-require dirname( dirname( __FILE__ ) ) . '/lib/cli/cli.php';
-
-/**
- * Compatibility with PHPUnit 6+
- */
-if ( class_exists( 'PHPUnit\Runner\Version' ) ) {
-	require_once dirname( __FILE__ ) . '/phpunit6-compat.php';
-}
 
 function cli_autoload( $className ) {
 	$className = ltrim($className, '\\');

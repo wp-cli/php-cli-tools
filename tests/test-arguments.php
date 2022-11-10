@@ -1,6 +1,7 @@
 <?php
 
 use cli\Arguments;
+use WP_CLI\Tests\TestCase;
 
 /**
  * Class TestArguments
@@ -8,7 +9,7 @@ use cli\Arguments;
  *
  * @backupGlobals enabled
  */
-class TestArguments extends PHPUnit_Framework_TestCase
+class TestArguments extends TestCase
 {
     /**
      * Array of expected settings
@@ -58,7 +59,7 @@ class TestArguments extends PHPUnit_Framework_TestCase
     /**
      * Set up valid flags and options
      */
-    public function setUp()
+    public function set_up()
     {
         self::clearArgv();
         self::pushToArgv('my_script.php');
@@ -95,7 +96,7 @@ class TestArguments extends PHPUnit_Framework_TestCase
     /**
      * Tear down fixtures
      */
-    public function tearDown()
+    public function tear_down()
     {
         $this->flags = null;
         $this->options = null;
@@ -255,11 +256,11 @@ class TestArguments extends PHPUnit_Framework_TestCase
      * @param  array $args           arguments as they appear in the cli
      * @param  array $expectedValues expected values after parsing
      * @dataProvider settingsWithMissingOptions
-     * @expectedException PHPUnit_Framework_Error_Warning
-     * @expectedExceptionMessage no value given for --option1
      */
     public function testParseWithMissingOptions($cliParams, $expectedValues)
     {
+        $this->expectWarning();
+        $this->expectWarningMessage('no value given for --option1');
         $this->_testParse($cliParams, $expectedValues);
     }
 

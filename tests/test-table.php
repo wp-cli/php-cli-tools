@@ -1,11 +1,12 @@
 <?php
 
 use cli\Colors, cli\Table, cli\Table\Ascii;
+use WP_CLI\Tests\TestCase;
 
 /**
  * Tests for cli\Table
  */
-class Test_Table extends PHPUnit_Framework_TestCase {
+class Test_Table extends TestCase {
 
 	public function test_column_value_too_long_ascii() {
 

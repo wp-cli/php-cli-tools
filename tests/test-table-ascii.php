@@ -4,6 +4,7 @@ use cli\Streams;
 use cli\Table;
 use cli\table\Ascii;
 use cli\Colors;
+use WP_CLI\Tests\TestCase;
 
 /**
  * Class Test_Table_Ascii
@@ -11,7 +12,7 @@ use cli\Colors;
  * Acceptance tests for ASCII table drawing.
  * It will redirect STDOUT to temporary file and check that output matches with expected
  */
-class Test_Table_Ascii extends PHPUnit_Framework_TestCase {
+class Test_Table_Ascii extends TestCase {
 	/**
 	 * @var string Path to temporary file, where STDOUT output will be redirected during tests
 	 */
@@ -24,7 +25,7 @@ class Test_Table_Ascii extends PHPUnit_Framework_TestCase {
 	/**
 	 * Creates instance and redirects STDOUT to temporary file
 	 */
-	public function setUp() {
+	public function set_up() {
 		$this->_mockFile = tempnam(sys_get_temp_dir(), 'temp');
 		$resource = fopen($this->_mockFile, 'wb');
 		Streams::setStream('out', $resource);
@@ -36,7 +37,7 @@ class Test_Table_Ascii extends PHPUnit_Framework_TestCase {
 	/**
 	 * Cleans temporary file
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		if (file_exists($this->_mockFile)) {
 			unlink($this->_mockFile);
 		}
