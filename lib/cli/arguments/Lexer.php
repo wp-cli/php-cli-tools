@@ -15,6 +15,7 @@ namespace cli\arguments;
 use cli\Memoize;
 
 class Lexer extends Memoize implements \Iterator {
+	private $_item;
 	private $_items = array();
 	private $_index = 0;
 	private $_length = 0;
