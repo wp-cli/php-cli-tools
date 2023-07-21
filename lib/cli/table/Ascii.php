@@ -180,7 +180,7 @@ class Ascii extends Renderer {
 				$row_values = array();
 				$has_more = false;
 				foreach( $extra_rows as $col => &$col_values ) {
-					$row_values[ $col ] = array_shift( $col_values );
+					$row_values[ $col ] = ! empty( $col_values ) ? array_shift( $col_values ) : '';
 					if ( count( $col_values ) ) {
 						$has_more = true;
 					}
