@@ -22,7 +22,7 @@
     },
     "require-dev": {
         "roave/security-advisories": "dev-latest",
-        "wp-cli/wp-cli-tests": "^3.1.6"
+        "wp-cli/wp-cli-tests": "^4"
     },
     "extra": {
         "branch-alias": {
