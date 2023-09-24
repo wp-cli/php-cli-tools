@@ -146,6 +146,8 @@ class Colors {
 	 * @return string A string with color information removed.
 	 */
 	static public function decolorize( $string, $keep = 0 ) {
+		$string = (string) $string;
+		
 		if ( ! ( $keep & 1 ) ) {
 			// Get rid of color tokens if they exist
 			$string = str_replace('%%', '%¾', $string);
