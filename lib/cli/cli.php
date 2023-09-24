@@ -319,6 +319,8 @@ function safe_str_pad( $string, $length, $encoding = false ) {
  * @return int  The string's width.
  */
 function strwidth( $string, $encoding = false ) {
+	$string = (string) $string;
+	
 	// Set the East Asian Width and Mark regexs.
 	list( $eaw_regex, $m_regex ) = get_unicode_regexs();
 
