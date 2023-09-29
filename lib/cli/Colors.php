@@ -108,9 +108,9 @@ class Colors {
 	 * Colorize a string using helpful string formatters. If the `Streams::$out` points to a TTY coloring will be enabled,
 	 * otherwise disabled. You can control this check with the `$colored` parameter.
 	 *
-     * @param string   $string
+	 * @param string   $string
 	 * @param boolean  $colored  Force enable or disable the colorized output. If left as `null` the TTY will control coloring.
-     * @return string
+	 * @return string
 	 */
 	static public function colorize($string, $colored = null) {
 		$passed = $string;
@@ -146,6 +146,8 @@ class Colors {
 	 * @return string A string with color information removed.
 	 */
 	static public function decolorize( $string, $keep = 0 ) {
+		$string = (string) $string;
+		
 		if ( ! ( $keep & 1 ) ) {
 			// Get rid of color tokens if they exist
 			$string = str_replace('%%', '%¾', $string);
@@ -182,7 +184,7 @@ class Colors {
 	 * Return the length of the string without color codes.
 	 *
 	 * @param string  $string  the string to measure
-     * @return int
+	 * @return int
 	 */
 	static public function length($string) {
 		return safe_strlen( self::decolorize( $string ) );
@@ -194,7 +196,7 @@ class Colors {
 	 * @param string      $string        The string to measure.
 	 * @param bool        $pre_colorized Optional. Set if the string is pre-colorized. Default false.
 	 * @param string|bool $encoding      Optional. The encoding of the string. Default false.
-     * @return int
+	 * @return int
 	 */
 	static public function width( $string, $pre_colorized = false, $encoding = false ) {
 		return strwidth( $pre_colorized || self::shouldColorize() ? self::decolorize( $string, $pre_colorized ? 1 /*keep_tokens*/ : 0 ) : $string, $encoding );
@@ -208,9 +210,11 @@ class Colors {
 	 * @param bool        $pre_colorized Optional. Set if the string is pre-colorized. Default false.
 	 * @param string|bool $encoding      Optional. The encoding of the string. Default false.
 	 * @param int         $pad_type      Optional. Can be STR_PAD_RIGHT, STR_PAD_LEFT, or STR_PAD_BOTH. If pad_type is not specified it is assumed to be STR_PAD_RIGHT.
-     * @return string
+	 * @return string
 	 */
 	static public function pad( $string, $length, $pre_colorized = false, $encoding = false, $pad_type = STR_PAD_RIGHT ) {
+		$string = (string) $string;
+		
 		$real_length = self::width( $string, $pre_colorized, $encoding );
 		$diff = strlen( $string ) - $real_length;
 		$length += $diff;
