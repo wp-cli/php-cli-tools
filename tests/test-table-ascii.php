@@ -249,7 +249,6 @@ OUT;
 +----------+----------+
 | header 1 | header 2 |
 +----------+----------+
-+----------+----------+
 
 OUT;
 		$this->assertInOutEquals(array($headers, $rows), $output);
