@@ -30,6 +30,9 @@ abstract class Notify {
 	protected $_message;
 	protected $_start;
 	protected $_timer;
+	protected $_tick;
+	protected $_iteration = 0;
+	protected $_speed = 0;
 
 	/**
 	 * Instatiates a Notification object.
@@ -92,23 +95,21 @@ abstract class Notify {
 	 * @return int  The number of ticks performed in 1 second.
 	 */
 	public function speed() {
-		static $tick, $iteration = 0, $speed = 0;
-
 		if (!$this->_start) {
 			return 0;
-		} else if (!$tick) {
-			$tick = $this->_start;
+		} else if (!$this->_tick) {
+			$this->_tick = $this->_start;
 		}
 
 		$now = microtime(true);
-		$span = $now - $tick;
+		$span = $now - $this->_tick;
 		if ($span > 1) {
-			$iteration++;
-			$tick = $now;
-			$speed = ($this->_current / $iteration) / $span;
+			$this->_iteration++;
+			$this->_tick = $now;
+			$this->_speed = ($this->_current / $this->_iteration) / $span;
 		}
 
-		return $speed;
+		return $this->_speed;
 	}
 
 	/**
