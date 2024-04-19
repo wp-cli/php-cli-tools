@@ -17,9 +17,20 @@ namespace cli\table;
  */
 abstract class Renderer {
 	protected $_widths = array();
+	protected $_alignments = array();
 
-	public function __construct(array $widths = array()) {
+	public function __construct(array $widths = array(), array $alignments = array()) {
 		$this->setWidths($widths);
+		$this->setAlignments($alignments);
+	}
+
+	/**
+	 * Set the alignments of each column in the table.
+	 *
+	 * @param array  $alignments  The alignments of the columns.
+	 */
+	public function setAlignments(array $alignments) {
+		$this->_alignments = $alignments;
 	}
 
 	/**

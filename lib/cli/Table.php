@@ -15,6 +15,7 @@ namespace cli;
 use cli\Shell;
 use cli\Streams;
 use cli\table\Ascii;
+use cli\table\Column;
 use cli\table\Renderer;
 use cli\table\Tabular;
 
@@ -27,6 +28,7 @@ class Table {
 	protected $_footers = array();
 	protected $_width = array();
 	protected $_rows = array();
+	protected $_alignments = array();
 
 	/**
 	 * Initializes the `Table` class.
@@ -44,7 +46,7 @@ class Table {
 	 * @param array  $rows     The rows of data for this table. Optional.
 	 * @param array  $footers  Footers used in this table. Optional.
 	 */
-	public function __construct(array $headers = null, array $rows = null, array $footers = null) {
+	public function __construct(array $headers = null, array $rows = null, array $footers = null, $alignments = []) {
 		if (!empty($headers)) {
 			// If all the rows is given in $headers we use the keys from the
 			// first row for the header values
@@ -61,6 +63,8 @@ class Table {
 			$this->setHeaders($headers);
 			$this->setRows($rows);
 		}
+
+		$this->setAlignments($alignments);
 
 		if (!empty($footers)) {
 			$this->setFooters($footers);
@@ -79,6 +83,7 @@ class Table {
 		$this->_width = array();
 		$this->_rows = array();
 		$this->_footers = array();
+		$this->_alignments = array();
 		return $this;
 	}
 
@@ -137,6 +142,7 @@ class Table {
 	 */
 	public function getDisplayLines() {
 		$this->_renderer->setWidths($this->_width, $fallback = true);
+		$this->_renderer->setAlignments($this->_alignments);
 		$border = $this->_renderer->border();
 
 		$out = array();
@@ -201,6 +207,15 @@ class Table {
 		$this->_footers = $this->checkRow($footers);
 	}
 
+	/**
+	 * Set the alignments of the table.
+	 *
+	 * @param array  $alignments  An array of strings containing column alignments.
+	 */
+	public function setAlignments(array $alignments) {
+		$this->_alignments = $alignments;
+		//TODO: Implement error if alignment is not valid and field is not valid
+	}
 
 	/**
 	 * Add a row to the table.

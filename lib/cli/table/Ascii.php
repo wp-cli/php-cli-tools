@@ -28,6 +28,7 @@ class Ascii extends Renderer {
 	protected $_border = null;
 	protected $_constraintWidth = null;
 	protected $_pre_colorized = false;
+	protected $_headers = null;
 
 	/**
 	 * Set the widths of each column in the table.
@@ -131,6 +132,10 @@ class Ascii extends Renderer {
 	 */
 	public function row( array $row ) {
 
+		if($this->_headers === null) {
+			$this->_headers = array_values($row);
+		}
+
 		$extra_row_count = 0;
 
 		if ( count( $row ) > 0 ) {
@@ -197,7 +202,10 @@ class Ascii extends Renderer {
 	}
 
 	private function padColumn($content, $column) {
-		return $this->_characters['padding'] . Colors::pad( $content, $this->_widths[ $column ], $this->isPreColorized( $column ) ) . $this->_characters['padding'];
+		$column_name = $this->_headers[$column];
+		$alignment = array_key_exists($column_name, $this->_alignments) ? $this->_alignments[$column_name] : Column::ALIGN_LEFT;
+
+		return $this->_characters['padding'] . Colors::pad( $content, $this->_widths[ $column ], $this->isPreColorized( $column ), false, $alignment) . $this->_characters['padding'];
 	}
 
 	/**
