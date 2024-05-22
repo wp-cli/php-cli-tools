@@ -1,5 +1,6 @@
 <?php
 
+use cli\Shell;
 use WP_CLI\Tests\TestCase;
 
 /**

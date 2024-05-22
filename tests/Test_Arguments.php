@@ -1,5 +1,6 @@
 <?php
 
+use cli\Arguments;
 use WP_CLI\Tests\TestCase;
 
 /**
