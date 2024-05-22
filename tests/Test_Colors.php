@@ -8,7 +8,7 @@ class Test_Colors extends TestCase {
 	/**
      * @dataProvider dataColors
 	 */
-	function testColors( $str, $color ) {
+	public function testColors( $str, $color ) {
 		// Colors enabled.
 		Colors::enable( true );
 
@@ -21,7 +21,7 @@ class Test_Colors extends TestCase {
 		}
 	}
 
-	function dataColors() {
+	public static function dataColors() {
 		$ret = array();
 		foreach ( Colors::getColors() as $str => $color ) {
 			$ret[] = array( $str, $color );

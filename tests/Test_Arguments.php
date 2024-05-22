@@ -150,7 +150,7 @@ class Test_Arguments extends TestCase
      *
      * @return array set of args and expected parsed values
      */
-    public function settingsWithValidOptions()
+    public static function settingsWithValidOptions()
     {
         return array(
             array(
@@ -173,7 +173,7 @@ class Test_Arguments extends TestCase
      *
      * @return array set of args and expected parsed values
      */
-    public function settingsWithMissingOptions()
+    public static function settingsWithMissingOptions()
     {
         return array(
             array(
@@ -192,7 +192,7 @@ class Test_Arguments extends TestCase
      *
      * @return array set of args and expected parsed values
      */
-    public function settingsWithMissingOptionsWithDefault()
+    public static function settingsWithMissingOptionsWithDefault()
     {
         return array(
             array(
@@ -206,7 +206,7 @@ class Test_Arguments extends TestCase
         );
     }
 
-    public function settingsWithNoOptionsWithDefault()
+    public static function settingsWithNoOptionsWithDefault()
     {
         return array(
             array(
