@@ -3,6 +3,7 @@
 use cli\Colors;
 use cli\Table;
 use cli\Table\Ascii;
+use WP_CLI\Tests\TestCase;
 
 /**
  * Tests for cli\Table

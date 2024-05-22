@@ -1,5 +1,7 @@
 <?php
 
+use WP_CLI\Tests\TestCase;
+
 /**
  * Class Test_Shell
  */

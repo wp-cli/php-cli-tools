@@ -1,5 +1,7 @@
 <?php
 
+use WP_CLI\Tests\TestCase;
+
 /**
  * Class Test_Arguments
  * @todo add more tests to increase coverage
