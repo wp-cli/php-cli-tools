@@ -1,15 +1,12 @@
 <?php
 
-use cli\Arguments;
-use WP_CLI\Tests\TestCase;
-
 /**
- * Class TestArguments
+ * Class Test_Arguments
  * @todo add more tests to increase coverage
  *
  * @backupGlobals enabled
  */
-class TestArguments extends TestCase
+class Test_Arguments extends TestCase
 {
     /**
      * Array of expected settings

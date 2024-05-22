@@ -1,7 +1,8 @@
 <?php
 
-use cli\Colors, cli\Table, cli\Table\Ascii;
-use WP_CLI\Tests\TestCase;
+use cli\Colors;
+use cli\Table;
+use cli\Table\Ascii;
 
 /**
  * Tests for cli\Table

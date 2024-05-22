@@ -1,13 +1,12 @@
 <?php
 
 use cli\Colors;
-use WP_CLI\Tests\TestCase;
 
-class testsColors extends TestCase {
+class Test_Colors extends TestCase {
 
 	/**
      * @dataProvider dataColors
-	 */ 
+	 */
 	function testColors( $str, $color ) {
 		// Colors enabled.
 		Colors::enable( true );
