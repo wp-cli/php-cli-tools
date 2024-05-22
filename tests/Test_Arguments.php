@@ -90,6 +90,13 @@ class Test_Arguments extends TestCase
             'flags' => $this->flags,
             'options' => $this->options
         );
+
+	    set_error_handler(
+	      static function ( $errno, $errstr ) {
+		      throw new \Exception( $errstr, $errno );
+	      },
+	      E_ALL
+	    );
     }
 
     /**
@@ -101,6 +108,7 @@ class Test_Arguments extends TestCase
         $this->options = null;
         $this->settings = null;
         self::clearArgv();
+	    restore_error_handler();
     }
 
     /**
@@ -258,8 +266,8 @@ class Test_Arguments extends TestCase
      */
     public function testParseWithMissingOptions($cliParams, $expectedValues)
     {
-        $this->expectWarning();
-        $this->expectWarningMessage('no value given for --option1');
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('no value given for --option1');
         $this->_testParse($cliParams, $expectedValues);
     }
 
