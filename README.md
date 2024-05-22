@@ -1,13 +1,11 @@
 PHP Command Line Tools
 ======================
 
-[![Build Status](https://travis-ci.org/wp-cli/php-cli-tools.png?branch=master)](https://travis-ci.org/wp-cli/php-cli-tools)
-
 A collection of functions and classes to assist with command line development.
 
 Requirements
 
- * PHP >= 5.3
+ * PHP >= 5.6
 
 Suggested PHP extensions
  

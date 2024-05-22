@@ -1,9 +1,9 @@
 <?php
 
+use cli\Colors;
 use cli\Streams;
 use cli\Table;
 use cli\table\Ascii;
-use cli\Colors;
 use WP_CLI\Tests\TestCase;
 
 /**
