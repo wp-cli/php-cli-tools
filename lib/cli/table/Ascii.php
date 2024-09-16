@@ -137,7 +137,7 @@ class Ascii extends Renderer {
 			$extra_rows = array_fill( 0, count( $row ), array() );
 
 			foreach( $row as $col => $value ) {
-
+				$value = $value ?: '';
 				$value = str_replace( array( "\r\n", "\n" ), ' ', $value );
 
 				$col_width = $this->_widths[ $col ];
