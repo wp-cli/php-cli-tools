@@ -138,6 +138,7 @@ class Ascii extends Renderer {
 
 			foreach ( $row as $col => $value ) {
 				$value              = $value ?: '';
+				$value              = str_replace( "\t", '    ', $value );
 				$col_width          = $this->_widths[ $col ];
 				$encoding           = function_exists( 'mb_detect_encoding' ) ? mb_detect_encoding( $value, null, true /*strict*/ ) : false;
 				$original_val_width = Colors::width( $value, self::isPreColorized( $col ), $encoding );
