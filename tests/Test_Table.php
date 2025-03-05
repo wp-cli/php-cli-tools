@@ -245,4 +245,26 @@ class Test_Table extends TestCase {
 		$this->assertSame( 56, strlen( $out[6] ) );
 	}
 
+	public function test_preserve_trailing_tabs() {
+		$table    = new cli\Table();
+		$renderer = new cli\Table\Tabular();
+		$table->setRenderer( $renderer );
+
+		$table->setHeaders( array( 'Field', 'Type', 'Null', 'Key', 'Default', 'Extra' ) );
+
+		// Add row with missing values at the end
+		$table->addRow( array( 'date', 'date', 'NO', 'PRI', '', '' ) );
+		$table->addRow( array( 'awesome_stuff', 'text', 'YES', '', '', '' ) );
+
+		$out = $table->getDisplayLines();
+
+		$expected = [
+			"Field\tType\tNull\tKey\tDefault\tExtra",
+			"date\tdate\tNO\tPRI\t\t",
+			"awesome_stuff\ttext\tYES\t\t\t",
+		];
+
+		$this->assertSame( $expected, $out, 'Trailing tabs should be preserved in table output.' );
+	}
+
 }

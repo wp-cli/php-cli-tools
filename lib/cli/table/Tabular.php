@@ -45,7 +45,6 @@ class Tabular extends Renderer {
 		foreach ( $rows as $r ) {
 			$output .= implode( "\t", array_values( $r ) ) . PHP_EOL;
 		}
-
-		return trim( $output );
+		return rtrim( $output, PHP_EOL );
 	}
 }
