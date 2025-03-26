@@ -27,6 +27,7 @@ class Tabular extends Renderer {
 		$output = '';
 
 		foreach ( $row as $col => $value ) {
+			$value       = isset( $value ) ? (string) $value : '';
 			$value       = str_replace( "\t", '    ', $value );
 			$split_lines = preg_split( '/\r\n|\n/', $value );
 			// Keep anything before the first line break on the original line
