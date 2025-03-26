@@ -267,4 +267,26 @@ class Test_Table extends TestCase {
 		$this->assertSame( $expected, $out, 'Trailing tabs should be preserved in table output.' );
 	}
 
+	public function test_null_values_are_handled() {
+		$table    = new cli\Table();
+		$renderer = new cli\Table\Tabular();
+		$table->setRenderer( $renderer );
+
+		$table->setHeaders( array( 'Field', 'Type', 'Null', 'Key', 'Default', 'Extra' ) );
+
+		// Add row with a null value in the middle
+		$table->addRow( array( 'id', 'int', 'NO', 'PRI', null, 'auto_increment' ) );
+
+		// Add row with a null value at the end
+		$table->addRow( array( 'name', 'varchar(255)', 'YES', '', 'NULL', null ) );
+
+		$out = $table->getDisplayLines();
+
+		$expected = [
+			"Field\tType\tNull\tKey\tDefault\tExtra",
+			"id\tint\tNO\tPRI\t\tauto_increment",
+			"name\tvarchar(255)\tYES\t\tNULL\t",
+		];
+		$this->assertSame( $expected, $out, 'Null values should be safely converted to empty strings in table output.' );
+	}
 }
