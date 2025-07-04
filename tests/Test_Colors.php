@@ -2,12 +2,14 @@
 
 use cli\Colors;
 use WP_CLI\Tests\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class Test_Colors extends TestCase {
 
 	/**
      * @dataProvider dataColors
 	 */
+	#[DataProvider( 'dataColors' )] // phpcs:ignore PHPCompatibility.Attributes.NewAttributes.PHPUnitAttributeFound
 	public function testColors( $str, $color ) {
 		// Colors enabled.
 		Colors::enable( true );

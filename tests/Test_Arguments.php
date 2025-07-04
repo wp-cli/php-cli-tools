@@ -1,6 +1,6 @@
 <?php
 
-use cli\Arguments;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WP_CLI\Tests\TestCase;
 
 /**
@@ -255,6 +255,7 @@ class Test_Arguments extends TestCase
      *
      * @dataProvider settingsWithValidOptions
      */
+	#[DataProvider( 'settingsWithValidOptions' )] // phpcs:ignore PHPCompatibility.Attributes.NewAttributes.PHPUnitAttributeFound
     public function testParseWithValidOptions($cliParams, $expectedValues)
     {
         $this->_testParse($cliParams, $expectedValues);
@@ -265,6 +266,7 @@ class Test_Arguments extends TestCase
      * @param  array $expectedValues expected values after parsing
      * @dataProvider settingsWithMissingOptions
      */
+	#[DataProvider( 'settingsWithMissingOptions' )] // phpcs:ignore PHPCompatibility.Attributes.NewAttributes.PHPUnitAttributeFound
     public function testParseWithMissingOptions($cliParams, $expectedValues)
     {
         $this->expectException(\Exception::class);
@@ -277,6 +279,7 @@ class Test_Arguments extends TestCase
      * @param  array $expectedValues expected values after parsing
      * @dataProvider settingsWithMissingOptionsWithDefault
      */
+	#[DataProvider( 'settingsWithMissingOptionsWithDefault' )] // phpcs:ignore PHPCompatibility.Attributes.NewAttributes.PHPUnitAttributeFound
     public function testParseWithMissingOptionsWithDefault($cliParams, $expectedValues)
     {
         $this->_testParse($cliParams, $expectedValues);
@@ -287,6 +290,7 @@ class Test_Arguments extends TestCase
      * @param  array $expectedValues expected values after parsing
      * @dataProvider settingsWithNoOptionsWithDefault
      */
+	#[DataProvider( 'settingsWithNoOptionsWithDefault' )] // phpcs:ignore PHPCompatibility.Attributes.NewAttributes.PHPUnitAttributeFound
     public function testParseWithNoOptionsWithDefault($cliParams, $expectedValues) {
         $this->_testParse($cliParams, $expectedValues);
     }
