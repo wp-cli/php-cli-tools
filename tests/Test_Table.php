@@ -289,4 +289,70 @@ class Test_Table extends TestCase {
 		];
 		$this->assertSame( $expected, $out, 'Null values should be safely converted to empty strings in table output.' );
 	}
+
+	public function test_default_alignment() {
+		$table = new cli\Table();
+		$table->setHeaders( array( 'Header1', 'Header2' ) );
+		$table->addRow( array( 'Row1Col1', 'Row1Col2' ) );
+
+		$out = $table->getDisplayLines();
+
+		// By default, columns should be left-aligned.
+		$this->assertStringContainsString( '| Header1  | Header2  |', $out[1] );
+		$this->assertStringContainsString( '| Row1Col1 | Row1Col2 |', $out[3] );
+	}
+
+	public function test_right_alignment() {
+		$table = new cli\Table();
+		$table->setHeaders( array( 'Header1', 'Header2' ) );
+		$table->setAlignments( array( 'Header1' => \cli\table\Column::ALIGN_RIGHT, 'Header2' => \cli\table\Column::ALIGN_RIGHT ) );
+		$table->addRow( array( 'R1C1', 'R1C2' ) );
+
+		$out = $table->getDisplayLines();
+
+		$this->assertStringContainsString( '|  Header1 |  Header2 |', $out[1] );
+		$this->assertStringContainsString( '|     R1C1 |     R1C2 |', $out[3] );
+	}
+
+	public function test_center_alignment() {
+		$table = new cli\Table();
+		$table->setHeaders( array( 'Header1', 'Header2' ) );
+		$table->setAlignments( array( 'Header1' => \cli\table\Column::ALIGN_CENTER, 'Header2' => \cli\table\Column::ALIGN_CENTER ) );
+		$table->addRow( array( 'R1C1', 'R1C2' ) );
+
+		$out = $table->getDisplayLines();
+
+		$this->assertStringContainsString( '| Header1  | Header2  |', $out[1] );
+		$this->assertStringContainsString( '|   R1C1   |   R1C2   |', $out[3] );
+	}
+
+	public function test_mixed_alignments() {
+		$table = new cli\Table();
+		$table->setHeaders( array( 'Left', 'Right', 'Center' ) );
+		$table->setAlignments( array(
+			'Left'   => \cli\table\Column::ALIGN_LEFT,
+			'Right'  => \cli\table\Column::ALIGN_RIGHT,
+			'Center' => \cli\table\Column::ALIGN_CENTER,
+		) );
+		$table->addRow( array( 'l', 'r', 'c' ) );
+
+		$out = $table->getDisplayLines();
+
+		$this->assertStringContainsString( '| Left   | Right | Center |', $out[1] );
+		$this->assertStringContainsString( '| l      |     r |   c    |', $out[3] );
+	}
+
+	public function test_invalid_alignment_value() {
+		$this->expectException( \InvalidArgumentException::class );
+		$table = new cli\Table();
+		$table->setHeaders( array( 'Header1' ) );
+		$table->setAlignments( array( 'Header1' => 'invalid-alignment' ) );
+	}
+
+	public function test_invalid_alignment_column() {
+		$this->expectException( \InvalidArgumentException::class );
+		$table = new cli\Table();
+		$table->setHeaders( array( 'Header1' ) );
+		$table->setAlignments( array( 'NonExistent' => \cli\table\Column::ALIGN_LEFT ) );
+	}
 }
