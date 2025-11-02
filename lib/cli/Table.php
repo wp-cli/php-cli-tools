@@ -44,11 +44,11 @@ class Table {
 	 * @param array  $rows     The rows of data for this table. Optional.
 	 * @param array  $footers  Footers used in this table. Optional.
 	 */
-	public function __construct(array $headers = null, array $rows = null, array $footers = null) {
+	public function __construct(array $headers = array(), array $rows = array(), array $footers = array()) {
 		if (!empty($headers)) {
 			// If all the rows is given in $headers we use the keys from the
 			// first row for the header values
-			if ($rows === null) {
+			if ($rows === array()) {
 				$rows = $headers;
 				$keys = array_keys(array_shift($headers));
 				$headers = array();

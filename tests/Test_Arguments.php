@@ -1,15 +1,15 @@
 <?php
 
-use cli\Arguments;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WP_CLI\Tests\TestCase;
 
 /**
- * Class TestArguments
+ * Class Test_Arguments
  * @todo add more tests to increase coverage
  *
  * @backupGlobals enabled
  */
-class TestArguments extends TestCase
+class Test_Arguments extends TestCase
 {
     /**
      * Array of expected settings
@@ -91,6 +91,13 @@ class TestArguments extends TestCase
             'flags' => $this->flags,
             'options' => $this->options
         );
+
+	    set_error_handler(
+	      static function ( $errno, $errstr ) {
+		      throw new \Exception( $errstr, $errno );
+	      },
+	      E_ALL
+	    );
     }
 
     /**
@@ -102,6 +109,7 @@ class TestArguments extends TestCase
         $this->options = null;
         $this->settings = null;
         self::clearArgv();
+	    restore_error_handler();
     }
 
     /**
@@ -151,7 +159,7 @@ class TestArguments extends TestCase
      *
      * @return array set of args and expected parsed values
      */
-    public function settingsWithValidOptions()
+    public static function settingsWithValidOptions()
     {
         return array(
             array(
@@ -174,7 +182,7 @@ class TestArguments extends TestCase
      *
      * @return array set of args and expected parsed values
      */
-    public function settingsWithMissingOptions()
+    public static function settingsWithMissingOptions()
     {
         return array(
             array(
@@ -193,7 +201,7 @@ class TestArguments extends TestCase
      *
      * @return array set of args and expected parsed values
      */
-    public function settingsWithMissingOptionsWithDefault()
+    public static function settingsWithMissingOptionsWithDefault()
     {
         return array(
             array(
@@ -207,7 +215,7 @@ class TestArguments extends TestCase
         );
     }
 
-    public function settingsWithNoOptionsWithDefault()
+    public static function settingsWithNoOptionsWithDefault()
     {
         return array(
             array(
@@ -247,6 +255,7 @@ class TestArguments extends TestCase
      *
      * @dataProvider settingsWithValidOptions
      */
+	#[DataProvider( 'settingsWithValidOptions' )] // phpcs:ignore PHPCompatibility.Attributes.NewAttributes.PHPUnitAttributeFound
     public function testParseWithValidOptions($cliParams, $expectedValues)
     {
         $this->_testParse($cliParams, $expectedValues);
@@ -257,10 +266,11 @@ class TestArguments extends TestCase
      * @param  array $expectedValues expected values after parsing
      * @dataProvider settingsWithMissingOptions
      */
+	#[DataProvider( 'settingsWithMissingOptions' )] // phpcs:ignore PHPCompatibility.Attributes.NewAttributes.PHPUnitAttributeFound
     public function testParseWithMissingOptions($cliParams, $expectedValues)
     {
-        $this->expectWarning();
-        $this->expectWarningMessage('no value given for --option1');
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('no value given for --option1');
         $this->_testParse($cliParams, $expectedValues);
     }
 
@@ -269,6 +279,7 @@ class TestArguments extends TestCase
      * @param  array $expectedValues expected values after parsing
      * @dataProvider settingsWithMissingOptionsWithDefault
      */
+	#[DataProvider( 'settingsWithMissingOptionsWithDefault' )] // phpcs:ignore PHPCompatibility.Attributes.NewAttributes.PHPUnitAttributeFound
     public function testParseWithMissingOptionsWithDefault($cliParams, $expectedValues)
     {
         $this->_testParse($cliParams, $expectedValues);
@@ -279,6 +290,7 @@ class TestArguments extends TestCase
      * @param  array $expectedValues expected values after parsing
      * @dataProvider settingsWithNoOptionsWithDefault
      */
+	#[DataProvider( 'settingsWithNoOptionsWithDefault' )] // phpcs:ignore PHPCompatibility.Attributes.NewAttributes.PHPUnitAttributeFound
     public function testParseWithNoOptionsWithDefault($cliParams, $expectedValues) {
         $this->_testParse($cliParams, $expectedValues);
     }

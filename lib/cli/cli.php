@@ -94,7 +94,7 @@ function input( $format = null ) {
  * continue displaying until input is received.
  *
  * @param string  $question The question to ask the user.
- * @param string  $default  A default value if the user provides no input.
+ * @param string|false  $default  A default value if the user provides no input. Default false.
  * @param string  $marker   A string to append to the question and default value on display.
  * @param boolean $hide     If the user input should be hidden
  * @return string  The users input.
@@ -319,6 +319,8 @@ function safe_str_pad( $string, $length, $encoding = false ) {
  * @return int  The string's width.
  */
 function strwidth( $string, $encoding = false ) {
+	$string = (string) $string;
+	
 	// Set the East Asian Width and Mark regexs.
 	list( $eaw_regex, $m_regex ) = get_unicode_regexs();
 

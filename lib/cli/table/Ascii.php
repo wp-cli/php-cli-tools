@@ -136,31 +136,32 @@ class Ascii extends Renderer {
 		if ( count( $row ) > 0 ) {
 			$extra_rows = array_fill( 0, count( $row ), array() );
 
-			foreach( $row as $col => $value ) {
-
-				$value = str_replace( array( "\r\n", "\n" ), ' ', $value );
-
-				$col_width = $this->_widths[ $col ];
-				$encoding = function_exists( 'mb_detect_encoding' ) ? mb_detect_encoding( $value, null, true /*strict*/ ) : false;
+			foreach ( $row as $col => $value ) {
+				$value              = $value ?: '';
+				$col_width          = $this->_widths[ $col ];
+				$encoding           = function_exists( 'mb_detect_encoding' ) ? mb_detect_encoding( $value, null, true /*strict*/ ) : false;
 				$original_val_width = Colors::width( $value, self::isPreColorized( $col ), $encoding );
-				if ( $col_width && $original_val_width > $col_width ) {
-					$row[ $col ] = \cli\safe_substr( $value, 0, $col_width, true /*is_width*/, $encoding );
-					$value = \cli\safe_substr( $value, \cli\safe_strlen( $row[ $col ], $encoding ), null /*length*/, false /*is_width*/, $encoding );
-					$i = 0;
-					do {
-						$extra_value = \cli\safe_substr( $value, 0, $col_width, true /*is_width*/, $encoding );
-						$val_width = Colors::width( $extra_value, self::isPreColorized( $col ), $encoding );
-						if ( $val_width ) {
-							$extra_rows[ $col ][] = $extra_value;
-							$value = \cli\safe_substr( $value, \cli\safe_strlen( $extra_value, $encoding ), null /*length*/, false /*is_width*/, $encoding );
-							$i++;
-							if ( $i > $extra_row_count ) {
-								$extra_row_count = $i;
-							}
-						}
-					} while( $value );
-				}
+				if ( $col_width && ( $original_val_width > $col_width || strpos( $value, "\n" ) !== false ) ) {
+					$split_lines = preg_split( '/\r\n|\n/', $value );
 
+					$wrapped_lines = [];
+					foreach ( $split_lines as $line ) {
+						do {
+							$wrapped_value = \cli\safe_substr( $line, 0, $col_width, true /*is_width*/, $encoding );
+							$val_width     = Colors::width( $wrapped_value, self::isPreColorized( $col ), $encoding );
+							if ( $val_width ) {
+								$wrapped_lines[] = $wrapped_value;
+								$line            = \cli\safe_substr( $line, \cli\safe_strlen( $wrapped_value, $encoding ), null /*length*/, false /*is_width*/, $encoding );
+							}
+						} while ( $line );
+					}
+
+					$row[ $col ] = array_shift( $wrapped_lines );
+					foreach ( $wrapped_lines as $wrapped_line ) {
+						$extra_rows[ $col ][] = $wrapped_line;
+						++$extra_row_count;
+					}
+				}
 			}
 		}
 
@@ -197,6 +198,7 @@ class Ascii extends Renderer {
 	}
 
 	private function padColumn($content, $column) {
+		$content = str_replace( "\t", '    ', (string) $content );
 		return $this->_characters['padding'] . Colors::pad( $content, $this->_widths[ $column ], $this->isPreColorized( $column ) ) . $this->_characters['padding'];
 	}
 

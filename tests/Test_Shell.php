@@ -4,9 +4,9 @@ use cli\Shell;
 use WP_CLI\Tests\TestCase;
 
 /**
- * Class TestShell
+ * Class Test_Shell
  */
-class TestShell extends TestCase {
+class Test_Shell extends TestCase {
 
     /**
      * Test getting TERM columns.
