@@ -42,9 +42,10 @@ class Table {
 	 *     table are used as the header values.
 	 *  3. Pass nothing and use `setHeaders()` and `addRow()` or `setRows()`.
 	 *
-	 * @param array  $headers  Headers used in this table. Optional.
-	 * @param array  $rows     The rows of data for this table. Optional.
-	 * @param array  $footers  Footers used in this table. Optional.
+	 * @param array  $headers    Headers used in this table. Optional.
+	 * @param array  $rows       The rows of data for this table. Optional.
+	 * @param array  $footers    Footers used in this table. Optional.
+	 * @param array  $alignments Column alignments. Optional.
 	 */
 	public function __construct(array $headers = array(), array $rows = array(), array $footers = array(), array $alignments = array()) {
 		if (!empty($headers)) {
