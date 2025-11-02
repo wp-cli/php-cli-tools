@@ -46,7 +46,7 @@ class Table {
 	 * @param array  $rows     The rows of data for this table. Optional.
 	 * @param array  $footers  Footers used in this table. Optional.
 	 */
-	public function __construct(array $headers = array(), array $rows = array(), array $footers = array(), $alignments = array()) {
+	public function __construct(array $headers = array(), array $rows = array(), array $footers = array(), array $alignments = array()) {
 		if (!empty($headers)) {
 			// If all the rows is given in $headers we use the keys from the
 			// first row for the header values
