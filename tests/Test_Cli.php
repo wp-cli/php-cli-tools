@@ -446,7 +446,7 @@ class Test_Cli extends TestCase {
 
 		// Nepali जस्ट ट॓स्ट गर्दै - 1st word: 3 spacing + 1 combining, 2nd word: 3 spacing + 2 combining, 3rd word: 3 spacing + 2 combining = 9 spacing chars + 2 spaces = 11 chars.
 		// Note: ICU's grapheme_strlen() treats Devanagari conjuncts (consonant + virama + consonant) as single graphemes.
-		// Modern ICU versions (54+) return 8 for this string, while PCRE \X returns 11.
+		// Modern ICU versions (54.1+) return 8 for this string, while PCRE \X returns 11.
 		$str = "\xe0\xa4\x9c\xe0\xa4\xb8\xe0\xa5\x8d\xe0\xa4\x9f \xe0\xa4\x9f\xe0\xa5\x93\xe0\xa4\xb8\xe0\xa5\x8d\xe0\xa4\x9f \xe0\xa4\x97\xe0\xa4\xb0\xe0\xa5\x8d\xe0\xa4\xa6\xe0\xa5\x88";
 
 		putenv( 'PHP_CLI_TOOLS_TEST_STRWIDTH' );
