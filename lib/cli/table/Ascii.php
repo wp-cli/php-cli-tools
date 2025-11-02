@@ -132,7 +132,7 @@ class Ascii extends Renderer {
 	 */
 	public function row( array $row ) {
 
-		if($this->_headers === null) {
+		if ($this->_headers === null) {
 			$this->_headers = array_values($row);
 		}
 
