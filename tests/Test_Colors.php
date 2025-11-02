@@ -2,13 +2,15 @@
 
 use cli\Colors;
 use WP_CLI\Tests\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
-class testsColors extends TestCase {
+class Test_Colors extends TestCase {
 
 	/**
      * @dataProvider dataColors
-	 */ 
-	function testColors( $str, $color ) {
+	 */
+	#[DataProvider( 'dataColors' )] // phpcs:ignore PHPCompatibility.Attributes.NewAttributes.PHPUnitAttributeFound
+	public function testColors( $str, $color ) {
 		// Colors enabled.
 		Colors::enable( true );
 
@@ -21,7 +23,7 @@ class testsColors extends TestCase {
 		}
 	}
 
-	function dataColors() {
+	public static function dataColors() {
 		$ret = array();
 		foreach ( Colors::getColors() as $str => $color ) {
 			$ret[] = array( $str, $color );

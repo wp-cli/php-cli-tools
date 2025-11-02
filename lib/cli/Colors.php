@@ -92,7 +92,7 @@ class Colors {
 		$colors = array();
 		foreach (array('color', 'style', 'background') as $type) {
 			$code = $color[$type];
-			if (isset(self::$_colors[$type][$code])) {
+			if (isset($code) && isset(self::$_colors[$type][$code])) {
 				$colors[] = self::$_colors[$type][$code];
 			}
 		}
@@ -147,7 +147,7 @@ class Colors {
 	 */
 	static public function decolorize( $string, $keep = 0 ) {
 		$string = (string) $string;
-		
+
 		if ( ! ( $keep & 1 ) ) {
 			// Get rid of color tokens if they exist
 			$string = str_replace('%%', '%¾', $string);
@@ -214,7 +214,7 @@ class Colors {
 	 */
 	static public function pad( $string, $length, $pre_colorized = false, $encoding = false, $pad_type = STR_PAD_RIGHT ) {
 		$string = (string) $string;
-		
+
 		$real_length = self::width( $string, $pre_colorized, $encoding );
 		$diff = strlen( $string ) - $real_length;
 		$length += $diff;

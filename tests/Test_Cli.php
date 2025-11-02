@@ -2,7 +2,8 @@
 
 use cli\Colors;
 use WP_CLI\Tests\TestCase;
-class testsCli extends TestCase {
+
+class Test_Cli extends TestCase {
 
 	function set_up() {
 		// Reset enable state

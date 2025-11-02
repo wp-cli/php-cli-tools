@@ -22,7 +22,30 @@ class Tabular extends Renderer {
 	 * @param array  $row  The table row.
 	 * @return string  The formatted table row.
 	 */
-	public function row(array $row) {
-		return implode("\t", array_values($row));
+	public function row( array $row ) {
+		$rows   = [];
+		$output = '';
+
+		foreach ( $row as $col => $value ) {
+			$value       = isset( $value ) ? (string) $value : '';
+			$value       = str_replace( "\t", '    ', $value );
+			$split_lines = preg_split( '/\r\n|\n/', $value );
+			// Keep anything before the first line break on the original line
+			$row[ $col ] = array_shift( $split_lines );
+		}
+
+		$rows[] = $row;
+
+		foreach ( $split_lines as $i => $line ) {
+			if ( ! isset( $rows[ $i + 1 ] ) ) {
+				$rows[ $i + 1 ] = array_fill_keys( array_keys( $row ), '' );
+			}
+			$rows[ $i + 1 ][ $col ] = $line;
+		}
+
+		foreach ( $rows as $r ) {
+			$output .= implode( "\t", array_values( $r ) ) . PHP_EOL;
+		}
+		return rtrim( $output, PHP_EOL );
 	}
 }
