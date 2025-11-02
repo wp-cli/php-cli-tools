@@ -213,8 +213,16 @@ class Table {
 	 * @param array  $alignments  An array of strings containing column alignments.
 	 */
 	public function setAlignments(array $alignments) {
+		$validAlignments = array(Column::ALIGN_LEFT, Column::ALIGN_RIGHT, Column::ALIGN_CENTER);
+		foreach ($alignments as $column => $alignment) {
+			if (!in_array($alignment, $validAlignments, true)) {
+				throw new \InvalidArgumentException("Invalid alignment value '$alignment' for column '$column'.");
+			}
+			if (!in_array($column, $this->_headers, true)) {
+				throw new \InvalidArgumentException("Column '$column' does not exist in table headers.");
+			}
+		}
 		$this->_alignments = $alignments;
-		//TODO: Implement error if alignment is not valid and field is not valid
 	}
 
 	/**
