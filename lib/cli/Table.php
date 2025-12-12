@@ -148,14 +148,16 @@ class Table {
 			$out[] = $border;
 		}
 
-		foreach ($this->_rows as $row) {
-			$row = $this->_renderer->row($row);
-			$row = explode( PHP_EOL, $row );
-			$out = array_merge( $out, $row );
-		}
+		if ($this->_rows) {
+			foreach ($this->_rows as $row) {
+				$row = $this->_renderer->row($row);
+				$row = explode( PHP_EOL, $row );
+				$out = array_merge( $out, $row );
+			}
 
-		if (isset($border)) {
-			$out[] = $border;
+			if (isset($border)) {
+				$out[] = $border;
+			}
 		}
 
 		if ($this->_footers) {
