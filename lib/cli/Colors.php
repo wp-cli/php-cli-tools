@@ -280,4 +280,153 @@ class Colors {
 	static public function clearStringCache() {
 		self::$_string_cache = array();
 	}
+
+	/**
+	 * Get the active color code at the end of a colorized string.
+	 *
+	 * This function extracts the last active color state from a string that contains
+	 * color codes. It's used to maintain color continuity when wrapping text.
+	 *
+	 * @param string $string        The string to analyze.
+	 * @param bool   $pre_colorized Whether the string contains ANSI codes (true) or color tokens (false).
+	 * @return string The active color token/code or empty string if no color is active.
+	 */
+	static public function getActiveColor( $string, $pre_colorized = false ) {
+		$string = (string) $string;
+		
+		if ( $pre_colorized ) {
+			// For pre-colorized strings, we need to track ANSI escape codes
+			// Pattern: \x1b[...m where ... can be numbers separated by semicolons
+			$pattern = '/\x1b\[([0-9;]+)m/';
+			$matches = array();
+			preg_match_all( $pattern, $string, $matches, PREG_OFFSET_CAPTURE );
+			
+			if ( empty( $matches[0] ) ) {
+				return '';
+			}
+			
+			// Get the last ANSI code
+			$last_code = end( $matches[0] )[0];
+			$last_params = end( $matches[1] )[0];
+			
+			// If it's a reset code (0 or 0m), no color is active
+			if ( $last_params === '0' ) {
+				return '';
+			}
+			
+			// Return the full ANSI code
+			return $last_code;
+		} else {
+			// Track the last seen color token
+			$last_color = '';
+			
+			// Get all color tokens
+			$colors = self::getColors();
+			
+			// Find all color tokens in the string
+			foreach ( $colors as $token => $value ) {
+				$pos = 0;
+				while ( ( $pos = strpos( $string, $token, $pos ) ) !== false ) {
+					// Make sure this isn't an escaped %%
+					if ( $pos === 0 || $string[ $pos - 1 ] !== '%' ) {
+						$last_color = $token;
+					}
+					$pos += strlen( $token );
+				}
+			}
+			
+			// If the last color was a reset (%n or %N), return empty
+			if ( $last_color === '%n' || $last_color === '%N' ) {
+				return '';
+			}
+			
+			return $last_color;
+		}
+	}
+
+	/**
+	 * Get the ANSI reset code.
+	 *
+	 * @return string The ANSI reset code.
+	 */
+	static public function getResetCode() {
+		return "\x1b[0m";
+	}
+
+	/**
+	 * Wrap a pre-colorized string at a specific width, preserving color codes.
+	 *
+	 * This function wraps text that contains ANSI color codes, ensuring that:
+	 * 1. Color codes are never split in the middle
+	 * 2. Active colors are properly terminated and restored across line breaks
+	 * 3. The wrapped segments maintain the correct display width
+	 *
+	 * @param string      $string   The string to wrap (with ANSI codes).
+	 * @param int         $width    The maximum display width per line.
+	 * @param string|bool $encoding Optional. The encoding of the string. Default false.
+	 * @return array Array of wrapped string segments.
+	 */
+	static public function wrapPreColorized( $string, $width, $encoding = false ) {
+		$wrapped = array();
+		$current_line = '';
+		$current_width = 0;
+		$active_color = '';
+		
+		// Pattern to match ANSI escape sequences
+		$ansi_pattern = '/(\x1b\[[0-9;]*m)/';
+		
+		// Split the string into parts: ANSI codes and text
+		$parts = preg_split( $ansi_pattern, $string, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY );
+		
+		foreach ( $parts as $part ) {
+			// Check if this part is an ANSI code
+			if ( preg_match( $ansi_pattern, $part ) ) {
+				// It's an ANSI code, add it to current line without counting width
+				$current_line .= $part;
+				
+				// Track the active color
+				if ( preg_match( '/\x1b\[0m/', $part ) ) {
+					// Reset code
+					$active_color = '';
+				} elseif ( preg_match( '/\x1b\[([0-9;]+)m/', $part, $matches ) && $matches[1] !== '0' ) {
+					// Non-reset color code
+					$active_color = $part;
+				}
+			} else {
+				// It's text content, process it character by character
+				$text_length = \cli\safe_strlen( $part, $encoding );
+				$offset = 0;
+				
+				while ( $offset < $text_length ) {
+					$char = \cli\safe_substr( $part, $offset, 1, false, $encoding );
+					$char_width = \cli\strwidth( $char, $encoding );
+					
+					// Check if adding this character would exceed the width
+					if ( $current_width + $char_width > $width && $current_width > 0 ) {
+						// Need to wrap - finish current line
+						if ( $active_color ) {
+							$current_line .= self::getResetCode();
+						}
+						$wrapped[] = $current_line;
+						
+						// Start new line
+						$current_line = $active_color ? $active_color : '';
+						$current_width = 0;
+					}
+					
+					// Add the character
+					$current_line .= $char;
+					$current_width += $char_width;
+					$offset++;
+				}
+			}
+		}
+		
+		// Add the last line if there's any content
+		if ( $current_line !== '' && $current_line !== $active_color ) {
+			$wrapped[] = $current_line;
+		}
+		
+		return $wrapped;
+	}
 }

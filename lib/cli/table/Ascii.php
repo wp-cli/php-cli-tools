@@ -146,14 +146,21 @@ class Ascii extends Renderer {
 
 					$wrapped_lines = [];
 					foreach ( $split_lines as $line ) {
-						do {
-							$wrapped_value = \cli\safe_substr( $line, 0, $col_width, true /*is_width*/, $encoding );
-							$val_width     = Colors::width( $wrapped_value, self::isPreColorized( $col ), $encoding );
-							if ( $val_width ) {
-								$wrapped_lines[] = $wrapped_value;
-								$line            = \cli\safe_substr( $line, \cli\safe_strlen( $wrapped_value, $encoding ), null /*length*/, false /*is_width*/, $encoding );
-							}
-						} while ( $line );
+						// Use the new color-aware wrapping for pre-colorized content
+						if ( self::isPreColorized( $col ) && Colors::width( $line, true, $encoding ) > $col_width ) {
+							$line_wrapped = Colors::wrapPreColorized( $line, $col_width, $encoding );
+							$wrapped_lines = array_merge( $wrapped_lines, $line_wrapped );
+						} else {
+							// For non-colorized content, use the original logic
+							do {
+								$wrapped_value = \cli\safe_substr( $line, 0, $col_width, true /*is_width*/, $encoding );
+								$val_width     = Colors::width( $wrapped_value, self::isPreColorized( $col ), $encoding );
+								if ( $val_width ) {
+									$wrapped_lines[] = $wrapped_value;
+									$line = \cli\safe_substr( $line, \cli\safe_strlen( $wrapped_value, $encoding ), null /*length*/, false /*is_width*/, $encoding );
+								}
+							} while ( $line );
+						}
 					}
 
 					$row[ $col ] = array_shift( $wrapped_lines );
