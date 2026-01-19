@@ -308,48 +308,60 @@ class Test_Table extends TestCase {
 	}
 
 	public function test_displayRow_ascii() {
-		$mockFile = tempnam(sys_get_temp_dir(), 'temp');
-		$resource = fopen($mockFile, 'wb');
-		\cli\Streams::setStream('out', $resource);
-		
-		$table = new cli\Table();
-		$renderer = new cli\Table\Ascii();
-		$table->setRenderer( $renderer );
-		$table->setHeaders( array( 'Name', 'Age' ) );
-		
-		// Display a single row
-		$table->displayRow( array( 'Alice', '30' ) );
-		
-		$output = file_get_contents($mockFile);
-		unlink($mockFile);
-		
-		// Should contain the row data
-		$this->assertStringContainsString( 'Alice', $output );
-		$this->assertStringContainsString( '30', $output );
-		
-		// Should contain borders
-		$this->assertStringContainsString( '|', $output );
-		$this->assertStringContainsString( '+', $output );
+		$mockFile = tempnam( sys_get_temp_dir(), 'temp' );
+		$resource = fopen( $mockFile, 'wb' );
+
+		try {
+			\cli\Streams::setStream( 'out', $resource );
+			
+			$table    = new cli\Table();
+			$renderer = new cli\Table\Ascii();
+			$table->setRenderer( $renderer );
+			$table->setHeaders( array( 'Name', 'Age' ) );
+			
+			// Display a single row
+			$table->displayRow( array( 'Alice', '30' ) );
+			
+			$output = file_get_contents( $mockFile );
+			
+			// Should contain the row data
+			$this->assertStringContainsString( 'Alice', $output );
+			$this->assertStringContainsString( '30', $output );
+			
+			// Should contain borders
+			$this->assertStringContainsString( '|', $output );
+			$this->assertStringContainsString( '+', $output );
+		} finally {
+			if ( $mockFile && file_exists( $mockFile ) ) {
+				unlink( $mockFile );
+			}
+		}
 	}
 
 	public function test_displayRow_tabular() {
-		$mockFile = tempnam(sys_get_temp_dir(), 'temp');
-		$resource = fopen($mockFile, 'wb');
-		\cli\Streams::setStream('out', $resource);
-		
-		$table = new cli\Table();
-		$renderer = new cli\Table\Tabular();
-		$table->setRenderer( $renderer );
-		$table->setHeaders( array( 'Name', 'Age' ) );
-		
-		// Display a single row
-		$table->displayRow( array( 'Alice', '30' ) );
-		
-		$output = file_get_contents($mockFile);
-		unlink($mockFile);
-		
-		// Should contain the row data with tabs
-		$this->assertStringContainsString( 'Alice', $output );
-		$this->assertStringContainsString( '30', $output );
+		$mockFile = tempnam( sys_get_temp_dir(), 'temp' );
+		$resource = fopen( $mockFile, 'wb' );
+
+		try {
+			\cli\Streams::setStream( 'out', $resource );
+			
+			$table    = new cli\Table();
+			$renderer = new cli\Table\Tabular();
+			$table->setRenderer( $renderer );
+			$table->setHeaders( array( 'Name', 'Age' ) );
+			
+			// Display a single row
+			$table->displayRow( array( 'Alice', '30' ) );
+			
+			$output = file_get_contents( $mockFile );
+			
+			// Should contain the row data with tabs
+			$this->assertStringContainsString( 'Alice', $output );
+			$this->assertStringContainsString( '30', $output );
+		} finally {
+			if ( $mockFile && file_exists( $mockFile ) ) {
+				unlink( $mockFile );
+			}
+		}
 	}
 }

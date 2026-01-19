@@ -27,7 +27,6 @@ class Table {
 	protected $_footers = array();
 	protected $_width = array();
 	protected $_rows = array();
-	protected $_displayed = false;
 
 	/**
 	 * Initializes the `Table` class.
@@ -80,7 +79,6 @@ class Table {
 		$this->_width = array();
 		$this->_rows = array();
 		$this->_footers = array();
-		$this->_displayed = false;
 		return $this;
 	}
 
@@ -138,7 +136,6 @@ class Table {
 		foreach( $this->getDisplayLines() as $line ) {
 			Streams::line( $line );
 		}
-		$this->_displayed = true;
 	}
 
 	/**
@@ -154,7 +151,7 @@ class Table {
 		$row = $this->checkRow($row);
 		
 		// Recalculate widths for the renderer
-		$this->_renderer->setWidths($this->_width, $fallback = false);
+		$this->_renderer->setWidths($this->_width, false);
 		
 		$rendered_row = $this->_renderer->row($row);
 		$row_lines = explode( PHP_EOL, $rendered_row );
