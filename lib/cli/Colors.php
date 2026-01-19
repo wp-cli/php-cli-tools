@@ -298,6 +298,10 @@ class Colors {
 	 * 2. Active colors are properly terminated and restored across line breaks
 	 * 3. The wrapped segments maintain the correct display width
 	 *
+	 * Note: This implementation tracks only the most recent ANSI code and does not
+	 * support layered formatting (e.g., bold + color). When multiple formatting
+	 * codes are applied, only the last one will be preserved across line breaks.
+	 *
 	 * @param string      $string   The string to wrap (with ANSI codes).
 	 * @param int         $width    The maximum display width per line.
 	 * @param string|bool $encoding Optional. The encoding of the string. Default false.
@@ -321,12 +325,12 @@ class Colors {
 				// It's an ANSI code, add it to current line without counting width
 				$current_line .= $part;
 				
-				// Track the active color
+				// Track the active color - check for reset codes consistently
 				if ( preg_match( '/\x1b\[0m/', $part ) ) {
-					// Reset code
+					// Reset code (ESC[0m)
 					$active_color = '';
-				} elseif ( preg_match( '/\x1b\[([0-9;]+)m/', $part, $matches ) && $matches[1] !== '0' ) {
-					// Non-reset color code
+				} elseif ( preg_match( '/\x1b\[([0-9;]+)m/', $part, $matches ) ) {
+					// Non-reset color/formatting code
 					$active_color = $part;
 				}
 			} else {
