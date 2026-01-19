@@ -150,8 +150,11 @@ class Table {
 	 * @param array $row The row data to display.
 	 */
 	public function displayRow(array $row) {
+		// Update widths if this row has wider content
 		$row = $this->checkRow($row);
-		$this->_renderer->setWidths($this->_width, $fallback = true);
+		
+		// Recalculate widths for the renderer
+		$this->_renderer->setWidths($this->_width, $fallback = false);
 		
 		$rendered_row = $this->_renderer->row($row);
 		$row_lines = explode( PHP_EOL, $rendered_row );

@@ -11,15 +11,15 @@ echo "Example 1: Using displayRow() to add rows incrementally\n";
 echo "=========================================================\n\n";
 
 $table = new \cli\Table();
-$table->setHeaders(array('Item', 'Status', 'Progress'));
+$table->setHeaders(array('File Name', 'Status', 'Progress'));
 $table->display();
 
 // Simulate processing items in a loop
 $items = array(
-	array('Processing file 1', 'Done', '100%'),
-	array('Processing file 2', 'Done', '100%'),
-	array('Processing file 3', 'Done', '100%'),
-	array('Processing file 4', 'Done', '100%'),
+	array('file1.txt', 'Done', '100%'),
+	array('file2.txt', 'Done', '100%'),
+	array('file3.txt', 'Done', '100%'),
+	array('file4.txt', 'Done', '100%'),
 );
 
 foreach ($items as $item) {
@@ -28,29 +28,49 @@ foreach ($items as $item) {
 	$table->displayRow($item);
 }
 
-echo "\n\nExample 2: Using resetRows() to clear and update table data\n";
-echo "==============================================================\n\n";
+echo "\n\nExample 2: Using resetRows() with incremental display\n";
+echo "========================================================\n\n";
 
 $table2 = new \cli\Table();
 $table2->setHeaders(array('Name', 'Age', 'City'));
-$table2->addRow(array('Alice', '30', 'New York'));
-$table2->addRow(array('Bob', '25', 'London'));
 $table2->display();
 
-echo "\nClearing rows and adding new data...\n\n";
+echo "Adding first batch of rows...\n";
+$table2->displayRow(array('Alice', '30', 'New York'));
+$table2->displayRow(array('Bob', '25', 'London'));
 
+echo "\nClearing rows and adding new batch...\n";
 $table2->resetRows();
-$table2->addRow(array('Charlie', '35', 'Paris'));
-$table2->addRow(array('Diana', '28', 'Tokyo'));
-$table2->display();
+$table2->displayRow(array('Charlie', '35', 'Paris'));
+$table2->displayRow(array('Diana', '28', 'Tokyo'));
 
-echo "\n\nExample 3: Incremental display with Tabular renderer (for piped output)\n";
-echo "========================================================================\n\n";
+echo "\n\nExample 3: Real-time progress display\n";
+echo "========================================\n\n";
 
 $table3 = new \cli\Table();
-$table3->setRenderer(new \cli\table\Tabular());
-$table3->setHeaders(array('ID', 'Name', 'Email'));
+$table3->setHeaders(array('Task', 'Result'));
 $table3->display();
+
+$tasks = array(
+	array('Initialize database', 'OK'),
+	array('Load configuration', 'OK'),
+	array('Connect to API', 'OK'),
+	array('Process data', 'OK'),
+	array('Generate report', 'OK'),
+);
+
+foreach ($tasks as $task) {
+	usleep(300000); // 0.3 seconds
+	$table3->displayRow($task);
+}
+
+echo "\n\nExample 4: Tabular format (for piped output)\n";
+echo "==============================================\n\n";
+
+$table4 = new \cli\Table();
+$table4->setRenderer(new \cli\table\Tabular());
+$table4->setHeaders(array('ID', 'Name', 'Email'));
+$table4->display();
 
 $users = array(
 	array('1', 'John Doe', 'john@example.com'),
@@ -60,5 +80,5 @@ $users = array(
 
 foreach ($users as $user) {
 	usleep(100000); // 0.1 seconds
-	$table3->displayRow($user);
+	$table4->displayRow($user);
 }
