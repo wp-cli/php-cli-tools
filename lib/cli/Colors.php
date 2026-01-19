@@ -359,8 +359,10 @@ class Colors {
 			}
 		}
 		
-		// Add the last line if there's any content
-		if ( $current_line !== '' && $current_line !== $active_color ) {
+		// Add the last line if there's any displayable content
+		$visible_content = preg_replace( $ansi_pattern, '', $current_line );
+		$visible_width = $visible_content !== null ? \cli\strwidth( $visible_content, $encoding ) : 0;
+		if ( $visible_width > 0 ) {
 			$wrapped[] = $current_line;
 		}
 		
