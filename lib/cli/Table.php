@@ -27,6 +27,7 @@ class Table {
 	protected $_footers = array();
 	protected $_width = array();
 	protected $_rows = array();
+	protected $_displayed = false;
 
 	/**
 	 * Initializes the `Table` class.
@@ -79,6 +80,18 @@ class Table {
 		$this->_width = array();
 		$this->_rows = array();
 		$this->_footers = array();
+		$this->_displayed = false;
+		return $this;
+	}
+
+	/**
+	 * Resets only the rows in the table, keeping headers, footers, and width information.
+	 *
+	 * @return $this
+	 */
+	public function resetRows()
+	{
+		$this->_rows = array();
 		return $this;
 	}
 
@@ -124,6 +137,31 @@ class Table {
 	public function display() {
 		foreach( $this->getDisplayLines() as $line ) {
 			Streams::line( $line );
+		}
+		$this->_displayed = true;
+	}
+
+	/**
+	 * Display a single row without headers or top border.
+	 *
+	 * This method is useful for adding rows incrementally to an already-rendered table.
+	 * It will display the row with side borders and a bottom border (if using Ascii renderer).
+	 *
+	 * @param array $row The row data to display.
+	 */
+	public function displayRow(array $row) {
+		$row = $this->checkRow($row);
+		$this->_renderer->setWidths($this->_width, $fallback = true);
+		
+		$rendered_row = $this->_renderer->row($row);
+		$row_lines = explode( PHP_EOL, $rendered_row );
+		foreach ( $row_lines as $line ) {
+			Streams::line( $line );
+		}
+		
+		$border = $this->_renderer->border();
+		if (isset($border)) {
+			Streams::line( $border );
 		}
 	}
 
