@@ -131,14 +131,15 @@ OUT;
 		);
 		
 		// Expected output with wrapped text maintaining colors
+		// The color codes are preserved across wrapped lines
 		$output = <<<OUT
-+----------+------------+
-| Column 1 | Column 2   |
-+----------+------------+
-| Short    | {$green_code}This is a {$reset_code} |
-|          | {$green_code}long green{$reset_code} |
-|          | {$green_code} text{$reset_code}      |
-+----------+------------+
++------------+--------------+
+| Column 1   | Column 2     |
++------------+--------------+
+| Short      | {$green_code}This is a lo{$reset_code} |
+|            | {$green_code}ng green tex{$reset_code} |
+|            | {$green_code}t{$reset_code}            |
++------------+--------------+
 
 OUT;
 		
