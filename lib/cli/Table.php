@@ -195,7 +195,8 @@ class Table {
 			$out = array_merge( $out, $row );
 		}
 
-		if (isset($border)) {
+		// Only add final border if there are rows
+		if (!empty($this->_rows) && isset($border)) {
 			$out[] = $border;
 		}
 
