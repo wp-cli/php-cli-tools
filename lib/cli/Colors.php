@@ -282,69 +282,6 @@ class Colors {
 	}
 
 	/**
-	 * Get the active color code at the end of a colorized string.
-	 *
-	 * This function extracts the last active color state from a string that contains
-	 * color codes. It's used to maintain color continuity when wrapping text.
-	 *
-	 * @param string $string        The string to analyze.
-	 * @param bool   $pre_colorized Whether the string contains ANSI codes (true) or color tokens (false).
-	 * @return string The active color token/code or empty string if no color is active.
-	 */
-	static public function getActiveColor( $string, $pre_colorized = false ) {
-		$string = (string) $string;
-		
-		if ( $pre_colorized ) {
-			// For pre-colorized strings, we need to track ANSI escape codes
-			// Pattern: \x1b[...m where ... can be numbers separated by semicolons
-			$pattern = '/\x1b\[([0-9;]+)m/';
-			$matches = array();
-			preg_match_all( $pattern, $string, $matches, PREG_OFFSET_CAPTURE );
-			
-			if ( empty( $matches[0] ) ) {
-				return '';
-			}
-			
-			// Get the last ANSI code
-			$last_code = end( $matches[0] )[0];
-			$last_params = end( $matches[1] )[0];
-			
-			// If it's a reset code (0 or 0m), no color is active
-			if ( $last_params === '0' ) {
-				return '';
-			}
-			
-			// Return the full ANSI code
-			return $last_code;
-		} else {
-			// Track the last seen color token
-			$last_color = '';
-			
-			// Get all color tokens
-			$colors = self::getColors();
-			
-			// Find all color tokens in the string
-			foreach ( $colors as $token => $value ) {
-				$pos = 0;
-				while ( ( $pos = strpos( $string, $token, $pos ) ) !== false ) {
-					// Make sure this isn't an escaped %%
-					if ( $pos === 0 || $string[ $pos - 1 ] !== '%' ) {
-						$last_color = $token;
-					}
-					$pos += strlen( $token );
-				}
-			}
-			
-			// If the last color was a reset (%n or %N), return empty
-			if ( $last_color === '%n' || $last_color === '%N' ) {
-				return '';
-			}
-			
-			return $last_color;
-		}
-	}
-
-	/**
 	 * Get the ANSI reset code.
 	 *
 	 * @return string The ANSI reset code.
