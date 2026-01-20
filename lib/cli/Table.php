@@ -218,16 +218,14 @@ class Table {
 	 */
 	public function setAlignments(array $alignments) {
 		$valid_alignments = array_flip( array( Column::ALIGN_LEFT, Column::ALIGN_RIGHT, Column::ALIGN_CENTER ) );
+		$headers_map = ! empty( $this->_headers ) ? array_flip( $this->_headers ) : null;
 		foreach ( $alignments as $column => $alignment ) {
 			if ( ! isset( $valid_alignments[ $alignment ] ) ) {
 				throw new \InvalidArgumentException( "Invalid alignment value '$alignment' for column '$column'." );
 			}
 			// Only validate column names if headers are already set
-			if ( ! empty( $this->_headers ) ) {
-				$headers_map = array_flip( $this->_headers );
-				if ( ! isset( $headers_map[ $column ] ) ) {
-					throw new \InvalidArgumentException( "Column '$column' does not exist in table headers." );
-				}
+			if ( $headers_map !== null && ! isset( $headers_map[ $column ] ) ) {
+				throw new \InvalidArgumentException( "Column '$column' does not exist in table headers." );
 			}
 		}
 		$this->_alignments = $alignments;
