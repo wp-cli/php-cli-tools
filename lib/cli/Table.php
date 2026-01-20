@@ -15,6 +15,7 @@ namespace cli;
 use cli\Shell;
 use cli\Streams;
 use cli\table\Ascii;
+use cli\table\Column;
 use cli\table\Renderer;
 use cli\table\Tabular;
 
@@ -27,6 +28,14 @@ class Table {
 	protected $_footers = array();
 	protected $_width = array();
 	protected $_rows = array();
+	protected $_alignments = array();
+
+	/**
+	 * Cached map of valid alignment constants.
+	 *
+	 * @var array|null
+	 */
+	private static $_valid_alignments_map = null;
 
 	/**
 	 * Initializes the `Table` class.
@@ -40,11 +49,12 @@ class Table {
 	 *     table are used as the header values.
 	 *  3. Pass nothing and use `setHeaders()` and `addRow()` or `setRows()`.
 	 *
-	 * @param array  $headers  Headers used in this table. Optional.
-	 * @param array  $rows     The rows of data for this table. Optional.
-	 * @param array  $footers  Footers used in this table. Optional.
+	 * @param array  $headers    Headers used in this table. Optional.
+	 * @param array  $rows       The rows of data for this table. Optional.
+	 * @param array  $footers    Footers used in this table. Optional.
+	 * @param array  $alignments Column alignments. Optional.
 	 */
-	public function __construct(array $headers = array(), array $rows = array(), array $footers = array()) {
+	public function __construct(array $headers = array(), array $rows = array(), array $footers = array(), array $alignments = array()) {
 		if (!empty($headers)) {
 			// If all the rows is given in $headers we use the keys from the
 			// first row for the header values
@@ -66,6 +76,10 @@ class Table {
 			$this->setFooters($footers);
 		}
 
+		if (!empty($alignments)) {
+			$this->setAlignments($alignments);
+		}
+
 		if (Shell::isPiped()) {
 			$this->setRenderer(new Tabular());
 		} else {
@@ -79,6 +93,18 @@ class Table {
 		$this->_width = array();
 		$this->_rows = array();
 		$this->_footers = array();
+		$this->_alignments = array();
+		return $this;
+	}
+
+	/**
+	 * Resets only the rows in the table, keeping headers, footers, and width information.
+	 *
+	 * @return $this
+	 */
+	public function resetRows()
+	{
+		$this->_rows = array();
 		return $this;
 	}
 
@@ -128,6 +154,33 @@ class Table {
 	}
 
 	/**
+	 * Display a single row without headers or top border.
+	 *
+	 * This method is useful for adding rows incrementally to an already-rendered table.
+	 * It will display the row with side borders and a bottom border (if using Ascii renderer).
+	 *
+	 * @param array $row The row data to display.
+	 */
+	public function displayRow(array $row) {
+		// Update widths if this row has wider content
+		$row = $this->checkRow($row);
+		
+		// Recalculate widths for the renderer
+		$this->_renderer->setWidths($this->_width, false);
+		
+		$rendered_row = $this->_renderer->row($row);
+		$row_lines = explode( PHP_EOL, $rendered_row );
+		foreach ( $row_lines as $line ) {
+			Streams::line( $line );
+		}
+		
+		$border = $this->_renderer->border();
+		if (isset($border)) {
+			Streams::line( $border );
+		}
+	}
+
+	/**
 	 * Get the table lines to output.
 	 *
 	 * @see cli\Table::display()
@@ -137,6 +190,8 @@ class Table {
 	 */
 	public function getDisplayLines() {
 		$this->_renderer->setWidths($this->_width, $fallback = true);
+		$this->_renderer->setHeaders($this->_headers);
+		$this->_renderer->setAlignments($this->_alignments);
 		$border = $this->_renderer->border();
 
 		$out = array();
@@ -155,9 +210,9 @@ class Table {
 				$out = array_merge( $out, $row );
 			}
 
-			if (isset($border)) {
-				$out[] = $border;
-			}
+		// Only add final border if there are rows
+		if (!empty($this->_rows) && isset($border)) {
+			$out[] = $border;
 		}
 
 		if ($this->_footers) {
@@ -203,6 +258,29 @@ class Table {
 		$this->_footers = $this->checkRow($footers);
 	}
 
+	/**
+	 * Set the alignments of the table.
+	 *
+	 * @param array  $alignments  An array of alignment constants keyed by column name.
+	 */
+	public function setAlignments(array $alignments) {
+		// Initialize the cached valid alignments map on first use
+		if ( null === self::$_valid_alignments_map ) {
+			self::$_valid_alignments_map = array_flip( array( Column::ALIGN_LEFT, Column::ALIGN_RIGHT, Column::ALIGN_CENTER ) );
+		}
+
+		$headers_map = ! empty( $this->_headers ) ? array_flip( $this->_headers ) : null;
+		foreach ( $alignments as $column => $alignment ) {
+			if ( ! isset( self::$_valid_alignments_map[ $alignment ] ) ) {
+				throw new \InvalidArgumentException( "Invalid alignment value '$alignment' for column '$column'." );
+			}
+			// Only validate column names if headers are already set
+			if ( $headers_map !== null && ! isset( $headers_map[ $column ] ) ) {
+				throw new \InvalidArgumentException( "Column '$column' does not exist in table headers." );
+			}
+		}
+		$this->_alignments = $alignments;
+	}
 
 	/**
 	 * Add a row to the table.
