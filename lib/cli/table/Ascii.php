@@ -198,8 +198,10 @@ class Ascii extends Renderer {
 	}
 
 	private function padColumn($content, $column) {
+		$column_name = isset( $this->_headers[$column] ) ? $this->_headers[$column] : '';
+		$alignment = ( $column_name !== '' && array_key_exists( $column_name, $this->_alignments ) ) ? $this->_alignments[$column_name] : Column::ALIGN_LEFT;
 		$content = str_replace( "\t", '    ', (string) $content );
-		return $this->_characters['padding'] . Colors::pad( $content, $this->_widths[ $column ], $this->isPreColorized( $column ) ) . $this->_characters['padding'];
+		return $this->_characters['padding'] . Colors::pad( $content, $this->_widths[ $column ], $this->isPreColorized( $column ), false, $alignment ) . $this->_characters['padding'];
 	}
 
 	/**

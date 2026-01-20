@@ -15,6 +15,7 @@ namespace cli;
 use cli\Shell;
 use cli\Streams;
 use cli\table\Ascii;
+use cli\table\Column;
 use cli\table\Renderer;
 use cli\table\Tabular;
 
@@ -27,6 +28,7 @@ class Table {
 	protected $_footers = array();
 	protected $_width = array();
 	protected $_rows = array();
+	protected $_alignments = array();
 
 	/**
 	 * Initializes the `Table` class.
@@ -40,11 +42,12 @@ class Table {
 	 *     table are used as the header values.
 	 *  3. Pass nothing and use `setHeaders()` and `addRow()` or `setRows()`.
 	 *
-	 * @param array  $headers  Headers used in this table. Optional.
-	 * @param array  $rows     The rows of data for this table. Optional.
-	 * @param array  $footers  Footers used in this table. Optional.
+	 * @param array  $headers    Headers used in this table. Optional.
+	 * @param array  $rows       The rows of data for this table. Optional.
+	 * @param array  $footers    Footers used in this table. Optional.
+	 * @param array  $alignments Column alignments. Optional.
 	 */
-	public function __construct(array $headers = array(), array $rows = array(), array $footers = array()) {
+	public function __construct(array $headers = array(), array $rows = array(), array $footers = array(), array $alignments = array()) {
 		if (!empty($headers)) {
 			// If all the rows is given in $headers we use the keys from the
 			// first row for the header values
@@ -66,6 +69,10 @@ class Table {
 			$this->setFooters($footers);
 		}
 
+		if (!empty($alignments)) {
+			$this->setAlignments($alignments);
+		}
+
 		if (Shell::isPiped()) {
 			$this->setRenderer(new Tabular());
 		} else {
@@ -79,6 +86,7 @@ class Table {
 		$this->_width = array();
 		$this->_rows = array();
 		$this->_footers = array();
+		$this->_alignments = array();
 		return $this;
 	}
 
@@ -137,6 +145,8 @@ class Table {
 	 */
 	public function getDisplayLines() {
 		$this->_renderer->setWidths($this->_width, $fallback = true);
+		$this->_renderer->setHeaders($this->_headers);
+		$this->_renderer->setAlignments($this->_alignments);
 		$border = $this->_renderer->border();
 
 		$out = array();
@@ -199,6 +209,25 @@ class Table {
 	 */
 	public function setFooters(array $footers) {
 		$this->_footers = $this->checkRow($footers);
+	}
+
+	/**
+	 * Set the alignments of the table.
+	 *
+	 * @param array  $alignments  An array of alignment constants keyed by column name.
+	 */
+	public function setAlignments(array $alignments) {
+		$valid_alignments = array( Column::ALIGN_LEFT, Column::ALIGN_RIGHT, Column::ALIGN_CENTER );
+		foreach ( $alignments as $column => $alignment ) {
+			if ( ! in_array( $alignment, $valid_alignments, true ) ) {
+				throw new \InvalidArgumentException( "Invalid alignment value '$alignment' for column '$column'." );
+			}
+			// Only validate column names if headers are already set
+			if ( ! empty( $this->_headers ) && ! in_array( $column, $this->_headers, true ) ) {
+				throw new \InvalidArgumentException( "Column '$column' does not exist in table headers." );
+			}
+		}
+		$this->_alignments = $alignments;
 	}
 
 
