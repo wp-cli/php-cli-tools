@@ -83,6 +83,8 @@ class Ascii extends Renderer {
 		}
 
 		$this->_widths = $widths;
+		// Reset border cache when widths change
+		$this->_border = null;
 	}
 
 	/**
