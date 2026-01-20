@@ -242,7 +242,6 @@ class Table {
 		$this->_alignments = $alignments;
 	}
 
-
 	/**
 	 * Add a row to the table.
 	 *
