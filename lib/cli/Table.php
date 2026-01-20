@@ -31,6 +31,13 @@ class Table {
 	protected $_alignments = array();
 
 	/**
+	 * Cached map of valid alignment constants.
+	 *
+	 * @var array|null
+	 */
+	private static $_valid_alignments_map = null;
+
+	/**
 	 * Initializes the `Table` class.
 	 *
 	 * There are 3 ways to instantiate this class:
@@ -217,10 +224,14 @@ class Table {
 	 * @param array  $alignments  An array of alignment constants keyed by column name.
 	 */
 	public function setAlignments(array $alignments) {
-		$valid_alignments = array_flip( array( Column::ALIGN_LEFT, Column::ALIGN_RIGHT, Column::ALIGN_CENTER ) );
+		// Initialize the cached valid alignments map on first use
+		if ( null === self::$_valid_alignments_map ) {
+			self::$_valid_alignments_map = array_flip( array( Column::ALIGN_LEFT, Column::ALIGN_RIGHT, Column::ALIGN_CENTER ) );
+		}
+
 		$headers_map = ! empty( $this->_headers ) ? array_flip( $this->_headers ) : null;
 		foreach ( $alignments as $column => $alignment ) {
-			if ( ! isset( $valid_alignments[ $alignment ] ) ) {
+			if ( ! isset( self::$_valid_alignments_map[ $alignment ] ) ) {
 				throw new \InvalidArgumentException( "Invalid alignment value '$alignment' for column '$column'." );
 			}
 			// Only validate column names if headers are already set
