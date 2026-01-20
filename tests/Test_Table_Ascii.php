@@ -115,6 +115,45 @@ OUT;
 	}
 
 	/**
+	 * Test that colorized text wraps correctly while maintaining color codes.
+	 */
+	public function testWrappedColorizedText() {
+		Colors::enable( true );
+		$headers = array('Column 1', 'Column 2');
+		$green_code = "\x1b\x5b\x33\x32\x3b\x31\x6d"; // Green + bright
+		$reset_code = "\x1b\x5b\x30\x6d"; // Reset
+		
+		// Create a long colorized string that will wrap
+		$long_text = Colors::colorize('%GThis is a long green text%n', true);
+		
+		$rows = array(
+			array('Short', $long_text),
+		);
+		
+		// Expected output with wrapped text maintaining colors
+		// The color codes are preserved across wrapped lines
+		$output = <<<OUT
++------------+--------------+
+| Column 1   | Column 2     |
++------------+--------------+
+| Short      | {$green_code}This is a lo{$reset_code} |
+|            | {$green_code}ng green tex{$reset_code} |
+|            | {$green_code}t{$reset_code}            |
++------------+--------------+
+
+OUT;
+		
+		$this->_instance->setHeaders($headers);
+		$this->_instance->setRows($rows);
+		$renderer = new Ascii([10, 12]);
+		$renderer->setConstraintWidth(30);
+		$this->_instance->setRenderer($renderer);
+		$this->_instance->setAsciiPreColorized(true);
+		$this->_instance->display();
+		$this->assertOutFileEqualsWith($output);
+	}
+
+	/**
 	 * Checks that spacing and borders are handled correctly in table
 	 */
 	public function testSpacingInTable() {
@@ -248,7 +287,6 @@ OUT;
 		$output = <<<'OUT'
 +----------+----------+
 | header 1 | header 2 |
-+----------+----------+
 +----------+----------+
 
 OUT;

@@ -98,6 +98,17 @@ class Table {
 	}
 
 	/**
+	 * Resets only the rows in the table, keeping headers, footers, and width information.
+	 *
+	 * @return $this
+	 */
+	public function resetRows()
+	{
+		$this->_rows = array();
+		return $this;
+	}
+
+	/**
 	 * Sets the renderer used by this table.
 	 *
 	 * @param table\Renderer  $renderer  The renderer to use for output.
@@ -143,6 +154,33 @@ class Table {
 	}
 
 	/**
+	 * Display a single row without headers or top border.
+	 *
+	 * This method is useful for adding rows incrementally to an already-rendered table.
+	 * It will display the row with side borders and a bottom border (if using Ascii renderer).
+	 *
+	 * @param array $row The row data to display.
+	 */
+	public function displayRow(array $row) {
+		// Update widths if this row has wider content
+		$row = $this->checkRow($row);
+		
+		// Recalculate widths for the renderer
+		$this->_renderer->setWidths($this->_width, false);
+		
+		$rendered_row = $this->_renderer->row($row);
+		$row_lines = explode( PHP_EOL, $rendered_row );
+		foreach ( $row_lines as $line ) {
+			Streams::line( $line );
+		}
+		
+		$border = $this->_renderer->border();
+		if (isset($border)) {
+			Streams::line( $border );
+		}
+	}
+
+	/**
 	 * Get the table lines to output.
 	 *
 	 * @see cli\Table::display()
@@ -171,7 +209,8 @@ class Table {
 			$out = array_merge( $out, $row );
 		}
 
-		if (isset($border)) {
+		// Only add final border if there are rows
+		if (!empty($this->_rows) && isset($border)) {
 			$out[] = $border;
 		}
 
