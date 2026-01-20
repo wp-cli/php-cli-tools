@@ -164,16 +164,16 @@ class Table {
 	public function displayRow(array $row) {
 		// Update widths if this row has wider content
 		$row = $this->checkRow($row);
-		
+
 		// Recalculate widths for the renderer
 		$this->_renderer->setWidths($this->_width, false);
-		
+
 		$rendered_row = $this->_renderer->row($row);
 		$row_lines = explode( PHP_EOL, $rendered_row );
 		foreach ( $row_lines as $line ) {
 			Streams::line( $line );
 		}
-		
+
 		$border = $this->_renderer->border();
 		if (isset($border)) {
 			Streams::line( $border );
@@ -209,6 +209,7 @@ class Table {
 				$row = explode( PHP_EOL, $row );
 				$out = array_merge( $out, $row );
 			}
+		}
 
 		// Only add final border if there are rows
 		if (!empty($this->_rows) && isset($border)) {
