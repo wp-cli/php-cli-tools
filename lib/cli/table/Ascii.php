@@ -197,9 +197,22 @@ class Ascii extends Renderer {
 		return $ret;
 	}
 
+	/**
+	 * Get the alignment for a column.
+	 *
+	 * @param int $column Column index.
+	 * @return int Alignment constant (STR_PAD_LEFT, STR_PAD_RIGHT, or STR_PAD_BOTH).
+	 */
+	private function getColumnAlignment( $column ) {
+		$column_name = isset( $this->_headers[ $column ] ) ? $this->_headers[ $column ] : '';
+		if ( $column_name !== '' && array_key_exists( $column_name, $this->_alignments ) ) {
+			return $this->_alignments[ $column_name ];
+		}
+		return Column::ALIGN_LEFT;
+	}
+
 	private function padColumn($content, $column) {
-		$column_name = isset( $this->_headers[$column] ) ? $this->_headers[$column] : '';
-		$alignment = ( $column_name !== '' && array_key_exists( $column_name, $this->_alignments ) ) ? $this->_alignments[$column_name] : Column::ALIGN_LEFT;
+		$alignment = $this->getColumnAlignment( $column );
 		$content = str_replace( "\t", '    ', (string) $content );
 		return $this->_characters['padding'] . Colors::pad( $content, $this->_widths[ $column ], $this->isPreColorized( $column ), false, $alignment ) . $this->_characters['padding'];
 	}

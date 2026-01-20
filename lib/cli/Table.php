@@ -217,14 +217,17 @@ class Table {
 	 * @param array  $alignments  An array of alignment constants keyed by column name.
 	 */
 	public function setAlignments(array $alignments) {
-		$valid_alignments = array( Column::ALIGN_LEFT, Column::ALIGN_RIGHT, Column::ALIGN_CENTER );
+		$valid_alignments = array_flip( array( Column::ALIGN_LEFT, Column::ALIGN_RIGHT, Column::ALIGN_CENTER ) );
 		foreach ( $alignments as $column => $alignment ) {
-			if ( ! in_array( $alignment, $valid_alignments, true ) ) {
+			if ( ! isset( $valid_alignments[ $alignment ] ) ) {
 				throw new \InvalidArgumentException( "Invalid alignment value '$alignment' for column '$column'." );
 			}
 			// Only validate column names if headers are already set
-			if ( ! empty( $this->_headers ) && ! in_array( $column, $this->_headers, true ) ) {
-				throw new \InvalidArgumentException( "Column '$column' does not exist in table headers." );
+			if ( ! empty( $this->_headers ) ) {
+				$headers_map = array_flip( $this->_headers );
+				if ( ! isset( $headers_map[ $column ] ) ) {
+					throw new \InvalidArgumentException( "Column '$column' does not exist in table headers." );
+				}
 			}
 		}
 		$this->_alignments = $alignments;
