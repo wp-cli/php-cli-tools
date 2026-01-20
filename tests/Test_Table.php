@@ -379,18 +379,20 @@ class Test_Table extends TestCase {
 		// Should be right-aligned - "Name" is 4 chars, "LongName" is 8 chars, so column width is 8
 		$this->assertStringContainsString( '|     Name |', $out[1] );
 		$this->assertStringContainsString( '| LongName |', $out[3] );
+	}
+
 	public function test_resetRows() {
 		$table = new cli\Table();
 		$table->setHeaders( array( 'Name', 'Age' ) );
 		$table->addRow( array( 'Alice', '30' ) );
 		$table->addRow( array( 'Bob', '25' ) );
-		
+
 		$this->assertEquals( 2, $table->countRows() );
-		
+
 		$table->resetRows();
-		
+
 		$this->assertEquals( 0, $table->countRows() );
-		
+
 		// Headers should still be intact
 		$out = $table->getDisplayLines();
 		$this->assertGreaterThan( 0, count( $out ) );
@@ -402,21 +404,21 @@ class Test_Table extends TestCase {
 
 		try {
 			\cli\Streams::setStream( 'out', $resource );
-			
+
 			$table    = new cli\Table();
 			$renderer = new cli\Table\Ascii();
 			$table->setRenderer( $renderer );
 			$table->setHeaders( array( 'Name', 'Age' ) );
-			
+
 			// Display a single row
 			$table->displayRow( array( 'Alice', '30' ) );
-			
+
 			$output = file_get_contents( $mockFile );
-			
+
 			// Should contain the row data
 			$this->assertStringContainsString( 'Alice', $output );
 			$this->assertStringContainsString( '30', $output );
-			
+
 			// Should contain borders
 			$this->assertStringContainsString( '|', $output );
 			$this->assertStringContainsString( '+', $output );
@@ -433,17 +435,17 @@ class Test_Table extends TestCase {
 
 		try {
 			\cli\Streams::setStream( 'out', $resource );
-			
+
 			$table    = new cli\Table();
 			$renderer = new cli\Table\Tabular();
 			$table->setRenderer( $renderer );
 			$table->setHeaders( array( 'Name', 'Age' ) );
-			
+
 			// Display a single row
 			$table->displayRow( array( 'Alice', '30' ) );
-			
+
 			$output = file_get_contents( $mockFile );
-			
+
 			// Should contain the row data with tabs
 			$this->assertStringContainsString( 'Alice', $output );
 			$this->assertStringContainsString( '30', $output );
