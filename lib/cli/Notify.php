@@ -35,7 +35,7 @@ abstract class Notify {
 	protected $_speed = 0;
 
 	/**
-	 * Instatiates a Notification object.
+	 * Instantiates a Notification object.
 	 *
 	 * @param string  $msg       The text to display next to the Notifier.
 	 * @param int     $interval  The interval in milliseconds between updates.

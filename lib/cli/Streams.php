@@ -193,7 +193,7 @@ class Streams {
 
 		// Make every choice character lowercase except the default
 		$choice = str_ireplace( $default, strtoupper( $default ), strtolower( $choice ) );
-		// Seperate each choice with a forward-slash
+		// Separate each choice with a forward-slash
 		$choices = trim( join( '/', preg_split( '//', $choice ) ), '/' );
 
 		while( true ) {

@@ -381,7 +381,7 @@ function can_use_pcre_x() {
 	static $can_use_pcre_x = null;
 
 	if ( null === $can_use_pcre_x ) {
-		// '\X' introduced (as Unicde extended grapheme cluster) in PCRE 8.32 - see https://vcs.pcre.org/pcre/code/tags/pcre-8.32/ChangeLog?view=markup line 53.
+		// '\X' introduced (as Unicode extended grapheme cluster) in PCRE 8.32 - see https://vcs.pcre.org/pcre/code/tags/pcre-8.32/ChangeLog?view=markup line 53.
 		// Older versions of PCRE were bundled with PHP <= 5.3.23 & <= 5.4.13.
 		$pcre_version = substr( PCRE_VERSION, 0, strspn( PCRE_VERSION, '0123456789.' ) ); // Remove any trailing date stuff.
 		$can_use_pcre_x = version_compare( $pcre_version, '8.32', '>=' ) && false !== @preg_match( '/\X/u', '' );

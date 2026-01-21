@@ -101,7 +101,7 @@ abstract class Progress extends \cli\Notify {
 	}
 
 	/**
-	 * Forces the current tick count to the total ticks given at instatiation
+	 * Forces the current tick count to the total ticks given at instantiation
 	 * time before passing on to `cli\Notify::finish()`.
 	 */
 	public function finish() {

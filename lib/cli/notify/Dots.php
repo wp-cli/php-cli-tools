@@ -16,7 +16,7 @@ use cli\Notify;
 use cli\Streams;
 
 /**
- * A Notifer that displays a string of periods.
+ * A Notifier that displays a string of periods.
  */
 class Dots extends Notify {
 	protected $_dots;
@@ -24,7 +24,7 @@ class Dots extends Notify {
 	protected $_iteration;
 
 	/**
-	 * Instatiates a Notification object.
+	 * Instantiates a Notification object.
 	 *
 	 * @param string  $msg       The text to display next to the Notifier.
 	 * @param int     $dots      The number of dots to iterate through.
