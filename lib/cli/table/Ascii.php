@@ -28,6 +28,7 @@ class Ascii extends Renderer {
 	protected $_border = null;
 	protected $_constraintWidth = null;
 	protected $_pre_colorized = false;
+	protected $_wrapping_mode = 'wrap'; // 'wrap', 'word-wrap', or 'truncate'
 
 	/**
 	 * Set the widths of each column in the table.
@@ -97,6 +98,20 @@ class Ascii extends Renderer {
 	}
 
 	/**
+	 * Set the wrapping mode for table cells.
+	 *
+	 * @param string $mode One of: 'wrap' (default - wrap at character boundaries),
+	 *                     'word-wrap' (wrap at word boundaries), or 'truncate' (truncate with ellipsis).
+	 */
+	public function setWrappingMode( $mode ) {
+		$valid_modes = array( 'wrap', 'word-wrap', 'truncate' );
+		if ( ! in_array( $mode, $valid_modes, true ) ) {
+			throw new \InvalidArgumentException( "Invalid wrapping mode '$mode'. Must be one of: " . implode( ', ', $valid_modes ) );
+		}
+		$this->_wrapping_mode = $mode;
+	}
+
+	/**
 	 * Set the characters used for rendering the Ascii table.
 	 *
 	 * The keys `corner`, `line` and `border` are used in rendering.
@@ -148,21 +163,8 @@ class Ascii extends Renderer {
 
 					$wrapped_lines = [];
 					foreach ( $split_lines as $line ) {
-						// Use the new color-aware wrapping for pre-colorized content
-						if ( self::isPreColorized( $col ) && Colors::width( $line, true, $encoding ) > $col_width ) {
-							$line_wrapped = Colors::wrapPreColorized( $line, $col_width, $encoding );
-							$wrapped_lines = array_merge( $wrapped_lines, $line_wrapped );
-						} else {
-							// For non-colorized content, use the original logic
-							do {
-								$wrapped_value = \cli\safe_substr( $line, 0, $col_width, true /*is_width*/, $encoding );
-								$val_width     = Colors::width( $wrapped_value, self::isPreColorized( $col ), $encoding );
-								if ( $val_width ) {
-									$wrapped_lines[] = $wrapped_value;
-									$line = \cli\safe_substr( $line, \cli\safe_strlen( $wrapped_value, $encoding ), null /*length*/, false /*is_width*/, $encoding );
-								}
-							} while ( $line );
-						}
+						$line_wrapped = $this->wrapText( $line, $col_width, $encoding, self::isPreColorized( $col ) );
+						$wrapped_lines = array_merge( $wrapped_lines, $line_wrapped );
 					}
 
 					$row[ $col ] = array_shift( $wrapped_lines );
@@ -233,6 +235,127 @@ class Ascii extends Renderer {
 	 */
 	public function setPreColorized( $pre_colorized ) {
 		$this->_pre_colorized = $pre_colorized;
+	}
+
+	/**
+	 * Wrap text based on the configured wrapping mode.
+	 *
+	 * @param string      $text      The text to wrap.
+	 * @param int         $width     The maximum width.
+	 * @param string|bool $encoding  The text encoding.
+	 * @param bool        $is_precolorized Whether the text is pre-colorized.
+	 * @return array Array of wrapped lines.
+	 */
+	protected function wrapText( $text, $width, $encoding, $is_precolorized ) {
+		if ( ! $width ) {
+			return array( $text );
+		}
+
+		$text_width = Colors::width( $text, $is_precolorized, $encoding );
+
+		// If text fits, no wrapping needed
+		if ( $text_width <= $width ) {
+			return array( $text );
+		}
+
+		// Handle truncate mode
+		if ( 'truncate' === $this->_wrapping_mode ) {
+			$ellipsis = '...';
+			$ellipsis_width = 3;
+			
+			if ( $width <= $ellipsis_width ) {
+				// Not enough space for ellipsis, just truncate
+				return array( \cli\safe_substr( $text, 0, $width, true /*is_width*/, $encoding ) );
+			}
+			
+			// Truncate and add ellipsis
+			$truncated = \cli\safe_substr( $text, 0, $width - $ellipsis_width, true /*is_width*/, $encoding );
+			return array( $truncated . $ellipsis );
+		}
+
+		// Handle word-wrap mode
+		if ( 'word-wrap' === $this->_wrapping_mode ) {
+			return $this->wordWrap( $text, $width, $encoding, $is_precolorized );
+		}
+
+		// Default: character-boundary wrapping
+		$wrapped_lines = array();
+		$line = $text;
+		
+		// Use the new color-aware wrapping for pre-colorized content
+		if ( $is_precolorized && Colors::width( $line, true, $encoding ) > $width ) {
+			$wrapped_lines = Colors::wrapPreColorized( $line, $width, $encoding );
+		} else {
+			// For non-colorized content, use character-boundary wrapping
+			do {
+				$wrapped_value = \cli\safe_substr( $line, 0, $width, true /*is_width*/, $encoding );
+				$val_width     = Colors::width( $wrapped_value, $is_precolorized, $encoding );
+				if ( $val_width ) {
+					$wrapped_lines[] = $wrapped_value;
+					$line = \cli\safe_substr( $line, \cli\safe_strlen( $wrapped_value, $encoding ), null /*length*/, false /*is_width*/, $encoding );
+				}
+			} while ( $line );
+		}
+		
+		return $wrapped_lines;
+	}
+
+	/**
+	 * Wrap text at word boundaries.
+	 *
+	 * @param string      $text      The text to wrap.
+	 * @param int         $width     The maximum width.
+	 * @param string|bool $encoding  The text encoding.
+	 * @param bool        $is_precolorized Whether the text is pre-colorized.
+	 * @return array Array of wrapped lines.
+	 */
+	protected function wordWrap( $text, $width, $encoding, $is_precolorized ) {
+		$wrapped_lines = array();
+		$current_line = '';
+		
+		// Split by spaces and hyphens while keeping the delimiters
+		$words = preg_split( '/(\s+|-)/u', $text, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY );
+		
+		foreach ( $words as $word ) {
+			$word_width = Colors::width( $word, $is_precolorized, $encoding );
+			$current_line_width = Colors::width( $current_line, $is_precolorized, $encoding );
+			
+			// If this word alone exceeds the width, we need to split it
+			if ( $word_width > $width ) {
+				// Flush current line if not empty
+				if ( $current_line !== '' ) {
+					$wrapped_lines[] = $current_line;
+					$current_line = '';
+					$current_line_width = 0;
+				}
+				
+				// Split the long word at character boundaries
+				$remaining_word = $word;
+				while ( $remaining_word ) {
+					$chunk = \cli\safe_substr( $remaining_word, 0, $width, true /*is_width*/, $encoding );
+					$wrapped_lines[] = $chunk;
+					$remaining_word = \cli\safe_substr( $remaining_word, \cli\safe_strlen( $chunk, $encoding ), null /*length*/, false /*is_width*/, $encoding );
+				}
+				continue;
+			}
+			
+			// Check if adding this word would exceed the width
+			if ( $current_line !== '' && $current_line_width + $word_width > $width ) {
+				// Start a new line
+				$wrapped_lines[] = $current_line;
+				$current_line = $word;
+			} else {
+				// Add to current line
+				$current_line .= $word;
+			}
+		}
+		
+		// Add any remaining content
+		if ( $current_line !== '' ) {
+			$wrapped_lines[] = $current_line;
+		}
+		
+		return $wrapped_lines ?: array( '' );
 	}
 
 	/**

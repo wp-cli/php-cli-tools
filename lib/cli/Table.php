@@ -321,6 +321,19 @@ class Table {
 	}
 
 	/**
+	 * Set the wrapping mode for table cells.
+	 *
+	 * @param string $mode One of: 'wrap' (default - wrap at character boundaries),
+	 *                     'word-wrap' (wrap at word boundaries), or 'truncate' (truncate with ellipsis).
+	 * @see cli\Ascii::setWrappingMode()
+	 */
+	public function setWrappingMode( $mode ) {
+		if ( $this->_renderer instanceof Ascii ) {
+			$this->_renderer->setWrappingMode( $mode );
+		}
+	}
+
+	/**
 	 * Is a column in an Ascii table pre-colorized?
 	 *
 	 * @param int $column Column index to check.
