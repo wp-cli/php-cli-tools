@@ -154,6 +154,79 @@ OUT;
 	}
 
 	/**
+	 * Test word-wrapping mode keeps words together.
+	 */
+	public function testWordWrappingMode() {
+		$headers = array('name', 'status');
+		$rows = array(
+			array('all-in-one-wp-migration-multisite-extension', 'inactive'),
+		);
+		
+		// With word-wrap, the hyphenated words should wrap at hyphens
+		$output = <<<'OUT'
++----------------------+----------+
+| name                 | status   |
++----------------------+----------+
+| all-in-one-wp-       | inactive |
+| migration-multisite- |          |
+| extension            |          |
++----------------------+----------+
+
+OUT;
+		
+		$this->_instance->setHeaders($headers);
+		$this->_instance->setRows($rows);
+		$renderer = new Ascii([20, 8]);
+		$renderer->setConstraintWidth(36);
+		$this->_instance->setRenderer($renderer);
+		$this->_instance->setWrappingMode('word-wrap');
+		$this->_instance->display();
+		$this->assertOutFileEqualsWith($output);
+	}
+
+	/**
+	 * Test truncate mode with ellipsis.
+	 */
+	public function testTruncateMode() {
+		$headers = array('name', 'status');
+		$rows = array(
+			array('all-in-one-wp-migration-multisite-extension', 'inactive'),
+			array('short', 'active'),
+		);
+		
+		// With truncate, long names should be truncated with ellipsis
+		$output = <<<'OUT'
++----------------------+----------+
+| name                 | status   |
++----------------------+----------+
+| all-in-one-wp-mig... | inactive |
+| short                | active   |
++----------------------+----------+
+
+OUT;
+		
+		$this->_instance->setHeaders($headers);
+		$this->_instance->setRows($rows);
+		$renderer = new Ascii([20, 8]);
+		$renderer->setConstraintWidth(36);
+		$this->_instance->setRenderer($renderer);
+		$this->_instance->setWrappingMode('truncate');
+		$this->_instance->display();
+		$this->assertOutFileEqualsWith($output);
+	}
+
+	/**
+	 * Test that wrapping mode setter validates input.
+	 */
+	public function testWrappingModeValidation() {
+		$this->expectException(\InvalidArgumentException::class);
+		$this->expectExceptionMessage("Invalid wrapping mode 'invalid'");
+		
+		$renderer = new Ascii();
+		$renderer->setWrappingMode('invalid');
+	}
+
+	/**
 	 * Checks that spacing and borders are handled correctly in table
 	 */
 	public function testSpacingInTable() {
