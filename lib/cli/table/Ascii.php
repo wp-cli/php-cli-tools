@@ -19,6 +19,11 @@ use cli\Shell;
  * The ASCII renderer renders tables with ASCII borders.
  */
 class Ascii extends Renderer {
+	/**
+	 * Valid wrapping modes.
+	 */
+	private const VALID_WRAPPING_MODES = array( 'wrap', 'word-wrap', 'truncate' );
+
 	protected $_characters = array(
 		'corner'  => '+',
 		'line'    => '-',
@@ -104,9 +109,8 @@ class Ascii extends Renderer {
 	 *                     'word-wrap' (wrap at word boundaries), or 'truncate' (truncate with ellipsis).
 	 */
 	public function setWrappingMode( $mode ) {
-		$valid_modes = array( 'wrap', 'word-wrap', 'truncate' );
-		if ( ! in_array( $mode, $valid_modes, true ) ) {
-			throw new \InvalidArgumentException( "Invalid wrapping mode '$mode'. Must be one of: " . implode( ', ', $valid_modes ) );
+		if ( ! in_array( $mode, self::VALID_WRAPPING_MODES, true ) ) {
+			throw new \InvalidArgumentException( "Invalid wrapping mode '$mode'. Must be one of: " . implode( ', ', self::VALID_WRAPPING_MODES ) );
 		}
 		$this->_wrapping_mode = $mode;
 	}
@@ -312,13 +316,13 @@ class Ascii extends Renderer {
 	protected function wordWrap( $text, $width, $encoding, $is_precolorized ) {
 		$wrapped_lines = array();
 		$current_line = '';
+		$current_line_width = 0;
 		
 		// Split by spaces and hyphens while keeping the delimiters
 		$words = preg_split( '/(\s+|-)/u', $text, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY );
 		
 		foreach ( $words as $word ) {
 			$word_width = Colors::width( $word, $is_precolorized, $encoding );
-			$current_line_width = Colors::width( $current_line, $is_precolorized, $encoding );
 			
 			// If this word alone exceeds the width, we need to split it
 			if ( $word_width > $width ) {
@@ -344,9 +348,11 @@ class Ascii extends Renderer {
 				// Start a new line
 				$wrapped_lines[] = $current_line;
 				$current_line = $word;
+				$current_line_width = $word_width;
 			} else {
 				// Add to current line
 				$current_line .= $word;
+				$current_line_width += $word_width;
 			}
 		}
 		
