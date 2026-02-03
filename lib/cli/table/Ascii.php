@@ -24,6 +24,16 @@ class Ascii extends Renderer {
 	 */
 	private const VALID_WRAPPING_MODES = array( 'wrap', 'word-wrap', 'truncate' );
 
+	/**
+	 * Ellipsis character(s) used for truncation.
+	 */
+	private const ELLIPSIS = '...';
+
+	/**
+	 * Width of the ellipsis in characters.
+	 */
+	private const ELLIPSIS_WIDTH = 3;
+
 	protected $_characters = array(
 		'corner'  => '+',
 		'line'    => '-',
@@ -264,17 +274,14 @@ class Ascii extends Renderer {
 
 		// Handle truncate mode
 		if ( 'truncate' === $this->_wrapping_mode ) {
-			$ellipsis = '...';
-			$ellipsis_width = 3;
-			
-			if ( $width <= $ellipsis_width ) {
+			if ( $width <= self::ELLIPSIS_WIDTH ) {
 				// Not enough space for ellipsis, just truncate
 				return array( \cli\safe_substr( $text, 0, $width, true /*is_width*/, $encoding ) );
 			}
 			
 			// Truncate and add ellipsis
-			$truncated = \cli\safe_substr( $text, 0, $width - $ellipsis_width, true /*is_width*/, $encoding );
-			return array( $truncated . $ellipsis );
+			$truncated = \cli\safe_substr( $text, 0, $width - self::ELLIPSIS_WIDTH, true /*is_width*/, $encoding );
+			return array( $truncated . self::ELLIPSIS );
 		}
 
 		// Handle word-wrap mode
@@ -287,7 +294,7 @@ class Ascii extends Renderer {
 		$line = $text;
 		
 		// Use the new color-aware wrapping for pre-colorized content
-		if ( $is_precolorized && Colors::width( $line, true, $encoding ) > $width ) {
+		if ( $is_precolorized ) {
 			$wrapped_lines = Colors::wrapPreColorized( $line, $width, $encoding );
 		} else {
 			// For non-colorized content, use character-boundary wrapping
