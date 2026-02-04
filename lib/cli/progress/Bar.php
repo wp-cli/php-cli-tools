@@ -43,7 +43,7 @@ class Bar extends Progress {
 	 */
 	public function __construct($msg, $total, $interval = 100, $formatMessage = null, $formatTiming = null, $format = null) {
 		parent::__construct($msg, $total, $interval);
-		
+
 		if ($formatMessage !== null) {
 			$this->_formatMessage = $formatMessage;
 		}
