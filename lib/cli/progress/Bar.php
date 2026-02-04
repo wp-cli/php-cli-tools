@@ -32,6 +32,30 @@ class Bar extends Progress {
 	protected $_format = '{:msg}{:bar}{:timing}';
 
 	/**
+	 * Instantiates a Progress Bar.
+	 *
+	 * @param string       $msg            The text to display next to the Notifier.
+	 * @param int          $total          The total number of ticks we will be performing.
+	 * @param int          $interval       The interval in milliseconds between updates.
+	 * @param string|null  $formatMessage  Optional format string for the message portion.
+	 * @param string|null  $formatTiming   Optional format string for the timing portion.
+	 * @param string|null  $format         Optional format string for the overall display.
+	 */
+	public function __construct($msg, $total, $interval = 100, $formatMessage = null, $formatTiming = null, $format = null) {
+		parent::__construct($msg, $total, $interval);
+
+		if ($formatMessage !== null) {
+			$this->_formatMessage = $formatMessage;
+		}
+		if ($formatTiming !== null) {
+			$this->_formatTiming = $formatTiming;
+		}
+		if ($format !== null) {
+			$this->_format = $format;
+		}
+	}
+
+	/**
 	 * Prints the progress bar to the screen with percent complete, elapsed time
 	 * and estimated total time.
 	 *
@@ -49,11 +73,13 @@ class Bar extends Progress {
 
 		$percent = str_pad(floor($_percent * 100), 3);
 		$msg = $this->_message;
-		$msg = Streams::render($this->_formatMessage, compact('msg', 'percent'));
+		$current = $this->current();
+		$total = $this->total();
+		$msg = Streams::render($this->_formatMessage, compact('msg', 'percent', 'current', 'total'));
 
 		$estimated = $this->formatTime($this->estimated());
 		$elapsed   = str_pad($this->formatTime($this->elapsed()), strlen($estimated));
-		$timing    = Streams::render($this->_formatTiming, compact('elapsed', 'estimated'));
+		$timing    = Streams::render($this->_formatTiming, compact('elapsed', 'estimated', 'current', 'total', 'percent'));
 
 		$size = Shell::columns();
 		$size -= strlen($msg . $timing);
@@ -65,7 +91,7 @@ class Bar extends Progress {
 		// substr is needed to trim off the bar cap at 100%
 		$bar = substr(str_pad($bar, $size, ' '), 0, $size);
 
-		Streams::out($this->_format, compact('msg', 'bar', 'timing'));
+		Streams::out($this->_format, compact('msg', 'bar', 'timing', 'current', 'total', 'percent'));
 	}
 
 	/**
