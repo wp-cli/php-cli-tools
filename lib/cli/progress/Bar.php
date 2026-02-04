@@ -34,12 +34,12 @@ class Bar extends Progress {
 	/**
 	 * Instantiates a Progress Bar.
 	 *
-	 * @param string  $msg            The text to display next to the Notifier.
-	 * @param int     $total          The total number of ticks we will be performing.
-	 * @param int     $interval       The interval in milliseconds between updates.
-	 * @param string  $formatMessage  Optional format string for the message portion.
-	 * @param string  $formatTiming   Optional format string for the timing portion.
-	 * @param string  $format         Optional format string for the overall display.
+	 * @param string       $msg            The text to display next to the Notifier.
+	 * @param int          $total          The total number of ticks we will be performing.
+	 * @param int          $interval       The interval in milliseconds between updates.
+	 * @param string|null  $formatMessage  Optional format string for the message portion.
+	 * @param string|null  $formatTiming   Optional format string for the timing portion.
+	 * @param string|null  $format         Optional format string for the overall display.
 	 */
 	public function __construct($msg, $total, $interval = 100, $formatMessage = null, $formatTiming = null, $format = null) {
 		parent::__construct($msg, $total, $interval);
