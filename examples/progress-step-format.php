@@ -5,7 +5,7 @@ require_once 'common.php';
 // Example 1: Default percentage-based format
 echo "Example 1: Default percentage-based format\n";
 $progress = new \cli\progress\Bar('Default format', 10);
-for ($i = 0; $i <= 10; $i++) {
+for ($i = 0; $i < 10; $i++) {
 	$progress->tick();
 	usleep(100000);
 }
@@ -21,7 +21,7 @@ $progress = new \cli\progress\Bar(
 	100,
 	'{:msg}  {:current}/{:total} ['  // Custom formatMessage with current/total
 );
-for ($i = 0; $i <= 10; $i++) {
+for ($i = 0; $i < 10; $i++) {
 	$progress->tick();
 	usleep(100000);
 }
@@ -37,7 +37,7 @@ $progress = new \cli\progress\Bar(
 	100,
 	'{:msg}  {:current}/{:total} ({:percent}%) ['  // Both current/total and percent
 );
-for ($i = 0; $i <= 50; $i++) {
+for ($i = 0; $i < 50; $i++) {
 	$progress->tick();
 	usleep(50000);
 }

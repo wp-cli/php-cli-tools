@@ -79,7 +79,7 @@ class Bar extends Progress {
 
 		$estimated = $this->formatTime($this->estimated());
 		$elapsed   = str_pad($this->formatTime($this->elapsed()), strlen($estimated));
-		$timing    = Streams::render($this->_formatTiming, compact('elapsed', 'estimated'));
+		$timing    = Streams::render($this->_formatTiming, compact('elapsed', 'estimated', 'current', 'total', 'percent'));
 
 		$size = Shell::columns();
 		$size -= strlen($msg . $timing);
@@ -91,7 +91,7 @@ class Bar extends Progress {
 		// substr is needed to trim off the bar cap at 100%
 		$bar = substr(str_pad($bar, $size, ' '), 0, $size);
 
-		Streams::out($this->_format, compact('msg', 'bar', 'timing'));
+		Streams::out($this->_format, compact('msg', 'bar', 'timing', 'current', 'total', 'percent'));
 	}
 
 	/**
