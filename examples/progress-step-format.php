@@ -53,7 +53,7 @@ $progress = new \cli\progress\Bar(
 	100,
 	'{:msg}  {:current}/{:total} ['
 );
-for ($i = 0; $i <= 1000; $i += 50) {
+for ($i = 0; $i < 1000; $i += 50) {
 	$progress->tick(50);
 	usleep(20000);
 }
