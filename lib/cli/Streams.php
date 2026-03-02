@@ -41,9 +41,11 @@ class Streams {
 
 		// If the first argument is not an array just pass to sprintf
 		if( !is_array( $args[1] ) ) {
-			// Colorize the message first so sprintf doesn't bitch at us
+			// Normalize color tokens before sprintf: colorize or strip them so no raw %tokens reach sprintf
 			if ( Colors::shouldColorize() ) {
 				$args[0] = Colors::colorize( $args[0] );
+			} else {
+				$args[0] = Colors::decolorize( $args[0] );
 			}
 
 			// Escape percent characters for sprintf
