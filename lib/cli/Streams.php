@@ -44,6 +44,8 @@ class Streams {
 			// Colorize the message first so sprintf doesn't bitch at us
 			if ( Colors::shouldColorize() ) {
 				$args[0] = Colors::colorize( $args[0] );
+			} else {
+				$args[0] = Colors::decolorize( $args[0] );
 			}
 
 			// Escape percent characters for sprintf

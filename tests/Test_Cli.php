@@ -553,4 +553,20 @@ class Test_Cli extends TestCase {
 			mb_detect_order( $mb_detect_order );
 		}
 	}
+
+	function test_render_with_color_tokens_and_sprintf_args_colors_disabled() {
+		Colors::disable( true );
+
+		// Color tokens in format string must not cause "sprintf(): Too few arguments".
+		$result = \cli\render( '[%C%k%s%N] Starting!', '2024-01-01 12:00:00' );
+		$this->assertSame( '[2024-01-01 12:00:00] Starting!', $result );
+	}
+
+	function test_render_with_color_tokens_and_sprintf_args_colors_enabled() {
+		Colors::enable( true );
+
+		$result = \cli\render( '[%C%k%s%N] Starting!', '2024-01-01 12:00:00' );
+		$this->assertStringContainsString( '2024-01-01 12:00:00', $result );
+		$this->assertStringContainsString( 'Starting!', $result );
+	}
 }
