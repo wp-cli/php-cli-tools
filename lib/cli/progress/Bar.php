@@ -82,6 +82,10 @@ class Bar extends Progress {
 		$timing    = Streams::render($this->_formatTiming, compact('elapsed', 'estimated', 'current', 'total', 'percent'));
 
 		$size = Shell::columns();
+		// On Windows, the cursor wraps to the next line if the output fills the entire width.
+		if ( Shell::is_windows() ) {
+			$size -= 1;
+		}
 		$size -= strlen($msg . $timing);
 		if ( $size < 0 ) {
 			$size = 0;

@@ -112,8 +112,12 @@ class Shell {
 	 *
 	 * @return bool
 	 */
-	static private function is_windows() {
-		return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+	static public function is_windows() {
+		$test_is_windows = getenv( 'WP_CLI_TEST_IS_WINDOWS' );
+		if ( false !== $test_is_windows ) {
+			return (bool) $test_is_windows;
+		}
+		return strtoupper( substr( PHP_OS, 0, 3 ) ) === 'WIN';
 	}
 
 }
