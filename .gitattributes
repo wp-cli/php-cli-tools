@@ -1,0 +1,14 @@
+/.actrc export-ignore
+/.distignore export-ignore
+/.editorconfig export-ignore
+/.github export-ignore
+/.gitignore export-ignore
+/.typos.toml export-ignore
+/AGENTS.md export-ignore
+/behat.yml export-ignore
+/features export-ignore
+/phpcs.xml.dist export-ignore
+/phpstan.neon.dist export-ignore
+/phpunit.xml.dist export-ignore
+/tests export-ignore
+/wp-cli.yml export-ignore
