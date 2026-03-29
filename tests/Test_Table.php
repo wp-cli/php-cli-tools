@@ -86,7 +86,7 @@ class Test_Table extends TestCase {
 
 		$strip_borders = function ( $a ) {
 			return array_map( function ( $v ) {
-				return substr( $v, 2, -2 );
+				return substr( rtrim( $v, "\r" ), 2, -2 );
 			}, $a );
 		};
 
@@ -97,13 +97,8 @@ class Test_Table extends TestCase {
 		$result = $strip_borders( explode( "\n", $out ) );
 
 		$this->assertSame( 3, count( $result ) );
-		if ( Shell::is_windows() ) {
-			$this->assertSame( '1あいうえ  ', $result[0] );
-			$this->assertSame( 'おか2きくｶ ', $result[1] );
-		} else {
-			$this->assertSame( '1あいうえ ', $result[0] ); // 1 single-width, 4 double-width, space = 10.
-			$this->assertSame( 'おか2きくｶ', $result[1] ); // 2 double-width, 1 single-width, 2 double-width, 1 half-width = 10.
-		}
+		$this->assertSame( '1あいうえ ', $result[0] ); // 1 single-width, 4 double-width, space = 10.
+		$this->assertSame( 'おか2きくｶ', $result[1] ); // 2 double-width, 1 single-width, 2 double-width, 1 half-width = 10.
 		$this->assertSame( 'けこ      ', $result[2] ); // 2 double-width, 8 spaces = 10.
 
 		// Minimum width 1.
@@ -115,13 +110,8 @@ class Test_Table extends TestCase {
 
 		$this->assertSame( 13, count( $result ) );
 		// Uneven rows.
-		if ( Shell::is_windows() ) {
-			$this->assertSame( '1 ', $result[0] );
-			$this->assertSame( 'あ ', $result[1] );
-		} else {
-			$this->assertSame( '1', $result[0] );
-			$this->assertSame( 'あ', $result[1] );
-		}
+		$this->assertSame( '1', $result[0] );
+		$this->assertSame( 'あ', $result[1] );
 
 		// Zero width does no wrapping.
 
