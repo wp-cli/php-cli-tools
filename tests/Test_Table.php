@@ -118,7 +118,11 @@ class Test_Table extends TestCase {
 
 		$this->assertSame( 13, count( $result ) );
 		// Uneven rows.
-		$this->assertSame( '1', $result[0] );
+		if ( Shell::is_windows() ) {
+			$this->assertSame( '1 ', $result[0] );
+		} else {
+			$this->assertSame( '1', $result[0] );
+		}
 		$this->assertSame( 'あ', $result[1] );
 
 		// Zero width does no wrapping.
