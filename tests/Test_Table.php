@@ -99,12 +99,9 @@ class Test_Table extends TestCase {
 		$this->assertSame( 3, count( $result ) );
 		if ( Shell::is_windows() ) {
 			$this->assertSame( '1あいうえ  ', $result[0] );
-		} else {
-			$this->assertSame( '1あいうえ ', $result[0] ); // 1 single-width, 4 double-width, space = 10.
-		}
-		if ( Shell::is_windows() ) {
 			$this->assertSame( 'おか2きくｶ ', $result[1] );
 		} else {
+			$this->assertSame( '1あいうえ ', $result[0] ); // 1 single-width, 4 double-width, space = 10.
 			$this->assertSame( 'おか2きくｶ', $result[1] ); // 2 double-width, 1 single-width, 2 double-width, 1 half-width = 10.
 		}
 		$this->assertSame( 'けこ      ', $result[2] ); // 2 double-width, 8 spaces = 10.
@@ -120,12 +117,9 @@ class Test_Table extends TestCase {
 		// Uneven rows.
 		if ( Shell::is_windows() ) {
 			$this->assertSame( '1 ', $result[0] );
-		} else {
-			$this->assertSame( '1', $result[0] );
-		}
-		if ( Shell::is_windows() ) {
 			$this->assertSame( 'あ ', $result[1] );
 		} else {
+			$this->assertSame( '1', $result[0] );
 			$this->assertSame( 'あ', $result[1] );
 		}
 
