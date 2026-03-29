@@ -49,7 +49,15 @@ class Test_Shell extends TestCase {
 		// Restore.
 		putenv( false === $env_term ? 'TERM' : "TERM=$env_term" );
 		putenv( false === $env_columns ? 'COLUMNS' : "COLUMNS=$env_columns" );
-		putenv( false === $env_is_windows ? 'WP_CLI_TEST_IS_WINDOWS' : "WP_CLI_TEST_IS_WINDOWS=$env_is_windows" );
+		if ( false === $env_is_windows ) {
+			if ( strtoupper( substr( PHP_OS, 0, 3 ) ) === 'WIN' ) {
+				putenv( 'WP_CLI_TEST_IS_WINDOWS=' );
+			} else {
+				putenv( 'WP_CLI_TEST_IS_WINDOWS' );
+			}
+		} else {
+			putenv( "WP_CLI_TEST_IS_WINDOWS=$env_is_windows" );
+		}
 		putenv( false === $env_shell_columns_reset ? 'PHP_CLI_TOOLS_TEST_SHELL_COLUMNS_RESET' : "PHP_CLI_TOOLS_TEST_SHELL_COLUMNS_RESET=$env_shell_columns_reset" );
 	}
 }
