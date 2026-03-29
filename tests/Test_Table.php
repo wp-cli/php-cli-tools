@@ -123,7 +123,11 @@ class Test_Table extends TestCase {
 		} else {
 			$this->assertSame( '1', $result[0] );
 		}
-		$this->assertSame( 'あ', $result[1] );
+		if ( Shell::is_windows() ) {
+			$this->assertSame( 'あ ', $result[1] );
+		} else {
+			$this->assertSame( 'あ', $result[1] );
+		}
 
 		// Zero width does no wrapping.
 
