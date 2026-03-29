@@ -3,6 +3,7 @@
 use cli\Colors;
 use cli\Table;
 use cli\Table\Ascii;
+use cli\Shell;
 use WP_CLI\Tests\TestCase;
 
 /**
@@ -96,7 +97,11 @@ class Test_Table extends TestCase {
 		$result = $strip_borders( explode( "\n", $out ) );
 
 		$this->assertSame( 3, count( $result ) );
-		$this->assertSame( '1あいうえ ', $result[0] ); // 1 single width, 4 double-width, space = 10.
+		if ( Shell::is_windows() ) {
+			$this->assertSame( '1あいうえ  ', $result[0] );
+		} else {
+			$this->assertSame( '1あいうえ ', $result[0] ); // 1 single-width, 4 double-width, space = 10.
+		}
 		$this->assertSame( 'おか2きくｶ', $result[1] ); // 2 double-width, 1 single-width, 2 double-width, 1 half-width = 10.
 		$this->assertSame( 'けこ      ', $result[2] ); // 2 double-width, 8 spaces = 10.
 
