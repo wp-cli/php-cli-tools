@@ -102,7 +102,11 @@ class Test_Table extends TestCase {
 		} else {
 			$this->assertSame( '1あいうえ ', $result[0] ); // 1 single-width, 4 double-width, space = 10.
 		}
-		$this->assertSame( 'おか2きくｶ', $result[1] ); // 2 double-width, 1 single-width, 2 double-width, 1 half-width = 10.
+		if ( Shell::is_windows() ) {
+			$this->assertSame( 'おか2きくｶ ', $result[1] );
+		} else {
+			$this->assertSame( 'おか2きくｶ', $result[1] ); // 2 double-width, 1 single-width, 2 double-width, 1 half-width = 10.
+		}
 		$this->assertSame( 'けこ      ', $result[2] ); // 2 double-width, 8 spaces = 10.
 
 		// Minimum width 1.
