@@ -31,7 +31,7 @@ class Shell {
 			$columns = null;
 		}
 		if ( null === $columns ) {
-			if ( function_exists( 'exec' ) ) {
+			if ( ! ( $columns = (int) getenv( 'COLUMNS' ) ) && function_exists( 'exec' ) ) {
 				if ( self::is_windows() ) {
 					// Cater for shells such as Cygwin and Git bash where `mode CON` returns an incorrect value for columns.
 					if ( ( $shell = getenv( 'SHELL' ) ) && preg_match( '/(?:bash|zsh)(?:\.exe)?$/', $shell ) && getenv( 'TERM' ) ) {
@@ -49,15 +49,13 @@ class Shell {
 						}
 					}
 				} else {
-					if ( ! ( $columns = (int) getenv( 'COLUMNS' ) ) ) {
-						$size = exec( '/usr/bin/env stty size 2>/dev/null' );
-						if ( '' !== $size && preg_match( '/[0-9]+ ([0-9]+)/', $size, $matches ) ) {
-							$columns = (int) $matches[1];
-						}
-						if ( ! $columns ) {
-							if ( getenv( 'TERM' ) ) {
-								$columns = (int) exec( '/usr/bin/env tput cols 2>/dev/null' );
-							}
+					$size = exec( '/usr/bin/env stty size 2>/dev/null' );
+					if ( '' !== $size && preg_match( '/[0-9]+ ([0-9]+)/', $size, $matches ) ) {
+						$columns = (int) $matches[1];
+					}
+					if ( ! $columns ) {
+						if ( getenv( 'TERM' ) ) {
+							$columns = (int) exec( '/usr/bin/env tput cols 2>/dev/null' );
 						}
 					}
 				}
@@ -114,7 +112,7 @@ class Shell {
 	 */
 	static public function is_windows() {
 		$test_is_windows = getenv( 'WP_CLI_TEST_IS_WINDOWS' );
-		if ( false !== $test_is_windows ) {
+		if ( false !== $test_is_windows && '' !== $test_is_windows ) {
 			return (bool) $test_is_windows;
 		}
 		return strtoupper( substr( PHP_OS, 0, 3 ) ) === 'WIN';

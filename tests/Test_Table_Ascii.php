@@ -386,6 +386,9 @@ OUT;
 	 * @param mixed $expected Expected output
 	 */
 	private function assertOutFileEqualsWith($expected) {
-		$this->assertEquals($expected, file_get_contents($this->_mockFile));
+		$actual = file_get_contents($this->_mockFile);
+		$actual = str_replace("\r\n", "\n", $actual);
+		$expected = str_replace("\r\n", "\n", $expected);
+		$this->assertEquals($expected, $actual);
 	}
 }
