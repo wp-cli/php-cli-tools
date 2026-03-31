@@ -16,6 +16,10 @@ use cli\Memoize;
 
 /**
  * Represents an Argument or a value and provides several helpers related to parsing an argument list.
+ *
+ * @property-read bool $isLong
+ * @property-read bool $isShort
+ * @property-read bool $isArgument
  */
 class Argument extends Memoize {
 	/**

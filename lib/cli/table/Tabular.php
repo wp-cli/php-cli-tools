@@ -23,8 +23,10 @@ class Tabular extends Renderer {
 	 * @return string  The formatted table row.
 	 */
 	public function row( array $row ) {
-		$rows   = [];
-		$output = '';
+		$rows        = [];
+		$output      = '';
+		$split_lines = [];
+		$col         = null;
 
 		foreach ( $row as $col => $value ) {
 			$value       = isset( $value ) ? (string) $value : '';

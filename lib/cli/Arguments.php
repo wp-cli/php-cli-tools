@@ -110,6 +110,8 @@ class Arguments implements \ArrayAccess {
 		if (isset($this->_parsed[$offset])) {
 			return $this->_parsed[$offset];
 		}
+
+		return null;
 	}
 
 	/**
@@ -302,6 +304,8 @@ class Arguments implements \ArrayAccess {
 				return $settings;
 			}
 		}
+
+		return null;
 	}
 
 	public function getFlags() {
@@ -362,6 +366,8 @@ class Arguments implements \ArrayAccess {
 				return $settings;
 			}
 		}
+
+		return null;
 	}
 
 	public function getOptions() {
@@ -388,7 +394,7 @@ class Arguments implements \ArrayAccess {
 	 * will use either the first long name given or the first name in the list
 	 * if a long name is not given.
 	 *
-	 * @return array
+	 * @return void
 	 * @throws arguments\InvalidArguments
 	 */
 	public function parse() {

@@ -163,6 +163,7 @@ class Ascii extends Renderer {
 	public function row( array $row ) {
 
 		$extra_row_count = 0;
+		$extra_rows      = [];
 
 		if ( count( $row ) > 0 ) {
 			$extra_rows = array_fill( 0, count( $row ), array() );
