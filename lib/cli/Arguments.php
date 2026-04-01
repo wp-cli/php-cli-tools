@@ -282,7 +282,7 @@ class Arguments implements \ArrayAccess {
 	 *
 	 * @param mixed  $flag  Either a string representing the flag or an
 	 *                      cli\arguments\Argument object.
-	 * @return array
+	 * @return array|null
 	 */
 	public function getFlag($flag) {
 		if ($flag instanceOf Argument) {
@@ -345,7 +345,7 @@ class Arguments implements \ArrayAccess {
 	 *
 	 * @param mixed  $option Either a string representing the option or an
 	 *                       cli\arguments\Argument object.
-	 * @return array
+	 * @return array|null
 	 */
 	public function getOption($option) {
 		if ($option instanceOf Argument) {

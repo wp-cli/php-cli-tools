@@ -62,7 +62,7 @@ abstract class Renderer {
 	 * Render a border for the top and bottom and separating the headers from the
 	 * table rows.
 	 *
-	 * @return string  The table border.
+	 * @return string|null  The table border.
 	 */
 	public function border() {
 		return null;

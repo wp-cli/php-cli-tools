@@ -97,7 +97,7 @@ abstract class Progress extends \cli\Notify {
 		}
 
 		$estimated = round($this->_total / $speed);
-		return $estimated;
+		return (int)$estimated;
 	}
 
 	/**
