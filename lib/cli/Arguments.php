@@ -287,7 +287,7 @@ class Arguments implements \ArrayAccess {
 	public function getFlag($flag) {
 		if ($flag instanceOf Argument) {
 			$obj  = $flag;
-			$flag = $flag->value;
+			$flag = $flag->value();
 		}
 
 		if (isset($this->_flags[$flag])) {
@@ -350,7 +350,7 @@ class Arguments implements \ArrayAccess {
 	public function getOption($option) {
 		if ($option instanceOf Argument) {
 			$obj = $option;
-			$option = $option->value;
+			$option = $option->value();
 		}
 
 		if (isset($this->_options[$option])) {
@@ -412,7 +412,7 @@ class Arguments implements \ArrayAccess {
 				continue;
 			}
 
-			array_push($this->_invalid, $argument->raw);
+			array_push($this->_invalid, $argument->raw());
 		}
 
 		if ($this->_strict && !empty($this->_invalid)) {

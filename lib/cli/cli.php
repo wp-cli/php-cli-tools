@@ -19,11 +19,11 @@ namespace cli;
  * then each key in the array will be the placeholder name. Placeholders are of the
  * format {:key}.
  *
- * @param string   $msg  The message to render.
- * @param mixed    ...   Either scalar arguments or a single array argument.
+ * @param string  $msg  The message to render.
+ * @param mixed   ...$args Either scalar arguments or a single array argument.
  * @return string  The rendered string.
  */
-function render( $msg ) {
+function render( $msg, ...$args ) {
 	return Streams::_call( 'render', func_get_args() );
 }
 
@@ -32,11 +32,11 @@ function render( $msg ) {
  * through `sprintf` before output.
  *
  * @param string  $msg  The message to output in `printf` format.
- * @param mixed   ...   Either scalar arguments or a single array argument.
+ * @param mixed   ...$args Either scalar arguments or a single array argument.
  * @return void
  * @see \cli\render()
  */
-function out( $msg ) {
+function out( $msg, ...$args ) {
 	Streams::_call( 'out', func_get_args() );
 }
 
@@ -44,11 +44,11 @@ function out( $msg ) {
  * Pads `$msg` to the width of the shell before passing to `cli\out`.
  *
  * @param string  $msg  The message to pad and pass on.
- * @param mixed   ...   Either scalar arguments or a single array argument.
+ * @param mixed   ...$args Either scalar arguments or a single array argument.
  * @return void
  * @see cli\out()
  */
-function out_padded( $msg ) {
+function out_padded( $msg, ...$args ) {
 	Streams::_call( 'out_padded', func_get_args() );
 }
 
@@ -68,10 +68,10 @@ function line( $msg = '' ) {
  *
  * @param string  $msg  The message to output in `printf` format. With no string,
  *                      a newline is printed.
- * @param mixed   ...   Either scalar arguments or a single array argument.
+ * @param mixed   ...$args Either scalar arguments or a single array argument.
  * @return void
  */
-function err( $msg = '' ) {
+function err( $msg = '', ...$args ) {
 	Streams::_call( 'err', func_get_args() );
 }
 
@@ -162,7 +162,7 @@ function menu( $items, $default = null, $title = 'Choose an item' ) {
  */
 function safe_strlen( $str, $encoding = false ) {
 	// Allow for selective testings - "1" bit set tests grapheme_strlen(), "2" preg_match_all( '/\X/u' ), "4" mb_strlen(), "other" strlen().
-	$test_safe_strlen = getenv( 'PHP_CLI_TOOLS_TEST_SAFE_STRLEN' );
+	$test_safe_strlen = (int) getenv( 'PHP_CLI_TOOLS_TEST_SAFE_STRLEN' );
 
 	// Assume UTF-8 if no encoding given - `grapheme_strlen()` will return null if given non-UTF-8 string.
 	if ( ( ! $encoding || 'UTF-8' === $encoding ) && can_use_icu() && null !== ( $length = grapheme_strlen( $str ) ) ) {
@@ -225,7 +225,7 @@ function safe_substr( $str, $start, $length = false, $is_width = false, $encodin
 	}
 
 	// Allow for selective testings - "1" bit set tests grapheme_substr(), "2" preg_split( '/\X/' ), "4" mb_substr(), "8" substr().
-	$test_safe_substr = getenv( 'PHP_CLI_TOOLS_TEST_SAFE_SUBSTR' );
+	$test_safe_substr = (int) getenv( 'PHP_CLI_TOOLS_TEST_SAFE_SUBSTR' );
 
 	// Assume UTF-8 if no encoding given - `grapheme_substr()` will return false (not null like `grapheme_strlen()`) if given non-UTF-8 string.
 	if ( ( ! $encoding || 'UTF-8' === $encoding ) && can_use_icu() && false !== ( $try = grapheme_substr( $str, $start, $length ) ) ) {
@@ -325,7 +325,7 @@ function strwidth( $string, $encoding = false ) {
 	list( $eaw_regex, $m_regex ) = get_unicode_regexs();
 
 	// Allow for selective testings - "1" bit set tests grapheme_strlen(), "2" preg_match_all( '/\X/u' ), "4" mb_strwidth(), "other" safe_strlen().
-	$test_strwidth = getenv( 'PHP_CLI_TOOLS_TEST_STRWIDTH' );
+	$test_strwidth = (int) getenv( 'PHP_CLI_TOOLS_TEST_STRWIDTH' );
 
 	// Assume UTF-8 if no encoding given - `grapheme_strlen()` will return null if given non-UTF-8 string.
 	if ( ( ! $encoding || 'UTF-8' === $encoding ) && can_use_icu() && null !== ( $width = grapheme_strlen( $string ) ) ) {

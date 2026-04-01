@@ -246,7 +246,7 @@ class Ascii extends Renderer {
 	/**
 	 * Set whether items are pre-colorized.
 	 *
-	 * @param bool|array $colorized A boolean to set all columns in the table as pre-colorized, or an array of booleans keyed by column index (number) to set individual columns as pre-colorized.
+	 * @param bool|array $pre_colorized A boolean to set all columns in the table as pre-colorized, or an array of booleans keyed by column index (number) to set individual columns as pre-colorized.
 	 */
 	public function setPreColorized( $pre_colorized ) {
 		$this->_pre_colorized = $pre_colorized;

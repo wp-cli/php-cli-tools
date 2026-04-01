@@ -311,7 +311,7 @@ class Table {
 	/**
 	 * Set whether items in an Ascii table are pre-colorized.
 	 *
-	 * @param bool|array $precolorized A boolean to set all columns in the table as pre-colorized, or an array of booleans keyed by column index (number) to set individual columns as pre-colorized.
+	 * @param bool|array $pre_colorized A boolean to set all columns in the table as pre-colorized, or an array of booleans keyed by column index (number) to set individual columns as pre-colorized.
 	 * @see cli\Ascii::setPreColorized()
 	 */
 	public function setAsciiPreColorized( $pre_colorized ) {

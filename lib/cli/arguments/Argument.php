@@ -25,7 +25,7 @@ class Argument extends Memoize {
 	/**
 	 * The canonical name of this argument, used for aliasing.
 	 *
-	 * @param string
+	 * @var string
 	 */
 	public $key;
 

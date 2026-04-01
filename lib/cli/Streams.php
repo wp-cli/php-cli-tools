@@ -27,11 +27,11 @@ class Streams {
 	 * then each key in the array will be the placeholder name. Placeholders are of the
 	 * format {:key}.
 	 *
-	 * @param string   $msg  The message to render.
-	 * @param mixed    ...   Either scalar arguments or a single array argument.
+	 * @param string  $msg  The message to render.
+	 * @param mixed   ...$args Either scalar arguments or a single array argument.
 	 * @return string  The rendered string.
 	 */
-	public static function render( $msg ) {
+	public static function render( $msg, ...$args ) {
 		$args = func_get_args();
 
 		// No string replacement is needed
@@ -66,11 +66,11 @@ class Streams {
 	 * through `sprintf` before output.
 	 *
 	 * @param string  $msg  The message to output in `printf` format.
-	 * @param mixed   ...   Either scalar arguments or a single array argument.
+	 * @param mixed   ...$args Either scalar arguments or a single array argument.
 	 * @return void
 	 * @see \cli\render()
 	 */
-	public static function out( $msg ) {
+	public static function out( $msg, ...$args ) {
 		fwrite( static::$out, self::_call( 'render', func_get_args() ) );
 	}
 
@@ -78,11 +78,11 @@ class Streams {
 	 * Pads `$msg` to the width of the shell before passing to `cli\out`.
 	 *
 	 * @param string  $msg  The message to pad and pass on.
-	 * @param mixed   ...   Either scalar arguments or a single array argument.
+	 * @param mixed   ...$args Either scalar arguments or a single array argument.
 	 * @return void
 	 * @see cli\out()
 	 */
-	public static function out_padded( $msg ) {
+	public static function out_padded( $msg, ...$args ) {
 		$msg = self::_call( 'render', func_get_args() );
 		self::out( str_pad( $msg, \cli\Shell::columns() ) );
 	}
@@ -107,10 +107,10 @@ class Streams {
 	 *
 	 * @param string  $msg  The message to output in `printf` format. With no string,
 	 *                      a newline is printed.
-	 * @param mixed   ...   Either scalar arguments or a single array argument.
+	 * @param mixed   ...$args Either scalar arguments or a single array argument.
 	 * @return void
 	 */
-	public static function err( $msg = '' ) {
+	public static function err( $msg = '', ...$args ) {
 		// func_get_args is empty if no args are passed even with the default above.
 		$args = array_merge( func_get_args(), array( '' ) );
 		$args[0] .= "\n";

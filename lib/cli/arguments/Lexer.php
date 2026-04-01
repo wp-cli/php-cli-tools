@@ -32,7 +32,7 @@ class Lexer extends Memoize implements \Iterator {
 	/**
 	 * The current token.
 	 *
-	 * @return string
+	 * @return Argument
 	 */
 	#[\ReturnTypeWillChange]
 	public function current() {
