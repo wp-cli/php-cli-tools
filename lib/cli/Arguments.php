@@ -484,12 +484,15 @@ class Arguments implements \ArrayAccess {
 		$values = array();
 
 		// Loop until we find a flag in peak-ahead
-		foreach ($this->_lexer as $value) {
-			array_push($values, $value->raw);
+		while ( $this->_lexer->valid() ) {
+			$value = $this->_lexer->current();
+			array_push( $values, $value->raw );
 
-			if (!$this->_lexer->end() && !$this->_lexer->peek->isValue) {
+			// @phpstan-ignore-next-line
+			if ( ! $this->_lexer->end() && ! $this->_lexer->peek->isValue ) {
 				break;
 			}
+			$this->_lexer->next();
 		}
 
 		$this[$option->key] = join(' ', $values);
