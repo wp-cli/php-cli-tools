@@ -56,6 +56,8 @@ function out_padded( $msg, ...$args ) {
  * Prints a message to `STDOUT` with a newline appended. See `\cli\out` for
  * more documentation.
  *
+ * @param string $msg Message to print.
+ * @return void
  * @see cli\out()
  */
 function line( $msg = '' ) {
@@ -140,7 +142,7 @@ function confirm( $question, $default = false ) {
  * choose an option. The array must be a single dimension with either strings
  * or objects with a `__toString()` method.
  *
- * @param array  $items   The list of items the user can choose from.
+ * @param array<int|string, mixed>  $items   The list of items the user can choose from.
  * @param string $default The index of the default item.
  * @param string $title   The message displayed to the user when prompted.
  * @return string  The index of the chosen item.
@@ -262,6 +264,8 @@ function safe_substr( $str, $start, $length = false, $is_width = false, $encodin
 /**
  * Internal function used by `safe_substr()` to adjust for East Asian double-width chars.
  *
+ * @param string $str
+ * @param int $length
  * @return string
  */
 function _safe_substr_eaw( $str, $length ) {
@@ -393,8 +397,8 @@ function can_use_pcre_x() {
 /**
  * Get the regexs generated from Unicode data.
  *
- * @param string $idx Optional. Return a specific regex only. Default null.
- * @return array|string  Returns keyed array if not given $idx or $idx doesn't exist, otherwise the specific regex string.
+ * @param string|null $idx Optional. Return a specific regex only. Default null.
+ * @return array<int, string>|string  Returns keyed array if not given $idx or $idx doesn't exist, otherwise the specific regex string.
  */
 function get_unicode_regexs( $idx = null ) {
 	static $eaw_regex; // East Asian Width regex. Characters that count as 2 characters as they're "wide" or "fullwidth". See http://www.unicode.org/reports/tr11/tr11-19.html

@@ -18,7 +18,7 @@ namespace cli\tree;
 abstract class Renderer {
 
     /**
-     * @param array $tree
+     * @param array<int|string, mixed> $tree
      * @return string|null
      */
     abstract public function render(array $tree);

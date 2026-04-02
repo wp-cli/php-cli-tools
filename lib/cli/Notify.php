@@ -24,14 +24,23 @@ use cli\Streams;
  * of characters to indicate progress is being made.
  */
 abstract class Notify {
+	/** @var int */
 	protected $_current = 0;
+	/** @var bool */
 	protected $_first = true;
+	/** @var int */
 	protected $_interval;
+	/** @var string */
 	protected $_message;
+	/** @var int|null */
 	protected $_start;
+	/** @var float|null */
 	protected $_timer;
+	/** @var float|int|null */
 	protected $_tick;
+	/** @var int */
 	protected $_iteration = 0;
+	/** @var float|int */
 	protected $_speed = 0;
 
 	/**
@@ -52,11 +61,14 @@ abstract class Notify {
 	 * @abstract
 	 * @param boolean  $finish
 	 * @see cli\Notify::tick()
+	 * @return void
 	 */
 	abstract public function display($finish = false);
 
 	/**
 	 * Reset the notifier state so the same instance can be used in multiple loops.
+	 *
+	 * @return void
 	 */
 	public function reset() {
 		$this->_current = 0;
@@ -128,6 +140,7 @@ abstract class Notify {
 	 * no longer needed.
 	 *
 	 * @see cli\Notify::display()
+	 * @return void
 	 */
 	public function finish() {
 		Streams::out("\r");
@@ -140,6 +153,7 @@ abstract class Notify {
 	 * the ticker is incremented by 1.
 	 *
 	 * @param int  $increment  The amount to increment by.
+	 * @return void
 	 */
 	public function increment($increment = 1) {
 		$this->_current += $increment;
@@ -174,6 +188,7 @@ abstract class Notify {
 	 * @see cli\Notify::increment()
 	 * @see cli\Notify::shouldUpdate()
 	 * @see cli\Notify::display()
+	 * @return void
 	 */
 	public function tick($increment = 1) {
 		$this->increment($increment);

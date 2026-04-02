@@ -20,6 +20,10 @@ use cli\Memoize;
  * @property-read bool $isLong
  * @property-read bool $isShort
  * @property-read bool $isArgument
+ * @property-read bool $canExplode
+ * @property-read array<int, string> $exploded
+ * @property-read string $raw
+ * @property-read bool $isValue
  */
 class Argument extends Memoize {
 	/**
@@ -29,7 +33,9 @@ class Argument extends Memoize {
 	 */
 	public $key;
 
+	/** @var string */
 	private $_argument;
+	/** @var string */
 	private $_raw;
 
 	/**
@@ -125,7 +131,7 @@ class Argument extends Memoize {
 	 * Returns all but the first character of the argument, removing them from the
 	 * objects representation at the same time.
 	 *
-	 * @return array
+	 * @return array<int, string>
 	 */
 	public function exploded() {
 		$exploded = array();

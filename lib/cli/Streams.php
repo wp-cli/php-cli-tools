@@ -4,15 +4,30 @@ namespace cli;
 
 class Streams {
 
+	/** @var resource */
 	protected static $out = STDOUT;
+	/** @var resource */
 	protected static $in = STDIN;
+	/** @var resource */
 	protected static $err = STDERR;
 
+	/**
+	 * Call a method on this class.
+	 *
+	 * @param string $func The method name.
+	 * @param array<int, mixed> $args The arguments.
+	 * @return mixed
+	 */
 	static function _call( $func, $args ) {
 		$method = __CLASS__ . '::' . $func;
 		return call_user_func_array( $method, $args );
 	}
 
+	/**
+	 * Check if the stream is a TTY.
+	 *
+	 * @return bool
+	 */
 	static public function isTty() {
 		if ( function_exists('stream_isatty') ) {
 			return stream_isatty(static::$out);
@@ -91,6 +106,8 @@ class Streams {
 	 * Prints a message to `STDOUT` with a newline appended. See `\cli\out` for
 	 * more documentation.
 	 *
+	 * @param string $msg The message to print.
+	 * @return void
 	 * @see cli\out()
 	 */
 	public static function line( $msg = '' ) {
@@ -215,8 +232,8 @@ class Streams {
 	 * choose an option. The array must be a single dimension with either strings
 	 * or objects with a `__toString()` method.
 	 *
-	 * @param array   $items    The list of items the user can choose from.
-	 * @param string  $default  The index of the default item.
+	 * @param array<int|string, mixed>   $items    The list of items the user can choose from.
+	 * @param string|null  $default  The index of the default item.
 	 * @param string  $title    The message displayed to the user when prompted.
 	 * @return string  The index of the chosen item.
 	 * @see cli\line()

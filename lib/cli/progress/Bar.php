@@ -26,9 +26,13 @@ use cli\Streams;
  *   ^MSG  PER% [=======================            ]  00:00 / 00:00$
  */
 class Bar extends Progress {
+	/** @var string */
 	protected $_bars = '=>';
+	/** @var string */
 	protected $_formatMessage = '{:msg}  {:percent}% [';
+	/** @var string */
 	protected $_formatTiming = '] {:elapsed} / {:estimated}';
+	/** @var string */
 	protected $_format = '{:msg}{:bar}{:timing}';
 
 	/**
@@ -61,6 +65,7 @@ class Bar extends Progress {
 	 *
 	 * @param boolean  $finish  `true` if this was called from
 	 *                          `cli\Notify::finish()`, `false` otherwise.
+	 * @return void
 	 * @see cli\out()
 	 * @see cli\Notify::formatTime()
 	 * @see cli\Notify::elapsed()
@@ -104,6 +109,7 @@ class Bar extends Progress {
 	 *
 	 * @param int    $increment The amount to increment by.
 	 * @param string $msg       The text to display next to the Notifier. (optional)
+	 * @return void
 	 * @see cli\Notify::tick()
 	 */
 	public function tick($increment = 1, $msg = null) {

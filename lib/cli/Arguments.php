@@ -19,14 +19,23 @@ use cli\arguments\Lexer;
 
 /**
  * Parses command line arguments.
+ *
+ * @implements \ArrayAccess<string, mixed>
  */
 class Arguments implements \ArrayAccess {
+	/** @var array<string, array<string, mixed>> */
 	protected $_flags = array();
+	/** @var array<string, array<string, mixed>> */
 	protected $_options = array();
+	/** @var bool */
 	protected $_strict = false;
+	/** @var array<int, string> */
 	protected $_input = array();
+	/** @var array<int, string> */
 	protected $_invalid = array();
+	/** @var array<string, mixed>|null */
 	protected $_parsed;
+	/** @var Lexer|null */
 	protected $_lexer;
 
 	/**
@@ -36,7 +45,7 @@ class Arguments implements \ArrayAccess {
 	 *
 	 * `'help'` is `true` by default, `'strict'` is false by default.
 	 *
-	 * @param  array  $options  An array of options for this parser.
+	 * @param  array<string, mixed>  $options  An array of options for this parser.
 	 */
 	public function __construct($options = array()) {
 		$options += array(
@@ -58,7 +67,7 @@ class Arguments implements \ArrayAccess {
 	/**
 	 * Get the list of arguments found by the defined definitions.
 	 *
-	 * @return array
+	 * @return array<string, mixed>
 	 */
 	public function getArguments() {
 		if (!isset($this->_parsed)) {
@@ -67,6 +76,11 @@ class Arguments implements \ArrayAccess {
 		return $this->_parsed;
 	}
 
+	/**
+	 * Get the help screen.
+	 *
+	 * @return HelpScreen
+	 */
 	public function getHelpScreen() {
 		return new HelpScreen($this);
 	}
@@ -147,7 +161,7 @@ class Arguments implements \ArrayAccess {
 	 * Adds a flag (boolean argument) to the argument list.
 	 *
 	 * @param mixed  $flag  A string representing the flag, or an array of strings.
-	 * @param array  $settings  An array of settings for this flag.
+	 * @param array<string, mixed>|string  $settings  An array of settings for this flag.
 	 * @setting string  description  A description to be shown in --help.
 	 * @setting bool    default  The default value for this flag.
 	 * @setting bool    stackable  Whether the flag is repeatable to increase the value.
@@ -183,7 +197,7 @@ class Arguments implements \ArrayAccess {
 	 * primary flag character, and the values should be the settings array
 	 * used by {addFlag}.
 	 *
-	 * @param array  $flags  An array of flags to add
+	 * @param array<string, array<string, mixed>|string>  $flags  An array of flags to add
 	 * @return $this
 	 */
 	public function addFlags($flags) {
@@ -203,7 +217,7 @@ class Arguments implements \ArrayAccess {
 	 * Adds an option (string argument) to the argument list.
 	 *
 	 * @param mixed  $option  A string representing the option, or an array of strings.
-	 * @param array  $settings  An array of settings for this option.
+	 * @param array<string, mixed>|string  $settings  An array of settings for this option.
 	 * @setting string  description  A description to be shown in --help.
 	 * @setting bool    default  The default value for this option.
 	 * @setting array   aliases  Other ways to trigger this option.
@@ -237,7 +251,7 @@ class Arguments implements \ArrayAccess {
 	 * primary option string, and the values should be the settings array
 	 * used by {addOption}.
 	 *
-	 * @param array  $options  An array of options to add
+	 * @param array<string, array<string, mixed>|string>  $options  An array of options to add
 	 * @return $this
 	 */
 	public function addOptions($options) {
@@ -271,7 +285,7 @@ class Arguments implements \ArrayAccess {
 	/**
 	 * Get the list of invalid arguments the parser found.
 	 *
-	 * @return array
+	 * @return array<int, string>
 	 */
 	public function getInvalidArguments() {
 		return $this->_invalid;
@@ -282,7 +296,7 @@ class Arguments implements \ArrayAccess {
 	 *
 	 * @param mixed  $flag  Either a string representing the flag or an
 	 *                      cli\arguments\Argument object.
-	 * @return array|null
+	 * @return array<string, mixed>|null
 	 */
 	public function getFlag($flag) {
 		if ($flag instanceOf Argument) {
@@ -308,10 +322,20 @@ class Arguments implements \ArrayAccess {
 		return null;
 	}
 
+	/**
+	 * Get all flags.
+	 *
+	 * @return array<string, array<string, mixed>>
+	 */
 	public function getFlags() {
 		return $this->_flags;
 	}
 
+	/**
+	 * Check if there are any flags defined.
+	 *
+	 * @return bool
+	 */
 	public function hasFlags() {
 		return !empty($this->_flags);
 	}
@@ -345,7 +369,7 @@ class Arguments implements \ArrayAccess {
 	 *
 	 * @param mixed  $option Either a string representing the option or an
 	 *                       cli\arguments\Argument object.
-	 * @return array|null
+	 * @return array<string, mixed>|null
 	 */
 	public function getOption($option) {
 		if ($option instanceOf Argument) {
@@ -370,10 +394,20 @@ class Arguments implements \ArrayAccess {
 		return null;
 	}
 
+	/**
+	 * Get all options.
+	 *
+	 * @return array<string, array<string, mixed>>
+	 */
 	public function getOptions() {
 		return $this->_options;
 	}
 
+	/**
+	 * Check if there are any options defined.
+	 *
+	 * @return bool
+	 */
 	public function hasOptions() {
 		return !empty($this->_options);
 	}
@@ -424,6 +458,8 @@ class Arguments implements \ArrayAccess {
 	 * This applies the default values, if any, of all of the
 	 * flags and options, so that if there is a default value
 	 * it will be available.
+	 *
+	 * @return void
 	 */
 	private function _applyDefaults() {
 		foreach($this->_flags as $flag => $settings) {
@@ -438,10 +474,22 @@ class Arguments implements \ArrayAccess {
 		}
 	}
 
+	/**
+	 * Warn about something.
+	 *
+	 * @param string $message
+	 * @return void
+	 */
 	private function _warn($message) {
 		trigger_error('[' . __CLASS__ .'] ' . $message, E_USER_WARNING);
 	}
 
+	/**
+	 * Parse a flag.
+	 *
+	 * @param Argument $argument
+	 * @return bool
+	 */
 	private function _parseFlag($argument) {
 		if (!$this->isFlag($argument)) {
 			return false;
@@ -460,6 +508,12 @@ class Arguments implements \ArrayAccess {
 		return true;
 	}
 
+	/**
+	 * Parse an option.
+	 *
+	 * @param Argument $option
+	 * @return bool
+	 */
 	private function _parseOption($option) {
 		if (!$this->isOption($option)) {
 			return false;
@@ -490,7 +544,6 @@ class Arguments implements \ArrayAccess {
 			$value = $this->_lexer->current();
 			array_push( $values, $value->raw );
 
-			// @phpstan-ignore-next-line
 			if ( ! $this->_lexer->end() && ! $this->_lexer->peek->isValue ) {
 				break;
 			}

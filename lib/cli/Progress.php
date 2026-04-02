@@ -20,6 +20,7 @@ namespace cli;
  * @see cli\Notify
  */
 abstract class Progress extends \cli\Notify {
+	/** @var int */
 	protected $_total = 0;
 
 	/**
@@ -40,6 +41,7 @@ abstract class Progress extends \cli\Notify {
 	 *
 	 * @param int  $total  The total number of times this indicator should be `tick`ed.
 	 * @throws \InvalidArgumentException  Thrown if the `$total` is less than 0.
+	 * @return void
 	 */
 	public function setTotal($total) {
 		$this->_total = (int)$total;
@@ -51,6 +53,9 @@ abstract class Progress extends \cli\Notify {
 
 	/**
 	 * Reset the progress state so the same instance can be used in multiple loops.
+	 *
+	 * @param int|null $total Optional new total.
+	 * @return void
 	 */
 	public function reset($total = null) {
 		parent::reset();
@@ -103,6 +108,8 @@ abstract class Progress extends \cli\Notify {
 	/**
 	 * Forces the current tick count to the total ticks given at instantiation
 	 * time before passing on to `cli\Notify::finish()`.
+	 *
+	 * @return void
 	 */
 	public function finish() {
 		$this->_current = $this->_total;
@@ -114,6 +121,7 @@ abstract class Progress extends \cli\Notify {
 	 * the ticker is incremented by 1.
 	 *
 	 * @param int  $increment  The amount to increment by.
+	 * @return void
 	 */
 	public function increment($increment = 1) {
 		$this->_current = min($this->_total, $this->_current + $increment);

@@ -34,22 +34,42 @@ class Ascii extends Renderer {
 	 */
 	private const ELLIPSIS_WIDTH = 3;
 
+	/**
+	 * @var array<string, string>
+	 */
 	protected $_characters = array(
 		'corner'  => '+',
 		'line'    => '-',
 		'border'  => '|',
 		'padding' => ' ',
 	);
+
+	/**
+	 * @var string|null
+	 */
 	protected $_border = null;
+
+	/**
+	 * @var int|null
+	 */
 	protected $_constraintWidth = null;
+
+	/**
+	 * @var bool|array<int, bool>
+	 */
 	protected $_pre_colorized = false;
+
+	/**
+	 * @var string
+	 */
 	protected $_wrapping_mode = 'wrap'; // 'wrap', 'word-wrap', or 'truncate'
 
 	/**
 	 * Set the widths of each column in the table.
 	 *
-	 * @param array  $widths    The widths of the columns.
-	 * @param bool   $fallback  Whether to use these values as fallback only.
+	 * @param array<int, int> $widths   The widths of the columns.
+	 * @param bool            $fallback Whether to use these values as fallback only.
+	 * @return void
 	 */
 	public function setWidths(array $widths, $fallback = false) {
 		if ($fallback) {
@@ -107,6 +127,7 @@ class Ascii extends Renderer {
 	 * Set the constraint width for the table
 	 *
 	 * @param int $constraintWidth
+	 * @return void
 	 */
 	public function setConstraintWidth( $constraintWidth ) {
 		$this->_constraintWidth = $constraintWidth;
@@ -117,6 +138,7 @@ class Ascii extends Renderer {
 	 *
 	 * @param string $mode One of: 'wrap' (default - wrap at character boundaries),
 	 *                     'word-wrap' (wrap at word boundaries), or 'truncate' (truncate with ellipsis).
+	 * @return void
 	 */
 	public function setWrappingMode( $mode ) {
 		if ( ! in_array( $mode, self::VALID_WRAPPING_MODES, true ) ) {
@@ -130,7 +152,8 @@ class Ascii extends Renderer {
 	 *
 	 * The keys `corner`, `line` and `border` are used in rendering.
 	 *
-	 * @param $characters  array  Characters used in rendering.
+	 * @param array<string, string> $characters Characters used in rendering.
+	 * @return void
 	 */
 	public function setCharacters(array $characters) {
 		$this->_characters = array_merge($this->_characters, $characters);
@@ -157,8 +180,8 @@ class Ascii extends Renderer {
 	/**
 	 * Renders a row for output.
 	 *
-	 * @param array  $row  The table row.
-	 * @return string  The formatted table row.
+	 * @param array<int, mixed> $row The table row.
+	 * @return string The formatted table row.
 	 */
 	public function row( array $row ) {
 
@@ -237,7 +260,14 @@ class Ascii extends Renderer {
 		return Column::ALIGN_LEFT;
 	}
 
-	private function padColumn($content, $column) {
+	/**
+	 * Pad a column value.
+	 *
+	 * @param string $content The column content.
+	 * @param int    $column  The column index.
+	 * @return string The padded column.
+	 */
+	private function padColumn( $content, $column ) {
 		$alignment = $this->getColumnAlignment( $column );
 		$content = str_replace( "\t", '    ', (string) $content );
 		return $this->_characters['padding'] . Colors::pad( $content, $this->_widths[ $column ], $this->isPreColorized( $column ), false, $alignment ) . $this->_characters['padding'];
@@ -246,7 +276,8 @@ class Ascii extends Renderer {
 	/**
 	 * Set whether items are pre-colorized.
 	 *
-	 * @param bool|array $pre_colorized A boolean to set all columns in the table as pre-colorized, or an array of booleans keyed by column index (number) to set individual columns as pre-colorized.
+	 * @param bool|array<int, bool> $pre_colorized A boolean to set all columns in the table as pre-colorized, or an array of booleans keyed by column index (number) to set individual columns as pre-colorized.
+	 * @return void
 	 */
 	public function setPreColorized( $pre_colorized ) {
 		$this->_pre_colorized = $pre_colorized;
@@ -259,7 +290,7 @@ class Ascii extends Renderer {
 	 * @param int         $width     The maximum width.
 	 * @param string|bool $encoding  The text encoding.
 	 * @param bool        $is_precolorized Whether the text is pre-colorized.
-	 * @return array Array of wrapped lines.
+	 * @return array<int, string> Array of wrapped lines.
 	 */
 	protected function wrapText( $text, $width, $encoding, $is_precolorized ) {
 		if ( ! $width ) {
@@ -319,7 +350,7 @@ class Ascii extends Renderer {
 	 * @param int         $width     The maximum width.
 	 * @param string|bool $encoding  The text encoding.
 	 * @param bool        $is_precolorized Whether the text is pre-colorized.
-	 * @return array Array of wrapped lines.
+	 * @return array<int, string> Array of wrapped lines.
 	 */
 	protected function wordWrap( $text, $width, $encoding, $is_precolorized ) {
 		$wrapped_lines = array();

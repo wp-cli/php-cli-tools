@@ -18,24 +18,42 @@ use cli\Arguments;
  * Arguments help screen renderer
  */
 class HelpScreen {
+	/** @var array<string, array<string, mixed>> */
 	protected $_flags = array();
+	/** @var int */
 	protected $_flagMax = 0;
+	/** @var array<string, array<string, mixed>> */
 	protected $_options = array();
+	/** @var int */
 	protected $_optionMax = 0;
 
+	/**
+	 * @param Arguments $arguments
+	 */
 	public function __construct(Arguments $arguments) {
 		$this->setArguments($arguments);
 	}
 
+	/**
+	 * @return string
+	 */
 	public function __toString() {
 		return $this->render();
 	}
 
+	/**
+	 * @param Arguments $arguments
+	 * @return void
+	 */
 	public function setArguments(Arguments $arguments) {
 		$this->consumeArgumentFlags($arguments);
 		$this->consumeArgumentOptions($arguments);
 	}
 
+	/**
+	 * @param Arguments $arguments
+	 * @return void
+	 */
 	public function consumeArgumentFlags(Arguments $arguments) {
 		$data = $this->_consume($arguments->getFlags());
 
@@ -43,6 +61,10 @@ class HelpScreen {
 		$this->_flagMax = $data[1];
 	}
 
+		/**
+	 * @param Arguments $arguments
+	 * @return void
+	 */
 	public function consumeArgumentOptions(Arguments $arguments) {
 		$data = $this->_consume($arguments->getOptions());
 
@@ -50,6 +72,9 @@ class HelpScreen {
 		$this->_optionMax = $data[1];
 	}
 
+	/**
+	 * @return string
+	 */
 	public function render() {
 		$help = array();
 
@@ -59,6 +84,9 @@ class HelpScreen {
 		return join("\n\n", $help);
 	}
 
+	/**
+	 * @return string|null
+	 */
 	private function _renderFlags() {
 		if (empty($this->_flags)) {
 			return null;
@@ -67,6 +95,9 @@ class HelpScreen {
 		return "Flags\n" . $this->_renderScreen($this->_flags, $this->_flagMax);
 	}
 
+	/**
+	 * @return string|null
+	 */
 	private function _renderOptions() {
 		if (empty($this->_options)) {
 			return null;
@@ -75,6 +106,11 @@ class HelpScreen {
 		return "Options\n" . $this->_renderScreen($this->_options, $this->_optionMax);
 	}
 
+	/**
+	 * @param array<string, array<string, mixed>> $options
+	 * @param int $max
+	 * @return string
+	 */
 	private function _renderScreen($options, $max) {
 		$help = array();
 		foreach ($options as $option => $settings) {
@@ -100,6 +136,10 @@ class HelpScreen {
 		return join("\n", $help);
 	}
 
+	/**
+	 * @param array<string, array<string, mixed>> $options
+	 * @return array{0: array<string, array<string, mixed>>, 1: int}
+	 */
 	private function _consume($options) {
 		$max = 0;
 		$out = array();
