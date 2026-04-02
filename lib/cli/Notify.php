@@ -120,7 +120,7 @@ abstract class Notify {
 	 * @return string  The formatted time span.
 	 */
 	public function formatTime($time) {
-		return floor($time / 60) . ':' . str_pad($time % 60, 2, 0, STR_PAD_LEFT);
+		return sprintf('%02d:%02d', (int)floor($time / 60), $time % 60);
 	}
 
 	/**

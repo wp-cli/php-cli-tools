@@ -71,7 +71,7 @@ class Bar extends Progress {
 	public function display($finish = false) {
 		$_percent = $this->percent();
 
-		$percent = str_pad(floor($_percent * 100), 3);
+		$percent = str_pad((string)(int)floor($_percent * 100), 3);
 		$msg = $this->_message;
 		$current = $this->current();
 		$total = $this->total();
@@ -91,7 +91,7 @@ class Bar extends Progress {
 			$size = 0;
 		}
 
-		$bar = str_repeat($this->_bars[0], floor($_percent * $size)) . $this->_bars[1];
+		$bar = str_repeat($this->_bars[0], (int)floor($_percent * $size)) . $this->_bars[1];
 		// substr is needed to trim off the bar cap at 100%
 		$bar = substr(str_pad($bar, $size, ' '), 0, $size);
 

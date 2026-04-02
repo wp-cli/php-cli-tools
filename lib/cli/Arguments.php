@@ -483,6 +483,8 @@ class Arguments implements \ArrayAccess {
 		// Store as array and join to string after looping for values
 		$values = array();
 
+		$this->_lexer->next();
+
 		// Loop until we find a flag in peak-ahead
 		while ( $this->_lexer->valid() ) {
 			$value = $this->_lexer->current();
