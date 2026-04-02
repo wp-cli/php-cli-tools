@@ -99,7 +99,9 @@ class Shell {
 
 	/**
 	 * Uses `stty` to hide input/output completely.
+	 *
 	 * @param boolean $hidden Will hide/show the next data. Defaults to true.
+	 * @return void
 	 */
 	static public function hide($hidden = true) {
 		system( 'stty ' . ( $hidden? '-echo' : 'echo' ) );

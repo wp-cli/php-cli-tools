@@ -14,15 +14,25 @@ namespace cli\arguments;
 
 use cli\Memoize;
 
+/**
+ * @property-read Argument $peek
+ *
+ * @implements \Iterator<int, Argument>
+ */
 class Lexer extends Memoize implements \Iterator {
+	/** @var Argument|null */
 	private $_item;
+	/** @var array<int, string> */
 	private $_items = array();
+	/** @var int */
 	private $_index = 0;
+	/** @var int */
 	private $_length = 0;
+	/** @var bool */
 	private $_first = true;
 
 	/**
-	 * @param array  $items  A list of strings to process as tokens.
+	 * @param array<int, string>  $items  A list of strings to process as tokens.
 	 */
 	public function __construct(array $items) {
 		$this->_items = $items;
@@ -32,7 +42,7 @@ class Lexer extends Memoize implements \Iterator {
 	/**
 	 * The current token.
 	 *
-	 * @return string
+	 * @return Argument
 	 */
 	#[\ReturnTypeWillChange]
 	public function current() {
@@ -95,6 +105,7 @@ class Lexer extends Memoize implements \Iterator {
 	 * Push an element to the front of the stack.
 	 *
 	 * @param mixed  $item  The value to set
+	 * @return void
 	 */
 	public function unshift($item) {
 		array_unshift($this->_items, $item);
@@ -110,6 +121,9 @@ class Lexer extends Memoize implements \Iterator {
 		return ($this->_index + 1) == $this->_length;
 	}
 
+	/**
+	 * @return void
+	 */
 	private function _shift() {
 		$this->_item = new Argument(array_shift($this->_items));
 		$this->_index += 1;
@@ -117,9 +131,12 @@ class Lexer extends Memoize implements \Iterator {
 		$this->_unmemo('peek');
 	}
 
+	/**
+	 * @return void
+	 */
 	private function _explode() {
 		if (!$this->_item->canExplode) {
-			return false;
+			return;
 		}
 
 		foreach ($this->_item->exploded as $piece) {

@@ -4,15 +4,30 @@ namespace cli;
 
 class Streams {
 
+	/** @var resource */
 	protected static $out = STDOUT;
+	/** @var resource */
 	protected static $in = STDIN;
+	/** @var resource */
 	protected static $err = STDERR;
 
+	/**
+	 * Call a method on this class.
+	 *
+	 * @param string $func The method name.
+	 * @param array<int, mixed> $args The arguments.
+	 * @return mixed
+	 */
 	static function _call( $func, $args ) {
 		$method = __CLASS__ . '::' . $func;
 		return call_user_func_array( $method, $args );
 	}
 
+	/**
+	 * Check if the stream is a TTY.
+	 *
+	 * @return bool
+	 */
 	static public function isTty() {
 		if ( function_exists('stream_isatty') ) {
 			return stream_isatty(static::$out);
@@ -27,11 +42,11 @@ class Streams {
 	 * then each key in the array will be the placeholder name. Placeholders are of the
 	 * format {:key}.
 	 *
-	 * @param string   $msg  The message to render.
-	 * @param mixed    ...   Either scalar arguments or a single array argument.
+	 * @param string  $msg  The message to render.
+	 * @param mixed   ...$args Either scalar arguments or a single array argument.
 	 * @return string  The rendered string.
 	 */
-	public static function render( $msg ) {
+	public static function render( $msg, ...$args ) {
 		$args = func_get_args();
 
 		// No string replacement is needed
@@ -66,11 +81,11 @@ class Streams {
 	 * through `sprintf` before output.
 	 *
 	 * @param string  $msg  The message to output in `printf` format.
-	 * @param mixed   ...   Either scalar arguments or a single array argument.
+	 * @param mixed   ...$args Either scalar arguments or a single array argument.
 	 * @return void
 	 * @see \cli\render()
 	 */
-	public static function out( $msg ) {
+	public static function out( $msg, ...$args ) {
 		fwrite( static::$out, self::_call( 'render', func_get_args() ) );
 	}
 
@@ -78,11 +93,11 @@ class Streams {
 	 * Pads `$msg` to the width of the shell before passing to `cli\out`.
 	 *
 	 * @param string  $msg  The message to pad and pass on.
-	 * @param mixed   ...   Either scalar arguments or a single array argument.
+	 * @param mixed   ...$args Either scalar arguments or a single array argument.
 	 * @return void
 	 * @see cli\out()
 	 */
-	public static function out_padded( $msg ) {
+	public static function out_padded( $msg, ...$args ) {
 		$msg = self::_call( 'render', func_get_args() );
 		self::out( str_pad( $msg, \cli\Shell::columns() ) );
 	}
@@ -91,6 +106,8 @@ class Streams {
 	 * Prints a message to `STDOUT` with a newline appended. See `\cli\out` for
 	 * more documentation.
 	 *
+	 * @param string $msg The message to print.
+	 * @return void
 	 * @see cli\out()
 	 */
 	public static function line( $msg = '' ) {
@@ -107,10 +124,10 @@ class Streams {
 	 *
 	 * @param string  $msg  The message to output in `printf` format. With no string,
 	 *                      a newline is printed.
-	 * @param mixed   ...   Either scalar arguments or a single array argument.
+	 * @param mixed   ...$args Either scalar arguments or a single array argument.
 	 * @return void
 	 */
-	public static function err( $msg = '' ) {
+	public static function err( $msg = '', ...$args ) {
 		// func_get_args is empty if no args are passed even with the default above.
 		$args = array_merge( func_get_args(), array( '' ) );
 		$args[0] .= "\n";
@@ -215,8 +232,8 @@ class Streams {
 	 * choose an option. The array must be a single dimension with either strings
 	 * or objects with a `__toString()` method.
 	 *
-	 * @param array   $items    The list of items the user can choose from.
-	 * @param string  $default  The index of the default item.
+	 * @param array<int|string, mixed>   $items    The list of items the user can choose from.
+	 * @param string|null  $default  The index of the default item.
 	 * @param string  $title    The message displayed to the user when prompted.
 	 * @return string  The index of the chosen item.
 	 * @see cli\line()

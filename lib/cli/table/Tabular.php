@@ -19,12 +19,15 @@ class Tabular extends Renderer {
 	/**
 	 * Renders a row for output.
 	 *
-	 * @param array  $row  The table row.
-	 * @return string  The formatted table row.
+	 * @param array<int, mixed> $row The table row.
+	 * @return string The formatted table row.
 	 */
 	public function row( array $row ) {
-		$rows   = [];
-		$output = '';
+		/** @var array<int, array<int, string>> $rows */
+		$rows        = [];
+		$output      = '';
+		$split_lines = [];
+		$col         = null;
 
 		foreach ( $row as $col => $value ) {
 			$value       = isset( $value ) ? (string) $value : '';
@@ -44,7 +47,7 @@ class Tabular extends Renderer {
 		}
 
 		foreach ( $rows as $r ) {
-			$output .= implode( "\t", array_values( $r ) ) . PHP_EOL;
+			$output .= implode( "\t", $r ) . PHP_EOL;
 		}
 		return rtrim( $output, PHP_EOL );
 	}

@@ -17,7 +17,9 @@ namespace cli;
  */
 class Tree {
 
+    /** @var \cli\tree\Renderer */
     protected $_renderer;
+    /** @var array<mixed> */
     protected $_data = array();
 
     /**
@@ -27,6 +29,7 @@ class Tree {
      * @see   tree\Renderer
      * @see   tree\Ascii
      * @see   tree\Markdown
+     * @return void
      */
     public function setRenderer(tree\Renderer $renderer) {
         $this->_renderer = $renderer;
@@ -41,7 +44,8 @@ class Tree {
      *         ],
      *         'Thing',
      *     ]
-     * @param array $data
+     * @param array<mixed> $data
+     * @return void
      */
     public function setData(array $data)
     {
@@ -60,6 +64,8 @@ class Tree {
 
     /**
      * Display the rendered tree
+     *
+     * @return void
      */
     public function display()
     {

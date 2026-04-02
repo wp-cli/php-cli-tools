@@ -19,9 +19,12 @@ use cli\Streams;
  * A Notifier that displays a string of periods.
  */
 class Dots extends Notify {
+	/** @var int */
 	protected $_dots;
+	/** @var string */
 	protected $_format = '{:msg}{:dots}  ({:elapsed}, {:speed}/s)';
-	protected $_iteration;
+	/** @var int */
+	protected $_iteration = 0;
 
 	/**
 	 * Instantiates a Notification object.
@@ -46,6 +49,7 @@ class Dots extends Notify {
 	 *
 	 * @param boolean  $finish  `true` if this was called from
 	 *                          `cli\Notify::finish()`, `false` otherwise.
+	 * @return void
 	 * @see cli\out_padded()
 	 * @see cli\Notify::formatTime()
 	 * @see cli\Notify::speed()

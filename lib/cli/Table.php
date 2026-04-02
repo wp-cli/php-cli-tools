@@ -23,17 +23,23 @@ use cli\table\Tabular;
  * The `Table` class is used to display data in a tabular format.
  */
 class Table {
+	/** @var \cli\table\Renderer */
 	protected $_renderer;
+	/** @var array<int, string> */
 	protected $_headers = array();
+	/** @var array<int, string> */
 	protected $_footers = array();
+	/** @var array<int, int> */
 	protected $_width = array();
+	/** @var array<int, array<int, string>> */
 	protected $_rows = array();
+	/** @var array<string, int>|array<int, int> */
 	protected $_alignments = array();
 
 	/**
 	 * Cached map of valid alignment constants.
 	 *
-	 * @var array|null
+	 * @var array<string|int, int>|null
 	 */
 	private static $_valid_alignments_map = null;
 
@@ -49,10 +55,10 @@ class Table {
 	 *     table are used as the header values.
 	 *  3. Pass nothing and use `setHeaders()` and `addRow()` or `setRows()`.
 	 *
-	 * @param array  $headers    Headers used in this table. Optional.
-	 * @param array  $rows       The rows of data for this table. Optional.
-	 * @param array  $footers    Footers used in this table. Optional.
-	 * @param array  $alignments Column alignments. Optional.
+	 * @param array<mixed>  $headers    Headers used in this table. Optional.
+	 * @param array<mixed>  $rows       The rows of data for this table. Optional.
+	 * @param array<mixed>  $footers    Footers used in this table. Optional.
+	 * @param array<mixed>  $alignments Column alignments. Optional.
 	 */
 	public function __construct(array $headers = array(), array $rows = array(), array $footers = array(), array $alignments = array()) {
 		if (!empty($headers)) {
@@ -87,6 +93,11 @@ class Table {
 		}
 	}
 
+	/**
+	 * Reset the table state.
+	 *
+	 * @return $this
+	 */
 	public function resetTable()
 	{
 		$this->_headers = array();
@@ -115,6 +126,7 @@ class Table {
 	 * @see   table\Renderer
 	 * @see   table\Ascii
 	 * @see   table\Tabular
+	 * @return void
 	 */
 	public function setRenderer(Renderer $renderer) {
 		$this->_renderer = $renderer;
@@ -123,8 +135,8 @@ class Table {
 	/**
 	 * Loops through the row and sets the maximum width for each column.
 	 *
-	 * @param array  $row  The table row.
-     * @return array $row
+	 * @param array<int, string>  $row  The table row.
+	 * @return array<int, string> $row
 	 */
 	protected function checkRow(array $row) {
 		foreach ($row as $column => $str) {
@@ -146,6 +158,7 @@ class Table {
 	 * @uses cli\Shell::isPiped() Determine what format to output
 	 *
 	 * @see cli\Table::renderRow()
+	 * @return void
 	 */
 	public function display() {
 		foreach( $this->getDisplayLines() as $line ) {
@@ -159,7 +172,8 @@ class Table {
 	 * This method is useful for adding rows incrementally to an already-rendered table.
 	 * It will display the row with side borders and a bottom border (if using Ascii renderer).
 	 *
-	 * @param array $row The row data to display.
+	 * @param array<int, string> $row The row data to display.
+	 * @return void
 	 */
 	public function displayRow(array $row) {
 		// Update widths if this row has wider content
@@ -186,7 +200,7 @@ class Table {
 	 * @see cli\Table::display()
 	 * @see cli\Table::renderRow()
 	 *
-	 * @return array
+	 * @return array<int, string>
 	 */
 	public function getDisplayLines() {
 		$this->_renderer->setWidths($this->_width, $fallback = true);
@@ -227,6 +241,7 @@ class Table {
 	 * Sort the table by a column. Must be called before `cli\Table::display()`.
 	 *
 	 * @param int  $column  The index of the column to sort by.
+	 * @return void
 	 */
 	public function sort($column) {
 		if (!isset($this->_headers[$column])) {
@@ -242,7 +257,8 @@ class Table {
 	/**
 	 * Set the headers of the table.
 	 *
-	 * @param array  $headers  An array of strings containing column header names.
+	 * @param array<int, string>  $headers  An array of strings containing column header names.
+	 * @return void
 	 */
 	public function setHeaders(array $headers) {
 		$this->_headers = $this->checkRow($headers);
@@ -251,7 +267,8 @@ class Table {
 	/**
 	 * Set the footers of the table.
 	 *
-	 * @param array  $footers  An array of strings containing column footers names.
+	 * @param array<int, string>  $footers  An array of strings containing column footers names.
+	 * @return void
 	 */
 	public function setFooters(array $footers) {
 		$this->_footers = $this->checkRow($footers);
@@ -260,7 +277,8 @@ class Table {
 	/**
 	 * Set the alignments of the table.
 	 *
-	 * @param array  $alignments  An array of alignment constants keyed by column name.
+	 * @param array<string, int>|array<int, int>  $alignments  An array of alignment constants keyed by column name or index.
+	 * @return void
 	 */
 	public function setAlignments(array $alignments) {
 		// Initialize the cached valid alignments map on first use
@@ -284,8 +302,9 @@ class Table {
 	/**
 	 * Add a row to the table.
 	 *
-	 * @param array  $row  The row data.
+	 * @param array<int, string>  $row  The row data.
 	 * @see cli\Table::checkRow()
+	 * @return void
 	 */
 	public function addRow(array $row) {
 		$this->_rows[] = $this->checkRow($row);
@@ -294,8 +313,9 @@ class Table {
 	/**
 	 * Clears all previous rows and adds the given rows.
 	 *
-	 * @param array  $rows  A 2-dimensional array of row data.
+	 * @param array<int, array<int, string>>  $rows  A 2-dimensional array of row data.
 	 * @see cli\Table::addRow()
+	 * @return void
 	 */
 	public function setRows(array $rows) {
 		$this->_rows = array();
@@ -304,6 +324,11 @@ class Table {
 		}
 	}
 
+	/**
+	 * Count the number of rows in the table.
+	 *
+	 * @return int
+	 */
 	public function countRows() {
 		return count($this->_rows);
 	}
@@ -311,8 +336,9 @@ class Table {
 	/**
 	 * Set whether items in an Ascii table are pre-colorized.
 	 *
-	 * @param bool|array $precolorized A boolean to set all columns in the table as pre-colorized, or an array of booleans keyed by column index (number) to set individual columns as pre-colorized.
+	 * @param bool|array<int, bool> $pre_colorized A boolean to set all columns in the table as pre-colorized, or an array of booleans keyed by column index (number) to set individual columns as pre-colorized.
 	 * @see cli\Ascii::setPreColorized()
+	 * @return void
 	 */
 	public function setAsciiPreColorized( $pre_colorized ) {
 		if ( $this->_renderer instanceof Ascii ) {
@@ -324,8 +350,9 @@ class Table {
 	 * Set the wrapping mode for table cells.
 	 *
 	 * @param string $mode One of: 'wrap' (default - wrap at character boundaries),
-	 *                     'word-wrap' (wrap at word boundaries), or 'truncate' (truncate with ellipsis).
+	 *                     'word-wrap' (word boundaries), or 'truncate' (truncate with ellipsis).
 	 * @see cli\Ascii::setWrappingMode()
+	 * @return void
 	 */
 	public function setWrappingMode( $mode ) {
 		if ( $this->_renderer instanceof Ascii ) {

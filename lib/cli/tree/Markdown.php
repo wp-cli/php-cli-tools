@@ -37,7 +37,7 @@ class Markdown extends Renderer {
     /**
      * Renders the tree
      *
-     * @param array $tree
+     * @param array<int|string, mixed> $tree
      * @param int $level Optional
      * @return string
      */

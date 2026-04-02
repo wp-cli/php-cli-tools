@@ -1,0 +1,9 @@
+parameters:
+  level: 6
+  paths:
+    - lib
+  scanDirectories:
+    - vendor/wp-cli/wp-cli/php
+  scanFiles:
+    - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
+  treatPhpDocTypesAsCertain: false
