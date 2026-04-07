@@ -204,7 +204,7 @@ class Streams {
 	 *
 	 * @param string  $question  The question to ask the user.
 	 * @param string  $choice    A string of characters allowed as a response. Case is ignored.
-	 * @param string  $default   The default choice. NULL if a default is not allowed.
+	 * @param string|null $default   The default choice. NULL if a default is not allowed.
 	 * @return string  The users choice.
 	 * @see cli\prompt()
 	 */
@@ -214,12 +214,16 @@ class Streams {
 		}
 
 		// Make every choice character lowercase except the default
-		$choice = str_ireplace( $default, strtoupper( $default ), strtolower( $choice ) );
+		if ( null !== $default ) {
+			$choice = str_ireplace( $default, strtoupper( $default ), strtolower( $choice ) );
+		} else {
+			$choice = strtolower( $choice );
+		}
 		// Separate each choice with a forward-slash
 		$choices = trim( join( '/', str_split( $choice ) ), '/' );
 
 		while( true ) {
-			$line = self::prompt( sprintf( '%s? [%s]', $question, $choices ), $default, '' );
+			$line = self::prompt( sprintf( '%s? [%s]', $question, $choices ), $default ?? false, '' );
 
 			if( stripos( $choice, $line ) !== false ) {
 				return strtolower( $line );

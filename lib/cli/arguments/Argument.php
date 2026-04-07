@@ -140,7 +140,7 @@ class Argument extends Memoize {
 			array_push($exploded, $this->_argument[$i - 1]);
 		}
 
-		$this->_argument = array_pop($exploded);
+		$this->_argument = (string) array_pop($exploded);
 		$this->_raw      = '-' . $this->_argument;
 		return $exploded;
 	}

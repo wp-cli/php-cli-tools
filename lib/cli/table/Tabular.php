@@ -42,11 +42,13 @@ class Tabular extends Renderer {
 
 		$rows[] = $row;
 
-		foreach ( $split_lines as $i => $line ) {
-			if ( ! isset( $rows[ $i + 1 ] ) ) {
-				$rows[ $i + 1 ] = array_fill_keys( array_keys( $row ), '' );
+		if ( null !== $col ) {
+			foreach ( $split_lines as $i => $line ) {
+				if ( ! isset( $rows[ $i + 1 ] ) ) {
+					$rows[ $i + 1 ] = array_fill_keys( array_keys( $row ), '' );
+				}
+				$rows[ $i + 1 ][ $col ] = $line;
 			}
-			$rows[ $i + 1 ][ $col ] = $line;
 		}
 
 		foreach ( $rows as $r ) {

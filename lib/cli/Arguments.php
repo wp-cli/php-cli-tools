@@ -73,7 +73,7 @@ class Arguments implements \ArrayAccess {
 		if (!isset($this->_parsed)) {
 			$this->parse();
 		}
-		return $this->_parsed;
+		return $this->_parsed ?? [];
 	}
 
 	/**
@@ -110,7 +110,7 @@ class Arguments implements \ArrayAccess {
 			$offset = $offset->key;
 		}
 
-		return array_key_exists($offset, $this->_parsed);
+		return array_key_exists($offset, $this->_parsed ?? []);
 	}
 
 	/**
@@ -442,15 +442,20 @@ class Arguments implements \ArrayAccess {
 
 		$this->_applyDefaults();
 
-		foreach ($this->_lexer as $argument) {
-			if ($this->_parseFlag($argument)) {
-				continue;
-			}
-			if ($this->_parseOption($argument)) {
-				continue;
-			}
+		if ($this->_lexer) {
+			foreach ($this->_lexer as $argument) {
+				if (null === $argument) {
+					continue;
+				}
+				if ($this->_parseFlag($argument)) {
+					continue;
+				}
+				if ($this->_parseOption($argument)) {
+					continue;
+				}
 
-			array_push($this->_invalid, $argument->raw());
+				array_push($this->_invalid, $argument->raw());
+			}
 		}
 
 		if ($this->_strict && !empty($this->_invalid)) {
@@ -523,6 +528,8 @@ class Arguments implements \ArrayAccess {
 			return false;
 		}
 
+		assert(null !== $this->_lexer);
+
 		// Peak ahead to make sure we get a value.
 		if ($this->_lexer->end() || !$this->_lexer->peek->isValue) {
 			$optionSettings = $this->getOption($option->key);
@@ -546,6 +553,9 @@ class Arguments implements \ArrayAccess {
 		// Loop until we find a flag in peak-ahead
 		while ( $this->_lexer->valid() ) {
 			$value = $this->_lexer->current();
+			if ( null === $value ) {
+				break;
+			}
 			array_push( $values, $value->raw );
 
 			if ( ! $this->_lexer->end() && ! $this->_lexer->peek->isValue ) {

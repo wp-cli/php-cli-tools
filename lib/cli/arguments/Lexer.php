@@ -17,7 +17,7 @@ use cli\Memoize;
 /**
  * @property-read Argument $peek
  *
- * @implements \Iterator<int, Argument>
+ * @implements \Iterator<int, Argument|null>
  */
 class Lexer extends Memoize implements \Iterator {
 	/** @var Argument|null */
@@ -42,7 +42,7 @@ class Lexer extends Memoize implements \Iterator {
 	/**
 	 * The current token.
 	 *
-	 * @return Argument
+	 * @return Argument|null
 	 */
 	#[\ReturnTypeWillChange]
 	public function current() {
@@ -125,7 +125,8 @@ class Lexer extends Memoize implements \Iterator {
 	 * @return void
 	 */
 	private function _shift() {
-		$this->_item = new Argument(array_shift($this->_items));
+		$shifted = array_shift($this->_items);
+		$this->_item = null !== $shifted ? new Argument($shifted) : null;
 		$this->_index += 1;
 		$this->_explode();
 		$this->_unmemo('peek');
@@ -135,7 +136,7 @@ class Lexer extends Memoize implements \Iterator {
 	 * @return void
 	 */
 	private function _explode() {
-		if (!$this->_item->canExplode) {
+		if (null === $this->_item || !$this->_item->canExplode) {
 			return;
 		}
 
