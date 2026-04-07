@@ -50,17 +50,25 @@ class Arguments implements \ArrayAccess {
 	public function __construct($options = array()) {
 		$options += array(
 			'strict' => false,
-			'input'  => array_slice($_SERVER['argv'], 1)
+			'input'  => isset( $_SERVER['argv'] ) && is_array( $_SERVER['argv'] ) ? array_slice( $_SERVER['argv'], 1 ) : array(),
 		);
 
-		$this->_input = $options['input'];
-		$this->setStrict($options['strict']);
-
-		if (isset($options['flags'])) {
-			$this->addFlags($options['flags']);
+		$input = $options['input'];
+		if ( ! is_array( $input ) ) {
+			$input = array();
 		}
-		if (isset($options['options'])) {
-			$this->addOptions($options['options']);
+		$this->_input = array_map( function( $item ) { return is_scalar( $item ) ? (string) $item : ''; }, $input );
+		$this->setStrict( ! empty( $options['strict'] ) );
+
+		if ( isset( $options['flags'] ) && is_array( $options['flags'] ) ) {
+			/** @var array<string, array<string, mixed>|string> $flags */
+			$flags = $options['flags'];
+			$this->addFlags( $flags );
+		}
+		if ( isset( $options['options'] ) && is_array( $options['options'] ) ) {
+			/** @var array<string, array<string, mixed>|string> $opts */
+			$opts = $options['options'];
+			$this->addOptions( $opts );
 		}
 	}
 
@@ -110,6 +118,10 @@ class Arguments implements \ArrayAccess {
 			$offset = $offset->key;
 		}
 
+		if ( ! is_string( $offset ) && ! is_int( $offset ) ) {
+			return false;
+		}
+
 		return array_key_exists($offset, $this->_parsed ?? []);
 	}
 
@@ -123,6 +135,10 @@ class Arguments implements \ArrayAccess {
 	public function offsetGet($offset) {
 		if ($offset instanceOf Argument) {
 			$offset = $offset->key;
+		}
+
+		if ( ! is_string( $offset ) && ! is_int( $offset ) ) {
+			return null;
 		}
 
 		if (isset($this->_parsed[$offset])) {
@@ -144,6 +160,11 @@ class Arguments implements \ArrayAccess {
 			$offset = $offset->key;
 		}
 
+		if ( ! is_string( $offset ) && ! is_int( $offset ) ) {
+			return;
+		}
+
+		$offset = (string) $offset;
 		$this->_parsed[$offset] = $value;
 	}
 
@@ -156,6 +177,10 @@ class Arguments implements \ArrayAccess {
 	public function offsetUnset($offset) {
 		if ($offset instanceOf Argument) {
 			$offset = $offset->key;
+		}
+
+		if ( ! is_string( $offset ) && ! is_int( $offset ) ) {
+			return;
 		}
 
 		unset($this->_parsed[$offset]);
@@ -179,6 +204,11 @@ class Arguments implements \ArrayAccess {
 		if (is_array($flag)) {
 			$settings['aliases'] = $flag;
 			$flag = array_shift($settings['aliases']);
+		}
+		if ( is_scalar( $flag ) ) {
+			$flag = (string) $flag;
+		} else {
+			$flag = '';
 		}
 		if (isset($this->_flags[$flag])) {
 			$this->_warn('flag already exists: ' . $flag);
@@ -234,6 +264,11 @@ class Arguments implements \ArrayAccess {
 		if (is_array($option)) {
 			$settings['aliases'] = $option;
 			$option = array_shift($settings['aliases']);
+		}
+		if ( is_scalar( $option ) ) {
+			$option = (string) $option;
+		} else {
+			$option = '';
 		}
 		if (isset($this->_options[$option])) {
 			$this->_warn('option already exists: ' . $option);
@@ -306,6 +341,10 @@ class Arguments implements \ArrayAccess {
 		if ($flag instanceOf Argument) {
 			$obj  = $flag;
 			$flag = $flag->value();
+		}
+
+		if ( ! is_string( $flag ) && ! is_int( $flag ) ) {
+			return null;
 		}
 
 		if (isset($this->_flags[$flag])) {
@@ -381,6 +420,10 @@ class Arguments implements \ArrayAccess {
 			$option = $option->value();
 		}
 
+		if ( ! is_string( $option ) && ! is_int( $option ) ) {
+			return null;
+		}
+
 		if (isset($this->_options[$option])) {
 			return $this->_options[$option];
 		}
@@ -454,7 +497,8 @@ class Arguments implements \ArrayAccess {
 					continue;
 				}
 
-				array_push($this->_invalid, $argument->raw());
+				$raw = $argument->raw();
+				array_push($this->_invalid, is_scalar($raw) ? (string) $raw : '');
 			}
 		}
 
@@ -509,7 +553,8 @@ class Arguments implements \ArrayAccess {
 				$this[$argument->key] = 0;
 			}
 
-			$this[$argument->key] += 1;
+			$current = $this[$argument->key];
+			$this[$argument->key] = (is_int($current) ? $current : 0) + 1;
 		} else {
 			$this[$argument->key] = true;
 		}

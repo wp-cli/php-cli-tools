@@ -60,36 +60,47 @@ class Table {
 	 * @param array<mixed>  $footers    Footers used in this table. Optional.
 	 * @param array<mixed>  $alignments Column alignments. Optional.
 	 */
-	public function __construct(array $headers = array(), array $rows = array(), array $footers = array(), array $alignments = array()) {
-		if (!empty($headers)) {
+	public function __construct( array $headers = array(), array $rows = array(), array $footers = array(), array $alignments = array() ) {
+		$safe_strval = function ( $v ) {
+			return ( is_scalar( $v ) || ( is_object( $v ) && method_exists( $v, '__toString' ) ) ) ? (string) $v : '';
+		};
+
+		if ( ! empty( $headers ) ) {
 			// If all the rows is given in $headers we use the keys from the
 			// first row for the header values
-			if ($rows === array()) {
-				$rows = $headers;
-				$keys = array_keys(array_shift($headers));
-				$headers = array();
-
-				foreach ($keys as $header) {
-					$headers[$header] = $header;
-				}
+			if ( $rows === array() ) {
+				$rows      = $headers;
+				$first_row = array_shift( $headers );
+				$keys      = is_array( $first_row ) ? array_keys( $first_row ) : array();
+				$headers   = array_map( $safe_strval, $keys );
+			} else {
+				$headers = array_map( $safe_strval, $headers );
 			}
 
-			$this->setHeaders($headers);
-			$this->setRows($rows);
+			$this->setHeaders( $headers );
+
+			$safe_rows = array();
+			foreach ( $rows as $row ) {
+				if ( is_array( $row ) ) {
+					$safe_rows[] = array_map( $safe_strval, $row );
+				}
+			}
+			$this->setRows( $safe_rows );
 		}
 
-		if (!empty($footers)) {
-			$this->setFooters($footers);
+		if ( ! empty( $footers ) ) {
+			$this->setFooters( array_map( $safe_strval, $footers ) );
 		}
 
-		if (!empty($alignments)) {
-			$this->setAlignments($alignments);
+		if ( ! empty( $alignments ) ) {
+			/** @var array<string, int>|array<int, int> $alignments */
+			$this->setAlignments( $alignments );
 		}
 
-		if (Shell::isPiped()) {
-			$this->setRenderer(new Tabular());
+		if ( Shell::isPiped() ) {
+			$this->setRenderer( new Tabular() );
 		} else {
-			$this->setRenderer(new Ascii());
+			$this->setRenderer( new Ascii() );
 		}
 	}
 
@@ -98,12 +109,11 @@ class Table {
 	 *
 	 * @return $this
 	 */
-	public function resetTable()
-	{
-		$this->_headers = array();
-		$this->_width = array();
-		$this->_rows = array();
-		$this->_footers = array();
+	public function resetTable() {
+		$this->_headers    = array();
+		$this->_width      = array();
+		$this->_rows       = array();
+		$this->_footers    = array();
 		$this->_alignments = array();
 		return $this;
 	}
@@ -113,8 +123,7 @@ class Table {
 	 *
 	 * @return $this
 	 */
-	public function resetRows()
-	{
+	public function resetRows() {
 		$this->_rows = array();
 		return $this;
 	}
@@ -128,7 +137,7 @@ class Table {
 	 * @see   table\Tabular
 	 * @return void
 	 */
-	public function setRenderer(Renderer $renderer) {
+	public function setRenderer( Renderer $renderer ) {
 		$this->_renderer = $renderer;
 	}
 
@@ -138,11 +147,11 @@ class Table {
 	 * @param array<int, string>  $row  The table row.
 	 * @return array<int, string> $row
 	 */
-	protected function checkRow(array $row) {
-		foreach ($row as $column => $str) {
+	protected function checkRow( array $row ) {
+		foreach ( $row as $column => $str ) {
 			$width = Colors::width( $str, $this->isAsciiPreColorized( $column ) );
-			if (!isset($this->_width[$column]) || $width > $this->_width[$column]) {
-				$this->_width[$column] = $width;
+			if ( ! isset( $this->_width[ $column ] ) || $width > $this->_width[ $column ] ) {
+				$this->_width[ $column ] = $width;
 			}
 		}
 
@@ -161,7 +170,7 @@ class Table {
 	 * @return void
 	 */
 	public function display() {
-		foreach( $this->getDisplayLines() as $line ) {
+		foreach ( $this->getDisplayLines() as $line ) {
 			Streams::line( $line );
 		}
 	}
@@ -175,21 +184,21 @@ class Table {
 	 * @param array<int, string> $row The row data to display.
 	 * @return void
 	 */
-	public function displayRow(array $row) {
+	public function displayRow( array $row ) {
 		// Update widths if this row has wider content
-		$row = $this->checkRow($row);
-		
+		$row = $this->checkRow( $row );
+
 		// Recalculate widths for the renderer
-		$this->_renderer->setWidths($this->_width, false);
-		
-		$rendered_row = $this->_renderer->row($row);
-		$row_lines = explode( PHP_EOL, $rendered_row );
+		$this->_renderer->setWidths( $this->_width, false );
+
+		$rendered_row = $this->_renderer->row( $row );
+		$row_lines    = explode( PHP_EOL, $rendered_row );
 		foreach ( $row_lines as $line ) {
 			Streams::line( $line );
 		}
-		
+
 		$border = $this->_renderer->border();
-		if (isset($border)) {
+		if ( isset( $border ) ) {
 			Streams::line( $border );
 		}
 	}
@@ -203,34 +212,34 @@ class Table {
 	 * @return array<int, string>
 	 */
 	public function getDisplayLines() {
-		$this->_renderer->setWidths($this->_width, $fallback = true);
-		$this->_renderer->setHeaders($this->_headers);
-		$this->_renderer->setAlignments($this->_alignments);
+		$this->_renderer->setWidths( $this->_width, $fallback = true );
+		$this->_renderer->setHeaders( $this->_headers );
+		$this->_renderer->setAlignments( $this->_alignments );
 		$border = $this->_renderer->border();
 
 		$out = array();
-		if (isset($border)) {
+		if ( isset( $border ) ) {
 			$out[] = $border;
 		}
-		$out[] = $this->_renderer->row($this->_headers);
-		if (isset($border)) {
+		$out[] = $this->_renderer->row( $this->_headers );
+		if ( isset( $border ) ) {
 			$out[] = $border;
 		}
 
-		foreach ($this->_rows as $row) {
-			$row = $this->_renderer->row($row);
+		foreach ( $this->_rows as $row ) {
+			$row = $this->_renderer->row( $row );
 			$row = explode( PHP_EOL, $row );
 			$out = array_merge( $out, $row );
 		}
 
 		// Only add final border if there are rows
-		if (!empty($this->_rows) && isset($border)) {
+		if ( ! empty( $this->_rows ) && isset( $border ) ) {
 			$out[] = $border;
 		}
 
-		if ($this->_footers) {
-			$out[] = $this->_renderer->row($this->_footers);
-			if (isset($border)) {
+		if ( $this->_footers ) {
+			$out[] = $this->_renderer->row( $this->_footers );
+			if ( isset( $border ) ) {
 				$out[] = $border;
 			}
 		}
@@ -243,15 +252,18 @@ class Table {
 	 * @param int  $column  The index of the column to sort by.
 	 * @return void
 	 */
-	public function sort($column) {
-		if (!isset($this->_headers[$column])) {
-			trigger_error('No column with index ' . $column, E_USER_NOTICE);
+	public function sort( $column ) {
+		if ( ! isset( $this->_headers[ $column ] ) ) {
+			trigger_error( 'No column with index ' . $column, E_USER_NOTICE );
 			return;
 		}
 
-		usort($this->_rows, function($a, $b) use ($column) {
-			return strcmp($a[$column], $b[$column]);
-		});
+		usort(
+			$this->_rows,
+			function ( $a, $b ) use ( $column ) {
+				return strcmp( $a[ $column ], $b[ $column ] );
+			}
+		);
 	}
 
 	/**
@@ -260,8 +272,8 @@ class Table {
 	 * @param array<int, string>  $headers  An array of strings containing column header names.
 	 * @return void
 	 */
-	public function setHeaders(array $headers) {
-		$this->_headers = $this->checkRow($headers);
+	public function setHeaders( array $headers ) {
+		$this->_headers = $this->checkRow( $headers );
 	}
 
 	/**
@@ -270,8 +282,8 @@ class Table {
 	 * @param array<int, string>  $footers  An array of strings containing column footers names.
 	 * @return void
 	 */
-	public function setFooters(array $footers) {
-		$this->_footers = $this->checkRow($footers);
+	public function setFooters( array $footers ) {
+		$this->_footers = $this->checkRow( $footers );
 	}
 
 	/**
@@ -280,7 +292,7 @@ class Table {
 	 * @param array<string, int>|array<int, int>  $alignments  An array of alignment constants keyed by column name or index.
 	 * @return void
 	 */
-	public function setAlignments(array $alignments) {
+	public function setAlignments( array $alignments ) {
 		// Initialize the cached valid alignments map on first use
 		if ( null === self::$_valid_alignments_map ) {
 			self::$_valid_alignments_map = array_flip( array( Column::ALIGN_LEFT, Column::ALIGN_RIGHT, Column::ALIGN_CENTER ) );
@@ -306,8 +318,8 @@ class Table {
 	 * @see cli\Table::checkRow()
 	 * @return void
 	 */
-	public function addRow(array $row) {
-		$this->_rows[] = $this->checkRow($row);
+	public function addRow( array $row ) {
+		$this->_rows[] = $this->checkRow( $row );
 	}
 
 	/**
@@ -317,10 +329,10 @@ class Table {
 	 * @see cli\Table::addRow()
 	 * @return void
 	 */
-	public function setRows(array $rows) {
+	public function setRows( array $rows ) {
 		$this->_rows = array();
-		foreach ($rows as $row) {
-			$this->addRow($row);
+		foreach ( $rows as $row ) {
+			$this->addRow( $row );
 		}
 	}
 
@@ -330,7 +342,7 @@ class Table {
 	 * @return int
 	 */
 	public function countRows() {
-		return count($this->_rows);
+		return count( $this->_rows );
 	}
 
 	/**

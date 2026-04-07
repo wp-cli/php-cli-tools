@@ -30,7 +30,7 @@ class Tabular extends Renderer {
 		$col         = null;
 
 		foreach ( $row as $col => $value ) {
-			$value       = isset( $value ) ? (string) $value : '';
+			$value       = ( isset( $value ) && ( is_scalar( $value ) || ( is_object( $value ) && method_exists( $value, '__toString' ) ) ) ) ? (string) $value : '';
 			$value       = str_replace( "\t", '    ', $value );
 			$split_lines = preg_split( '/\r\n|\n/', $value );
 			if ( false === $split_lines ) {

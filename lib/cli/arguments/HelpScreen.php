@@ -30,8 +30,8 @@ class HelpScreen {
 	/**
 	 * @param Arguments $arguments
 	 */
-	public function __construct(Arguments $arguments) {
-		$this->setArguments($arguments);
+	public function __construct( Arguments $arguments ) {
+		$this->setArguments( $arguments );
 	}
 
 	/**
@@ -45,19 +45,19 @@ class HelpScreen {
 	 * @param Arguments $arguments
 	 * @return void
 	 */
-	public function setArguments(Arguments $arguments) {
-		$this->consumeArgumentFlags($arguments);
-		$this->consumeArgumentOptions($arguments);
+	public function setArguments( Arguments $arguments ) {
+		$this->consumeArgumentFlags( $arguments );
+		$this->consumeArgumentOptions( $arguments );
 	}
 
 	/**
 	 * @param Arguments $arguments
 	 * @return void
 	 */
-	public function consumeArgumentFlags(Arguments $arguments) {
-		$data = $this->_consume($arguments->getFlags());
+	public function consumeArgumentFlags( Arguments $arguments ) {
+		$data = $this->_consume( $arguments->getFlags() );
 
-		$this->_flags = $data[0];
+		$this->_flags   = $data[0];
 		$this->_flagMax = $data[1];
 	}
 
@@ -65,10 +65,10 @@ class HelpScreen {
 	 * @param Arguments $arguments
 	 * @return void
 	 */
-	public function consumeArgumentOptions(Arguments $arguments) {
-		$data = $this->_consume($arguments->getOptions());
+	public function consumeArgumentOptions( Arguments $arguments ) {
+		$data = $this->_consume( $arguments->getOptions() );
 
-		$this->_options = $data[0];
+		$this->_options   = $data[0];
 		$this->_optionMax = $data[1];
 	}
 
@@ -78,32 +78,32 @@ class HelpScreen {
 	public function render() {
 		$help = array();
 
-		array_push($help, $this->_renderFlags());
-		array_push($help, $this->_renderOptions());
+		array_push( $help, $this->_renderFlags() );
+		array_push( $help, $this->_renderOptions() );
 
-		return join("\n\n", $help);
+		return join( "\n\n", $help );
 	}
 
 	/**
 	 * @return string|null
 	 */
 	private function _renderFlags() {
-		if (empty($this->_flags)) {
+		if ( empty( $this->_flags ) ) {
 			return null;
 		}
 
-		return "Flags\n" . $this->_renderScreen($this->_flags, $this->_flagMax);
+		return "Flags\n" . $this->_renderScreen( $this->_flags, $this->_flagMax );
 	}
 
 	/**
 	 * @return string|null
 	 */
 	private function _renderOptions() {
-		if (empty($this->_options)) {
+		if ( empty( $this->_options ) ) {
 			return null;
 		}
 
-		return "Options\n" . $this->_renderScreen($this->_options, $this->_optionMax);
+		return "Options\n" . $this->_renderScreen( $this->_options, $this->_optionMax );
 	}
 
 	/**
@@ -111,51 +111,68 @@ class HelpScreen {
 	 * @param int $max
 	 * @return string
 	 */
-	private function _renderScreen($options, $max) {
+	private function _renderScreen( $options, $max ) {
 		$help = array();
-		foreach ($options as $option => $settings) {
-			$formatted = '  ' . str_pad($option, $max);
+		foreach ( $options as $option => $settings ) {
+			$formatted = '  ' . str_pad( $option, $max );
 
-			$dlen = max( 1, 80 - 4 - $max );
-			$description = str_split($settings['description'], $dlen);
-			$formatted.= '  ' . array_shift($description);
+			$dlen          = max( 1, 80 - 4 - $max );
+			$settings_desc = $settings['description'];
+			$desc_str      = ( is_scalar( $settings_desc ) || ( is_object( $settings_desc ) && method_exists( $settings_desc, '__toString' ) ) ) ? (string) $settings_desc : '';
 
-			if ($settings['default']) {
-				$formatted .= ' [default: ' . $settings['default'] . ']';
+			$description = array();
+			if ( '' !== $desc_str ) {
+				$description = str_split( $desc_str, $dlen );
 			}
 
-			$pad = str_repeat(' ', $max + 3);
-			while ($desc = array_shift($description)) {
+			if ( empty( $description ) ) {
+				$description = array( '' );
+			}
+
+			$formatted .= '  ' . array_shift( $description );
+
+			if ( ! empty( $settings['default'] ) ) {
+				$default_val = $settings['default'];
+				$default_str = ( is_scalar( $default_val ) || ( is_object( $default_val ) && method_exists( $default_val, '__toString' ) ) ) ? (string) $default_val : '';
+				if ( '' !== $default_str ) {
+					$formatted .= ' [default: ' . $default_str . ']';
+				}
+			}
+
+			$pad = str_repeat( ' ', $max + 3 );
+			while ( $desc = array_shift( $description ) ) {
 				$formatted .= "\n{$pad}{$desc}";
 			}
 
-			array_push($help, $formatted);
+			array_push( $help, $formatted );
 		}
 
-		return join("\n", $help);
+		return join( "\n", $help );
 	}
 
 	/**
 	 * @param array<string, array<string, mixed>> $options
 	 * @return array{0: array<string, array<string, mixed>>, 1: int}
 	 */
-	private function _consume($options) {
+	private function _consume( $options ) {
 		$max = 0;
 		$out = array();
 
-		foreach ($options as $option => $settings) {
-			$names = array('--' . $option);
+		foreach ( $options as $option => $settings ) {
+			$names = array( '--' . $option );
 
-			foreach ($settings['aliases'] as $alias) {
-				array_push($names, '-' . $alias);
+			$aliases = $settings['aliases'];
+			if ( is_array( $aliases ) ) {
+				foreach ( $aliases as $alias ) {
+					array_push( $names, '-' . ( is_scalar( $alias ) ? (string) $alias : '' ) );
+				}
 			}
 
-			$names = join(', ', $names);
-			$max = max(strlen($names), $max);
-			$out[$names] = $settings;
+			$names         = join( ', ', $names );
+			$max           = max( strlen( $names ), $max );
+			$out[ $names ] = $settings;
 		}
 
-		return array($out, $max);
+		return array( $out, $max );
 	}
 }
-

@@ -108,7 +108,8 @@ class Lexer extends Memoize implements \Iterator {
 	 * @return void
 	 */
 	public function unshift($item) {
-		array_unshift($this->_items, $item);
+		$item_str = (is_scalar($item) || (is_object($item) && method_exists($item, '__toString'))) ? (string)$item : '';
+		array_unshift($this->_items, $item_str);
 		$this->_length += 1;
 	}
 

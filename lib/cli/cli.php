@@ -24,7 +24,7 @@ namespace cli;
  * @return string  The rendered string.
  */
 function render( $msg, ...$args ) {
-	return Streams::_call( 'render', func_get_args() );
+	return Streams::render( $msg, ...$args );
 }
 
 /**

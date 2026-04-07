@@ -29,11 +29,11 @@ class Streams {
 	 *
 	 * @return bool
 	 */
-	static public function isTty() {
-		if ( function_exists('stream_isatty') ) {
-			return stream_isatty(static::$out);
+	public static function isTty() {
+		if ( function_exists( 'stream_isatty' ) ) {
+			return stream_isatty( static::$out );
 		} else {
-			return (function_exists('posix_isatty') && posix_isatty(static::$out));
+			return ( function_exists( 'posix_isatty' ) && posix_isatty( static::$out ) );
 		}
 	}
 
@@ -48,31 +48,32 @@ class Streams {
 	 * @return string  The rendered string.
 	 */
 	public static function render( $msg, ...$args ) {
-		$args = func_get_args();
-
 		// No string replacement is needed
-		if( count( $args ) == 1 || ( is_string( $args[1] ) && '' === $args[1] ) ) {
+		if ( empty( $args ) || ( is_string( $args[0] ) && '' === $args[0] ) ) {
 			return Colors::shouldColorize() ? Colors::colorize( $msg ) : $msg;
 		}
 
 		// If the first argument is not an array just pass to sprintf
-		if( !is_array( $args[1] ) ) {
+		if ( ! is_array( $args[0] ) ) {
 			// Normalize color tokens before sprintf: colorize or strip them so no raw %tokens reach sprintf
 			if ( Colors::shouldColorize() ) {
-				$args[0] = Colors::colorize( $args[0] );
+				$msg = Colors::colorize( $msg );
 			} else {
-				$args[0] = Colors::decolorize( $args[0] );
+				$msg = Colors::decolorize( $msg );
 			}
 
 			// Escape percent characters for sprintf
-			$args[0] = preg_replace('/(%([^\w]|$))/', "%$1", $args[0]);
+			$msg = (string) preg_replace( '/(%([^\w]|$))/', '%$1', $msg );
 
-			return call_user_func_array( 'sprintf', $args );
+			$sprintf_args = array_merge( array( $msg ), $args );
+			/** @var string $rendered */
+			$rendered = call_user_func_array( 'sprintf', $sprintf_args );
+			return $rendered;
 		}
 
 		// Here we do named replacement so formatting strings are more understandable
-		foreach( $args[1] as $key => $value ) {
-			$msg = str_replace( '{:' . $key . '}', $value, $msg );
+		foreach ( $args[0] as $key => $value ) {
+			$msg = str_replace( '{:' . $key . '}', is_scalar( $value ) ? (string) $value : '', $msg );
 		}
 		return Colors::shouldColorize() ? Colors::colorize( $msg ) : $msg;
 	}
@@ -87,7 +88,8 @@ class Streams {
 	 * @see \cli\render()
 	 */
 	public static function out( $msg, ...$args ) {
-		fwrite( static::$out, self::_call( 'render', func_get_args() ) );
+		$rendered = self::_call( 'render', func_get_args() );
+		fwrite( static::$out, is_scalar( $rendered ) ? (string) $rendered : '' );
 	}
 
 	/**
@@ -99,7 +101,8 @@ class Streams {
 	 * @see cli\out()
 	 */
 	public static function out_padded( $msg, ...$args ) {
-		$msg = self::_call( 'render', func_get_args() );
+		$rendered = self::_call( 'render', func_get_args() );
+		$msg      = is_scalar( $rendered ) ? (string) $rendered : '';
 		self::out( str_pad( $msg, \cli\Shell::columns() ) );
 	}
 
@@ -113,8 +116,8 @@ class Streams {
 	 */
 	public static function line( $msg = '' ) {
 		// func_get_args is empty if no args are passed even with the default above.
-		$args = array_merge( func_get_args(), array( '' ) );
-		$args[0] .= "\n";
+		$args    = array_merge( func_get_args(), array( '' ) );
+		$args[0] = ( is_scalar( $args[0] ) ? (string) $args[0] : '' ) . "\n";
 
 		self::_call( 'out', $args );
 	}
@@ -130,9 +133,10 @@ class Streams {
 	 */
 	public static function err( $msg = '', ...$args ) {
 		// func_get_args is empty if no args are passed even with the default above.
-		$args = array_merge( func_get_args(), array( '' ) );
-		$args[0] .= "\n";
-		fwrite( static::$err, self::_call( 'render', $args ) );
+		$args     = array_merge( func_get_args(), array( '' ) );
+		$args[0]  = ( is_scalar( $args[0] ) ? (string) $args[0] : '' ) . "\n";
+		$rendered = self::_call( 'render', $args );
+		fwrite( static::$err, is_scalar( $rendered ) ? (string) $rendered : '' );
 	}
 
 	/**
@@ -147,10 +151,11 @@ class Streams {
 	 * @throws \Exception  Thrown if ctrl-D (EOT) is sent as input.
 	 */
 	public static function input( $format = null, $hide = false ) {
-		if ( $hide )
+		if ( $hide ) {
 			Shell::hide();
+		}
 
-		if( $format ) {
+		if ( $format ) {
 			fscanf( static::$in, $format . "\n", $line );
 		} else {
 			$line = fgets( static::$in );
@@ -161,7 +166,7 @@ class Streams {
 			echo "\n";
 		}
 
-		if( $line === false ) {
+		if ( $line === false ) {
 			throw new \Exception( 'Caught ^D during input' );
 		}
 
@@ -181,18 +186,18 @@ class Streams {
 	 * @see cli\input()
 	 */
 	public static function prompt( $question, $default = false, $marker = ': ', $hide = false ) {
-		if( $default && strpos( $question, '[' ) === false ) {
+		if ( $default && strpos( $question, '[' ) === false ) {
 			$question .= ' [' . $default . ']';
 		}
 
-		while( true ) {
+		while ( true ) {
 			self::out( $question . $marker );
 			$line = self::input( null, $hide );
 
 			if ( trim( $line ) !== '' ) {
 				return $line;
 			}
-			if( $default !== false ) {
+			if ( $default !== false ) {
 				return (string) $default;
 			}
 		}
@@ -209,7 +214,7 @@ class Streams {
 	 * @see cli\prompt()
 	 */
 	public static function choose( $question, $choice = 'yn', $default = 'n' ) {
-		if( !is_string( $choice ) ) {
+		if ( ! is_string( $choice ) ) {
 			$choice = join( '', $choice );
 		}
 
@@ -222,13 +227,13 @@ class Streams {
 		// Separate each choice with a forward-slash
 		$choices = trim( join( '/', str_split( $choice ) ), '/' );
 
-		while( true ) {
+		while ( true ) {
 			$line = self::prompt( sprintf( '%s? [%s]', $question, $choices ), $default ?? false, '' );
 
-			if( stripos( $choice, $line ) !== false ) {
+			if ( stripos( $choice, $line ) !== false ) {
 				return strtolower( $line );
 			}
-			if( !empty( $default ) ) {
+			if ( ! empty( $default ) ) {
 				return strtolower( $default );
 			}
 		}
@@ -250,29 +255,42 @@ class Streams {
 	public static function menu( $items, $default = null, $title = 'Choose an item' ) {
 		$map = array_values( $items );
 
-		if( $default && strpos( $title, '[' ) === false && isset( $items[$default] ) ) {
-			$title .= ' [' . $items[$default] . ']';
+		if ( $default && strpos( $title, '[' ) === false && isset( $items[ $default ] ) ) {
+			$default_item = $items[ $default ];
+			$default_str  = '';
+			if ( is_scalar( $default_item ) ) {
+				$default_str = (string) $default_item;
+			} elseif ( is_object( $default_item ) && method_exists( $default_item, '__toString' ) ) {
+				$default_str = (string) $default_item;
+			}
+			$title .= ' [' . $default_str . ']';
 		}
 
-		foreach( $map as $idx => $item ) {
-			self::line( '  %d. %s', $idx + 1, (string)$item );
+		foreach ( $map as $idx => $item ) {
+			$item_str = '';
+			if ( is_scalar( $item ) ) {
+				$item_str = (string) $item;
+			} elseif ( is_object( $item ) && method_exists( $item, '__toString' ) ) {
+				$item_str = (string) $item;
+			}
+			self::line( '  %d. %s', $idx + 1, $item_str );
 		}
 		self::line();
 
-		while( true ) {
+		while ( true ) {
 			fwrite( static::$out, sprintf( '%s: ', $title ) );
 			$line = self::input();
 
-			if( is_numeric( $line ) ) {
-				$line--;
-				if( isset( $map[$line] ) ) {
-					return (string) array_search( $map[$line], $items );
+			if ( is_numeric( $line ) ) {
+				--$line;
+				if ( isset( $map[ $line ] ) ) {
+					return (string) array_search( $map[ $line ], $items );
 				}
 
-				if( $line < 0 || $line >= count( $map ) ) {
+				if ( $line < 0 || $line >= count( $map ) ) {
 					self::err( 'Invalid menu selection: out of range' );
 				}
-			} else if( isset( $default ) ) {
+			} elseif ( isset( $default ) ) {
 				return $default;
 			}
 		}
@@ -295,15 +313,16 @@ class Streams {
 	 * @throws \Exception Thrown if $stream is not a resource of the 'stream' type.
 	 */
 	public static function setStream( $whichStream, $stream ) {
-		if( !is_resource( $stream ) || get_resource_type( $stream ) !== 'stream' ) {
+		if ( ! is_resource( $stream ) || get_resource_type( $stream ) !== 'stream' ) {
 			throw new \Exception( 'Invalid resource type!' );
 		}
-		if( property_exists( __CLASS__, $whichStream ) ) {
+		if ( property_exists( __CLASS__, $whichStream ) ) {
 			static::${$whichStream} = $stream;
 		}
-		register_shutdown_function( function() use ($stream) {
-			fclose( $stream );
-		} );
+		register_shutdown_function(
+			function () use ( $stream ) {
+				fclose( $stream );
+			}
+		);
 	}
-
 }

@@ -71,10 +71,10 @@ class Ascii extends Renderer {
 	 * @param bool            $fallback Whether to use these values as fallback only.
 	 * @return void
 	 */
-	public function setWidths(array $widths, $fallback = false) {
-		if ($fallback) {
+	public function setWidths( array $widths, $fallback = false ) {
+		if ( $fallback ) {
 			foreach ( $this->_widths as $index => $value ) {
-			    $widths[$index] = $value;
+				$widths[ $index ] = $value;
 			}
 		}
 		$this->_widths = $widths;
@@ -82,18 +82,18 @@ class Ascii extends Renderer {
 		if ( is_null( $this->_constraintWidth ) ) {
 			$this->_constraintWidth = (int) Shell::columns();
 		}
-		$col_count = count( $widths );
-		$col_borders_count = $col_count ? ( ( $col_count - 1 ) * strlen( $this->_characters['border'] ) ) : 0;
+		$col_count           = count( $widths );
+		$col_borders_count   = $col_count ? ( ( $col_count - 1 ) * strlen( $this->_characters['border'] ) ) : 0;
 		$table_borders_count = strlen( $this->_characters['border'] ) * 2;
-		$col_padding_count = $col_count * strlen( $this->_characters['padding'] ) * 2;
-		$max_width = $this->_constraintWidth - $col_borders_count - $table_borders_count - $col_padding_count;
+		$col_padding_count   = $col_count * strlen( $this->_characters['padding'] ) * 2;
+		$max_width           = $this->_constraintWidth - $col_borders_count - $table_borders_count - $col_padding_count;
 
 		if ( $widths && $max_width && array_sum( $widths ) > $max_width ) {
 
-			$avg = (int) floor( $max_width / count( $widths ) );
+			$avg           = (int) floor( $max_width / count( $widths ) );
 			$resize_widths = array();
-			$extra_width = 0;
-			foreach( $widths as $width ) {
+			$extra_width   = 0;
+			foreach ( $widths as $width ) {
 				if ( $width > $avg ) {
 					$resize_widths[] = $width;
 				} else {
@@ -103,7 +103,7 @@ class Ascii extends Renderer {
 
 			if ( ! empty( $resize_widths ) && $extra_width ) {
 				$avg_extra_width = (int) floor( $extra_width / count( $resize_widths ) );
-				foreach( $widths as &$width ) {
+				foreach ( $widths as &$width ) {
 					if ( in_array( $width, $resize_widths ) ) {
 						$width = $avg + $avg_extra_width;
 						array_shift( $resize_widths );
@@ -115,7 +115,6 @@ class Ascii extends Renderer {
 					}
 				}
 			}
-
 		}
 
 		$this->_widths = $widths;
@@ -155,8 +154,8 @@ class Ascii extends Renderer {
 	 * @param array<string, string> $characters Characters used in rendering.
 	 * @return void
 	 */
-	public function setCharacters(array $characters) {
-		$this->_characters = array_merge($this->_characters, $characters);
+	public function setCharacters( array $characters ) {
+		$this->_characters = array_merge( $this->_characters, $characters );
 	}
 
 	/**
@@ -166,10 +165,10 @@ class Ascii extends Renderer {
 	 * @return string  The table border.
 	 */
 	public function border() {
-		if (!isset($this->_border)) {
+		if ( ! isset( $this->_border ) ) {
 			$this->_border = $this->_characters['corner'];
-			foreach ($this->_widths as $width) {
-				$this->_border .= str_repeat($this->_characters['line'], $width + 2);
+			foreach ( $this->_widths as $width ) {
+				$this->_border .= str_repeat( $this->_characters['line'], $width + 2 );
 				$this->_border .= $this->_characters['corner'];
 			}
 		}
@@ -192,7 +191,7 @@ class Ascii extends Renderer {
 			$extra_rows = array_fill( 0, count( $row ), array() );
 
 			foreach ( $row as $col => $value ) {
-				$value              = $value ?: '';
+				$value              = ( is_scalar( $value ) || ( is_object( $value ) && method_exists( $value, '__toString' ) ) ) ? (string) $value : '';
 				$col_width          = $this->_widths[ $col ];
 				$encoding           = function_exists( 'mb_detect_encoding' ) ? mb_detect_encoding( $value, null, true /*strict*/ ) : false;
 				$original_val_width = Colors::width( $value, self::isPreColorized( $col ), $encoding );
@@ -204,7 +203,7 @@ class Ascii extends Renderer {
 
 					$wrapped_lines = [];
 					foreach ( $split_lines as $line ) {
-						$line_wrapped = $this->wrapText( $line, $col_width, $encoding, self::isPreColorized( $col ) );
+						$line_wrapped  = $this->wrapText( $line, $col_width, $encoding, self::isPreColorized( $col ) );
 						$wrapped_lines = array_merge( $wrapped_lines, $line_wrapped );
 					}
 
@@ -217,34 +216,34 @@ class Ascii extends Renderer {
 			}
 		}
 
-		$row = array_map(array($this, 'padColumn'), $row, array_keys($row));
-		array_unshift($row, ''); // First border
-		array_push($row, ''); // Last border
+		$row = array_map( array( $this, 'padColumn' ), $row, array_keys( $row ) );
+		array_unshift( $row, '' ); // First border
+		array_push( $row, '' ); // Last border
 
-		$ret = join($this->_characters['border'], $row);
+		$ret = join( $this->_characters['border'], $row );
 		if ( $extra_row_count ) {
-			foreach( $extra_rows as $col => $col_values ) {
-				while( count( $col_values ) < $extra_row_count ) {
+			foreach ( $extra_rows as $col => $col_values ) {
+				while ( count( $col_values ) < $extra_row_count ) {
 					$col_values[] = '';
 				}
 			}
 
 			do {
 				$row_values = array();
-				$has_more = false;
-				foreach( $extra_rows as $col => &$col_values ) {
+				$has_more   = false;
+				foreach ( $extra_rows as $col => &$col_values ) {
 					$row_values[ $col ] = ! empty( $col_values ) ? array_shift( $col_values ) : '';
 					if ( count( $col_values ) ) {
 						$has_more = true;
 					}
 				}
 
-				$row_values = array_map(array($this, 'padColumn'), $row_values, array_keys($row_values));
-				array_unshift($row_values, ''); // First border
-				array_push($row_values, ''); // Last border
+				$row_values = array_map( array( $this, 'padColumn' ), $row_values, array_keys( $row_values ) );
+				array_unshift( $row_values, '' ); // First border
+				array_push( $row_values, '' ); // Last border
 
-				$ret .= PHP_EOL . join($this->_characters['border'], $row_values);
-			} while( $has_more );
+				$ret .= PHP_EOL . join( $this->_characters['border'], $row_values );
+			} while ( $has_more );
 		}
 		return $ret;
 	}
@@ -272,7 +271,7 @@ class Ascii extends Renderer {
 	 */
 	private function padColumn( $content, $column ) {
 		$alignment = $this->getColumnAlignment( $column );
-		$content = str_replace( "\t", '    ', (string) $content );
+		$content   = str_replace( "\t", '    ', (string) $content );
 		return $this->_characters['padding'] . Colors::pad( $content, $this->_widths[ $column ], $this->isPreColorized( $column ), false, $alignment ) . $this->_characters['padding'];
 	}
 
@@ -313,7 +312,7 @@ class Ascii extends Renderer {
 				// Not enough space for ellipsis, just truncate
 				return array( (string) \cli\safe_substr( $text, 0, $width, true /*is_width*/, $encoding ) );
 			}
-			
+
 			// Truncate and add ellipsis
 			$truncated = (string) \cli\safe_substr( $text, 0, $width - self::ELLIPSIS_WIDTH, true /*is_width*/, $encoding );
 			return array( $truncated . self::ELLIPSIS );
@@ -326,8 +325,8 @@ class Ascii extends Renderer {
 
 		// Default: character-boundary wrapping
 		$wrapped_lines = array();
-		$line = $text;
-		
+		$line          = $text;
+
 		// Use the new color-aware wrapping for pre-colorized content
 		if ( $is_precolorized ) {
 			$wrapped_lines = Colors::wrapPreColorized( $line, $width, $encoding );
@@ -338,11 +337,11 @@ class Ascii extends Renderer {
 				$val_width     = Colors::width( $wrapped_value, $is_precolorized, $encoding );
 				if ( $val_width ) {
 					$wrapped_lines[] = $wrapped_value;
-					$line = (string) \cli\safe_substr( $line, \cli\safe_strlen( $wrapped_value, $encoding ), null /*length*/, false /*is_width*/, $encoding );
+					$line            = (string) \cli\safe_substr( $line, \cli\safe_strlen( $wrapped_value, $encoding ), null /*length*/, false /*is_width*/, $encoding );
 				}
 			} while ( $line );
 		}
-		
+
 		return $wrapped_lines;
 	}
 
@@ -356,56 +355,56 @@ class Ascii extends Renderer {
 	 * @return array<int, string> Array of wrapped lines.
 	 */
 	protected function wordWrap( $text, $width, $encoding, $is_precolorized ) {
-		$wrapped_lines = array();
-		$current_line = '';
+		$wrapped_lines      = array();
+		$current_line       = '';
 		$current_line_width = 0;
-		
+
 		// Split by spaces and hyphens while keeping the delimiters
 		$words = preg_split( '/(\s+|-)/u', $text, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY );
 		if ( false === $words ) {
 			$words = array( $text );
 		}
-		
+
 		foreach ( $words as $word ) {
 			$word_width = Colors::width( $word, $is_precolorized, $encoding );
-			
+
 			// If this word alone exceeds the width, we need to split it
 			if ( $word_width > $width ) {
 				// Flush current line if not empty
 				if ( $current_line !== '' ) {
-					$wrapped_lines[] = $current_line;
-					$current_line = '';
+					$wrapped_lines[]    = $current_line;
+					$current_line       = '';
 					$current_line_width = 0;
 				}
-				
+
 				// Split the long word at character boundaries
 				$remaining_word = $word;
 				while ( $remaining_word ) {
-					$chunk = (string) \cli\safe_substr( $remaining_word, 0, $width, true /*is_width*/, $encoding );
+					$chunk           = (string) \cli\safe_substr( $remaining_word, 0, $width, true /*is_width*/, $encoding );
 					$wrapped_lines[] = $chunk;
-					$remaining_word = (string) \cli\safe_substr( $remaining_word, \cli\safe_strlen( $chunk, $encoding ), null /*length*/, false /*is_width*/, $encoding );
+					$remaining_word  = (string) \cli\safe_substr( $remaining_word, \cli\safe_strlen( $chunk, $encoding ), null /*length*/, false /*is_width*/, $encoding );
 				}
 				continue;
 			}
-			
+
 			// Check if adding this word would exceed the width
 			if ( $current_line !== '' && $current_line_width + $word_width > $width ) {
 				// Start a new line
-				$wrapped_lines[] = $current_line;
-				$current_line = $word;
+				$wrapped_lines[]    = $current_line;
+				$current_line       = $word;
 				$current_line_width = $word_width;
 			} else {
 				// Add to current line
-				$current_line .= $word;
+				$current_line       .= $word;
 				$current_line_width += $word_width;
 			}
 		}
-		
+
 		// Add any remaining content
 		if ( $current_line !== '' ) {
 			$wrapped_lines[] = $current_line;
 		}
-		
+
 		return $wrapped_lines ?: array( '' );
 	}
 
