@@ -340,6 +340,10 @@ class Colors {
 		// Split the string into parts: ANSI codes and text
 		$parts = preg_split( $ansi_pattern, $string, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY );
 		
+		if ( false === $parts ) {
+			$parts = array( $string );
+		}
+
 		foreach ( $parts as $part ) {
 			// Check if this part is an ANSI code
 			if ( preg_match( $ansi_pattern, $part ) ) {
@@ -361,6 +365,7 @@ class Colors {
 				
 				while ( $offset < $text_length ) {
 					$char = \cli\safe_substr( $part, $offset, 1, false, $encoding );
+					assert( is_string( $char ) );
 					$char_width = \cli\strwidth( $char, $encoding );
 					
 					// Check if adding this character would exceed the width

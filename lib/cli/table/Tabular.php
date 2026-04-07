@@ -33,6 +33,9 @@ class Tabular extends Renderer {
 			$value       = isset( $value ) ? (string) $value : '';
 			$value       = str_replace( "\t", '    ', $value );
 			$split_lines = preg_split( '/\r\n|\n/', $value );
+			if ( false === $split_lines ) {
+				$split_lines = array( $value );
+			}
 			// Keep anything before the first line break on the original line
 			$row[ $col ] = array_shift( $split_lines );
 		}

@@ -19,7 +19,8 @@ class Streams {
 	 * @return mixed
 	 */
 	static function _call( $func, $args ) {
-		$method = __CLASS__ . '::' . $func;
+		$method = array( __CLASS__, $func );
+		assert( is_callable( $method ) );
 		return call_user_func_array( $method, $args );
 	}
 
@@ -164,7 +165,7 @@ class Streams {
 			throw new \Exception( 'Caught ^D during input' );
 		}
 
-		return trim( $line );
+		return trim( (string) $line );
 	}
 
 	/**
@@ -188,10 +189,12 @@ class Streams {
 			self::out( $question . $marker );
 			$line = self::input( null, $hide );
 
-			if ( trim( $line ) !== '' )
+			if ( trim( $line ) !== '' ) {
 				return $line;
-			if( $default !== false )
-				return $default;
+			}
+			if( $default !== false ) {
+				return (string) $default;
+			}
 		}
 	}
 
@@ -213,7 +216,7 @@ class Streams {
 		// Make every choice character lowercase except the default
 		$choice = str_ireplace( $default, strtoupper( $default ), strtolower( $choice ) );
 		// Separate each choice with a forward-slash
-		$choices = trim( join( '/', preg_split( '//', $choice ) ), '/' );
+		$choices = trim( join( '/', str_split( $choice ) ), '/' );
 
 		while( true ) {
 			$line = self::prompt( sprintf( '%s? [%s]', $question, $choices ), $default, '' );
@@ -259,7 +262,7 @@ class Streams {
 			if( is_numeric( $line ) ) {
 				$line--;
 				if( isset( $map[$line] ) ) {
-					return array_search( $map[$line], $items );
+					return (string) array_search( $map[$line], $items );
 				}
 
 				if( $line < 0 || $line >= count( $map ) ) {

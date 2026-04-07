@@ -50,7 +50,7 @@ class Shell {
 					}
 				} else {
 					$size = exec( '/usr/bin/env stty size 2>/dev/null' );
-					if ( '' !== $size && preg_match( '/[0-9]+ ([0-9]+)/', $size, $matches ) ) {
+					if ( $size && preg_match( '/[0-9]+ ([0-9]+)/', $size, $matches ) ) {
 						$columns = (int) $matches[1];
 					}
 					if ( ! $columns ) {

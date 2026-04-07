@@ -116,8 +116,7 @@ class HelpScreen {
 		foreach ($options as $option => $settings) {
 			$formatted = '  ' . str_pad($option, $max);
 
-			$dlen = 80 - 4 - $max;
-
+			$dlen = max( 1, 80 - 4 - $max );
 			$description = str_split($settings['description'], $dlen);
 			$formatted.= '  ' . array_shift($description);
 

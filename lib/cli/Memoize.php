@@ -36,8 +36,7 @@ abstract class Memoize {
 			return ($this->_memoCache[$name] = null);
 		}
 
-		$method = array($this, $name);
-		($this->_memoCache[$name] = call_user_func($method));
+		($this->_memoCache[$name] = $this->$name());
 		return $this->_memoCache[$name];
 	}
 

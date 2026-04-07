@@ -90,7 +90,7 @@ class Ascii extends Renderer {
 
 		if ( $widths && $max_width && array_sum( $widths ) > $max_width ) {
 
-			$avg = floor( $max_width / count( $widths ) );
+			$avg = (int) floor( $max_width / count( $widths ) );
 			$resize_widths = array();
 			$extra_width = 0;
 			foreach( $widths as $width ) {
@@ -102,7 +102,7 @@ class Ascii extends Renderer {
 			}
 
 			if ( ! empty( $resize_widths ) && $extra_width ) {
-				$avg_extra_width = floor( $extra_width / count( $resize_widths ) );
+				$avg_extra_width = (int) floor( $extra_width / count( $resize_widths ) );
 				foreach( $widths as &$width ) {
 					if ( in_array( $width, $resize_widths ) ) {
 						$width = $avg + $avg_extra_width;
@@ -198,6 +198,9 @@ class Ascii extends Renderer {
 				$original_val_width = Colors::width( $value, self::isPreColorized( $col ), $encoding );
 				if ( $col_width && ( $original_val_width > $col_width || strpos( $value, "\n" ) !== false ) ) {
 					$split_lines = preg_split( '/\r\n|\n/', $value );
+					if ( false === $split_lines ) {
+						$split_lines = array( $value );
+					}
 
 					$wrapped_lines = [];
 					foreach ( $split_lines as $line ) {
@@ -308,11 +311,11 @@ class Ascii extends Renderer {
 		if ( 'truncate' === $this->_wrapping_mode ) {
 			if ( $width <= self::ELLIPSIS_WIDTH ) {
 				// Not enough space for ellipsis, just truncate
-				return array( \cli\safe_substr( $text, 0, $width, true /*is_width*/, $encoding ) );
+				return array( (string) \cli\safe_substr( $text, 0, $width, true /*is_width*/, $encoding ) );
 			}
 			
 			// Truncate and add ellipsis
-			$truncated = \cli\safe_substr( $text, 0, $width - self::ELLIPSIS_WIDTH, true /*is_width*/, $encoding );
+			$truncated = (string) \cli\safe_substr( $text, 0, $width - self::ELLIPSIS_WIDTH, true /*is_width*/, $encoding );
 			return array( $truncated . self::ELLIPSIS );
 		}
 
@@ -331,11 +334,11 @@ class Ascii extends Renderer {
 		} else {
 			// For non-colorized content, use character-boundary wrapping
 			do {
-				$wrapped_value = \cli\safe_substr( $line, 0, $width, true /*is_width*/, $encoding );
+				$wrapped_value = (string) \cli\safe_substr( $line, 0, $width, true /*is_width*/, $encoding );
 				$val_width     = Colors::width( $wrapped_value, $is_precolorized, $encoding );
 				if ( $val_width ) {
 					$wrapped_lines[] = $wrapped_value;
-					$line = \cli\safe_substr( $line, \cli\safe_strlen( $wrapped_value, $encoding ), null /*length*/, false /*is_width*/, $encoding );
+					$line = (string) \cli\safe_substr( $line, \cli\safe_strlen( $wrapped_value, $encoding ), null /*length*/, false /*is_width*/, $encoding );
 				}
 			} while ( $line );
 		}
@@ -359,6 +362,9 @@ class Ascii extends Renderer {
 		
 		// Split by spaces and hyphens while keeping the delimiters
 		$words = preg_split( '/(\s+|-)/u', $text, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY );
+		if ( false === $words ) {
+			$words = array( $text );
+		}
 		
 		foreach ( $words as $word ) {
 			$word_width = Colors::width( $word, $is_precolorized, $encoding );
@@ -375,9 +381,9 @@ class Ascii extends Renderer {
 				// Split the long word at character boundaries
 				$remaining_word = $word;
 				while ( $remaining_word ) {
-					$chunk = \cli\safe_substr( $remaining_word, 0, $width, true /*is_width*/, $encoding );
+					$chunk = (string) \cli\safe_substr( $remaining_word, 0, $width, true /*is_width*/, $encoding );
 					$wrapped_lines[] = $chunk;
-					$remaining_word = \cli\safe_substr( $remaining_word, \cli\safe_strlen( $chunk, $encoding ), null /*length*/, false /*is_width*/, $encoding );
+					$remaining_word = (string) \cli\safe_substr( $remaining_word, \cli\safe_strlen( $chunk, $encoding ), null /*length*/, false /*is_width*/, $encoding );
 				}
 				continue;
 			}

@@ -121,7 +121,7 @@ abstract class Notify {
 			$this->_speed = ($this->_current / $this->_iteration) / $span;
 		}
 
-		return $this->_speed;
+		return (int) $this->_speed;
 	}
 
 	/**

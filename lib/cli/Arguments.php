@@ -91,7 +91,11 @@ class Arguments implements \ArrayAccess {
 	 * @return string
 	 */
 	public function asJSON() {
-		return json_encode($this->_parsed);
+		$json = json_encode( $this->_parsed );
+		if ( false === $json ) {
+			throw new \RuntimeException( 'Failed to encode arguments as JSON' );
+		}
+		return $json;
 	}
 
 	/**
