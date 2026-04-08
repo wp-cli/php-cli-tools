@@ -16,10 +16,11 @@ namespace cli\arguments;
  * Thrown when undefined arguments are detected in strict mode.
  */
 class InvalidArguments extends \InvalidArgumentException {
+	/** @var array<int, string> */
 	protected $arguments;
 
 	/**
-	 * @param array  $arguments  A list of arguments that do not fit the profile.
+	 * @param array<int, string>  $arguments  A list of arguments that do not fit the profile.
 	 */
 	public function __construct(array $arguments) {
 		$this->arguments = $arguments;
@@ -29,12 +30,15 @@ class InvalidArguments extends \InvalidArgumentException {
 	/**
 	 * Get the arguments that caused the exception.
 	 *
-	 * @return array
+	 * @return array<int, string>
 	 */
 	public function getArguments() {
 		return $this->arguments;
 	}
 
+	/**
+	 * @return string
+	 */
 	private function _generateMessage() {
 		return 'unknown argument' .
 			(count($this->arguments) > 1 ? 's' : '') .

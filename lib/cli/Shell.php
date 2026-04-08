@@ -50,7 +50,7 @@ class Shell {
 					}
 				} else {
 					$size = exec( '/usr/bin/env stty size 2>/dev/null' );
-					if ( '' !== $size && preg_match( '/[0-9]+ ([0-9]+)/', $size, $matches ) ) {
+					if ( $size && preg_match( '/[0-9]+ ([0-9]+)/', $size, $matches ) ) {
 						$columns = (int) $matches[1];
 					}
 					if ( ! $columns ) {
@@ -99,7 +99,9 @@ class Shell {
 
 	/**
 	 * Uses `stty` to hide input/output completely.
+	 *
 	 * @param boolean $hidden Will hide/show the next data. Defaults to true.
+	 * @return void
 	 */
 	static public function hide($hidden = true) {
 		system( 'stty ' . ( $hidden? '-echo' : 'echo' ) );

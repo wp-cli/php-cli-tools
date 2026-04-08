@@ -19,12 +19,12 @@ namespace cli;
  * then each key in the array will be the placeholder name. Placeholders are of the
  * format {:key}.
  *
- * @param string   $msg  The message to render.
- * @param mixed    ...   Either scalar arguments or a single array argument.
+ * @param string  $msg  The message to render.
+ * @param mixed   ...$args Either scalar arguments or a single array argument.
  * @return string  The rendered string.
  */
-function render( $msg ) {
-	return Streams::_call( 'render', func_get_args() );
+function render( $msg, ...$args ) {
+	return Streams::render( $msg, ...$args );
 }
 
 /**
@@ -32,11 +32,11 @@ function render( $msg ) {
  * through `sprintf` before output.
  *
  * @param string  $msg  The message to output in `printf` format.
- * @param mixed   ...   Either scalar arguments or a single array argument.
+ * @param mixed   ...$args Either scalar arguments or a single array argument.
  * @return void
  * @see \cli\render()
  */
-function out( $msg ) {
+function out( $msg, ...$args ) {
 	Streams::_call( 'out', func_get_args() );
 }
 
@@ -44,11 +44,11 @@ function out( $msg ) {
  * Pads `$msg` to the width of the shell before passing to `cli\out`.
  *
  * @param string  $msg  The message to pad and pass on.
- * @param mixed   ...   Either scalar arguments or a single array argument.
+ * @param mixed   ...$args Either scalar arguments or a single array argument.
  * @return void
  * @see cli\out()
  */
-function out_padded( $msg ) {
+function out_padded( $msg, ...$args ) {
 	Streams::_call( 'out_padded', func_get_args() );
 }
 
@@ -56,9 +56,12 @@ function out_padded( $msg ) {
  * Prints a message to `STDOUT` with a newline appended. See `\cli\out` for
  * more documentation.
  *
+ * @param string $msg Message to print.
+ * @param mixed   ...$args Either scalar arguments or a single array argument.
+ * @return void
  * @see cli\out()
  */
-function line( $msg = '' ) {
+function line( $msg = '', ...$args ) {
 	Streams::_call( 'line', func_get_args() );
 }
 
@@ -68,10 +71,10 @@ function line( $msg = '' ) {
  *
  * @param string  $msg  The message to output in `printf` format. With no string,
  *                      a newline is printed.
- * @param mixed   ...   Either scalar arguments or a single array argument.
+ * @param mixed   ...$args Either scalar arguments or a single array argument.
  * @return void
  */
-function err( $msg = '' ) {
+function err( $msg = '', ...$args ) {
 	Streams::_call( 'err', func_get_args() );
 }
 
@@ -140,7 +143,7 @@ function confirm( $question, $default = false ) {
  * choose an option. The array must be a single dimension with either strings
  * or objects with a `__toString()` method.
  *
- * @param array  $items   The list of items the user can choose from.
+ * @param array<int|string, mixed>  $items   The list of items the user can choose from.
  * @param string $default The index of the default item.
  * @param string $title   The message displayed to the user when prompted.
  * @return string  The index of the chosen item.
@@ -162,10 +165,10 @@ function menu( $items, $default = null, $title = 'Choose an item' ) {
  */
 function safe_strlen( $str, $encoding = false ) {
 	// Allow for selective testings - "1" bit set tests grapheme_strlen(), "2" preg_match_all( '/\X/u' ), "4" mb_strlen(), "other" strlen().
-	$test_safe_strlen = getenv( 'PHP_CLI_TOOLS_TEST_SAFE_STRLEN' );
+	$test_safe_strlen = (int) getenv( 'PHP_CLI_TOOLS_TEST_SAFE_STRLEN' );
 
-	// Assume UTF-8 if no encoding given - `grapheme_strlen()` will return null if given non-UTF-8 string.
-	if ( ( ! $encoding || 'UTF-8' === $encoding ) && can_use_icu() && null !== ( $length = grapheme_strlen( $str ) ) ) {
+	// Assume UTF-8 if no encoding given - `grapheme_strlen()` will return false on failure.
+	if ( ( ! $encoding || 'UTF-8' === $encoding ) && can_use_icu() && is_int( $length = grapheme_strlen( $str ) ) ) {
 		if ( ! $test_safe_strlen || ( $test_safe_strlen & 1 ) ) {
 			return $length;
 		}
@@ -181,10 +184,12 @@ function safe_strlen( $str, $encoding = false ) {
 		if ( ! $encoding ) {
 			$encoding = mb_detect_encoding( $str, null, true /*strict*/ );
 		}
-		$length = $encoding ? mb_strlen( $str, $encoding ) : mb_strlen( $str ); // mbstring funcs can fail if given `$encoding` arg that evals to false.
+		$length = is_string( $encoding ) ? mb_strlen( $str, $encoding ) : mb_strlen( $str ); // mbstring funcs can fail if given `$encoding` arg that evals to false.
 		if ( 'UTF-8' === $encoding ) {
 			// Subtract combining characters.
-			$length -= preg_match_all( get_unicode_regexs( 'm' ), $str, $dummy /*needed for PHP 5.3*/ );
+			$m_regex = get_unicode_regexs( 'm' );
+			assert( is_string( $m_regex ) );
+			$length -= preg_match_all( $m_regex, $str, $dummy /*needed for PHP 5.3*/ );
 		}
 		if ( ! $test_safe_strlen || ( $test_safe_strlen & 4 ) ) {
 			return $length;
@@ -215,6 +220,8 @@ function safe_substr( $str, $start, $length = false, $is_width = false, $encodin
 	// Normalize `$length` when not specified - PHP 5.3 substr takes false as full length, PHP > 5.3 takes null.
 	if ( null === $length || false === $length ) {
 		$length = $safe_strlen;
+	} else {
+		$length = (int) $length;
 	}
 	// Normalize `$start` - various methods treat this differently.
 	if ( $start > $safe_strlen ) {
@@ -225,7 +232,7 @@ function safe_substr( $str, $start, $length = false, $is_width = false, $encodin
 	}
 
 	// Allow for selective testings - "1" bit set tests grapheme_substr(), "2" preg_split( '/\X/' ), "4" mb_substr(), "8" substr().
-	$test_safe_substr = getenv( 'PHP_CLI_TOOLS_TEST_SAFE_SUBSTR' );
+	$test_safe_substr = (int) getenv( 'PHP_CLI_TOOLS_TEST_SAFE_SUBSTR' );
 
 	// Assume UTF-8 if no encoding given - `grapheme_substr()` will return false (not null like `grapheme_strlen()`) if given non-UTF-8 string.
 	if ( ( ! $encoding || 'UTF-8' === $encoding ) && can_use_icu() && false !== ( $try = grapheme_substr( $str, $start, $length ) ) ) {
@@ -248,7 +255,7 @@ function safe_substr( $str, $start, $length = false, $is_width = false, $encodin
 			$encoding = mb_detect_encoding( $str, null, true /*strict*/ );
 		}
 		// Bug: not adjusting for combining chars.
-		$try = $encoding ? mb_substr( $str, $start, $length, $encoding ) : mb_substr( $str, $start, $length ); // mbstring funcs can fail if given `$encoding` arg that evals to false.
+		$try = is_string( $encoding ) ? mb_substr( $str, $start, $length, $encoding ) : mb_substr( $str, $start, $length ); // mbstring funcs can fail if given `$encoding` arg that evals to false.
 		if ( 'UTF-8' === $encoding && $is_width ) {
 			$try = _safe_substr_eaw( $try, $length );
 		}
@@ -262,11 +269,14 @@ function safe_substr( $str, $start, $length = false, $is_width = false, $encodin
 /**
  * Internal function used by `safe_substr()` to adjust for East Asian double-width chars.
  *
+ * @param string $str
+ * @param int $length
  * @return string
  */
 function _safe_substr_eaw( $str, $length ) {
 	// Set the East Asian Width regex.
 	$eaw_regex = get_unicode_regexs( 'eaw' );
+	assert( is_string( $eaw_regex ) );
 
 	// If there's any East Asian double-width chars...
 	if ( preg_match( $eaw_regex, $str ) ) {
@@ -279,6 +289,9 @@ function _safe_substr_eaw( $str, $length ) {
 		} else {
 			// Explode string into an array of UTF-8 chars. Based on core `_mb_substr()` in "wp-includes/compat.php".
 			$chars = preg_split( '/([\x00-\x7f\xc2-\xf4][^\x00-\x7f\xc2-\xf4]*)/', $str, $length + 1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY );
+			if ( false === $chars ) {
+				$chars = array( $str );
+			}
 			$cnt = min( count( $chars ), $length );
 			$width = $length;
 
@@ -322,10 +335,12 @@ function strwidth( $string, $encoding = false ) {
 	$string = (string) $string;
 	
 	// Set the East Asian Width and Mark regexs.
-	list( $eaw_regex, $m_regex ) = get_unicode_regexs();
+	$regexs = get_unicode_regexs();
+	assert( is_array( $regexs ) );
+	list( $eaw_regex, $m_regex ) = $regexs;
 
 	// Allow for selective testings - "1" bit set tests grapheme_strlen(), "2" preg_match_all( '/\X/u' ), "4" mb_strwidth(), "other" safe_strlen().
-	$test_strwidth = getenv( 'PHP_CLI_TOOLS_TEST_STRWIDTH' );
+	$test_strwidth = (int) getenv( 'PHP_CLI_TOOLS_TEST_STRWIDTH' );
 
 	// Assume UTF-8 if no encoding given - `grapheme_strlen()` will return null if given non-UTF-8 string.
 	if ( ( ! $encoding || 'UTF-8' === $encoding ) && can_use_icu() && null !== ( $width = grapheme_strlen( $string ) ) ) {
@@ -344,7 +359,7 @@ function strwidth( $string, $encoding = false ) {
 		if ( ! $encoding ) {
 			$encoding = mb_detect_encoding( $string, null, true /*strict*/ );
 		}
-		$width = $encoding ? mb_strwidth( $string, $encoding ) : mb_strwidth( $string ); // mbstring funcs can fail if given `$encoding` arg that evals to false.
+		$width = is_string( $encoding ) ? mb_strwidth( $string, $encoding ) : mb_strwidth( $string ); // mbstring funcs can fail if given `$encoding` arg that evals to false.
 		if ( 'UTF-8' === $encoding ) {
 			// Subtract combining characters.
 			$width -= preg_match_all( $m_regex, $string, $dummy /*needed for PHP 5.3*/ );
@@ -393,8 +408,8 @@ function can_use_pcre_x() {
 /**
  * Get the regexs generated from Unicode data.
  *
- * @param string $idx Optional. Return a specific regex only. Default null.
- * @return array|string  Returns keyed array if not given $idx or $idx doesn't exist, otherwise the specific regex string.
+ * @param string|null $idx Optional. Return a specific regex only. Default null.
+ * @return array<int, string>|string  Returns keyed array if not given $idx or $idx doesn't exist, otherwise the specific regex string.
  */
 function get_unicode_regexs( $idx = null ) {
 	static $eaw_regex; // East Asian Width regex. Characters that count as 2 characters as they're "wide" or "fullwidth". See http://www.unicode.org/reports/tr11/tr11-19.html

@@ -18,6 +18,7 @@ namespace cli;
  * Reference: http://graphcomp.com/info/specs/ansi_col.html#colors
  */
 class Colors {
+	/** @var array<string, array<string, int>> */
 	static protected $_colors = array(
 		'color' => array(
 			'black'   => 30,
@@ -48,14 +49,28 @@ class Colors {
 			'white'   => 47
 		)
 	);
+	/** @var bool|null */
 	static protected $_enabled = null;
 
+	/** @var array<string, array<string, string>> */
 	static protected $_string_cache = array();
 
+	/**
+	 * Enable colorized output.
+	 *
+	 * @param bool $force Force enable.
+	 * @return void
+	 */
 	static public function enable($force = true) {
 		self::$_enabled = $force === true ? true : null;
 	}
 
+	/**
+	 * Disable colorized output.
+	 *
+	 * @param bool $force Force disable.
+	 * @return void
+	 */
 	static public function disable($force = true) {
 		self::$_enabled = $force === true ? false : null;
 	}
@@ -64,6 +79,9 @@ class Colors {
 	 * Check if we should colorize output based on local flags and shell type.
 	 *
 	 * Only check the shell type if `Colors::$_enabled` is null and `$colored` is null.
+	 *
+	 * @param bool|null $colored Force enable or disable the colorized output.
+	 * @return bool
 	 */
 	static public function shouldColorize($colored = null) {
 		return self::$_enabled === true ||
@@ -75,8 +93,8 @@ class Colors {
 	/**
 	 * Set the color.
 	 *
-	 * @param string  $color  The name of the color or style to set.
-     * @return string
+	 * @param string|array<string, string|int>  $color  The name of the color or style to set, or an array of options.
+	 * @return string
 	 */
 	static public function color($color) {
 		if (!is_array($color)) {
@@ -171,6 +189,7 @@ class Colors {
 	 * @param string $passed The original string before colorization.
 	 * @param string $colorized The string after running through self::colorize.
 	 * @param string $deprecated Optional. Not used. Default null.
+	 * @return void
 	 */
 	static public function cacheString( $passed, $colorized, $deprecated = null ) {
 		self::$_string_cache[md5($passed)] = array(
@@ -225,7 +244,7 @@ class Colors {
 	/**
 	 * Get the color mapping array.
 	 *
-	 * @return array Array of color tokens mapped to colors and styles.
+	 * @return array<string, array<string, string|int>> Array of color tokens mapped to colors and styles.
 	 */
 	static public function getColors() {
 		return array(
@@ -268,7 +287,7 @@ class Colors {
 	/**
 	 * Get the cached string values.
 	 *
-	 * @return array The cached string values.
+	 * @return array<string, array<string, string>> The cached string values.
 	 */
 	static public function getStringCache() {
 		return self::$_string_cache;
@@ -276,6 +295,8 @@ class Colors {
 
 	/**
 	 * Clear the string cache.
+	 *
+	 * @return void
 	 */
 	static public function clearStringCache() {
 		self::$_string_cache = array();
@@ -305,7 +326,7 @@ class Colors {
 	 * @param string      $string   The string to wrap (with ANSI codes).
 	 * @param int         $width    The maximum display width per line.
 	 * @param string|bool $encoding Optional. The encoding of the string. Default false.
-	 * @return array Array of wrapped string segments.
+	 * @return array<int, string> Array of wrapped string segments.
 	 */
 	static public function wrapPreColorized( $string, $width, $encoding = false ) {
 		$wrapped = array();
@@ -319,6 +340,10 @@ class Colors {
 		// Split the string into parts: ANSI codes and text
 		$parts = preg_split( $ansi_pattern, $string, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY );
 		
+		if ( false === $parts ) {
+			$parts = array( $string );
+		}
+
 		foreach ( $parts as $part ) {
 			// Check if this part is an ANSI code
 			if ( preg_match( $ansi_pattern, $part ) ) {
@@ -340,6 +365,7 @@ class Colors {
 				
 				while ( $offset < $text_length ) {
 					$char = \cli\safe_substr( $part, $offset, 1, false, $encoding );
+					assert( is_string( $char ) );
 					$char_width = \cli\strwidth( $char, $encoding );
 					
 					// Check if adding this character would exceed the width

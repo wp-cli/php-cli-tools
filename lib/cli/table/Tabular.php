@@ -19,32 +19,40 @@ class Tabular extends Renderer {
 	/**
 	 * Renders a row for output.
 	 *
-	 * @param array  $row  The table row.
-	 * @return string  The formatted table row.
+	 * @param array<int, mixed> $row The table row.
+	 * @return string The formatted table row.
 	 */
 	public function row( array $row ) {
-		$rows   = [];
-		$output = '';
+		/** @var array<int, array<int, string>> $rows */
+		$rows        = [];
+		$output      = '';
+		$split_lines = [];
+		$col         = null;
 
 		foreach ( $row as $col => $value ) {
-			$value       = isset( $value ) ? (string) $value : '';
+			$value       = ( isset( $value ) && ( is_scalar( $value ) || ( is_object( $value ) && method_exists( $value, '__toString' ) ) ) ) ? (string) $value : '';
 			$value       = str_replace( "\t", '    ', $value );
 			$split_lines = preg_split( '/\r\n|\n/', $value );
+			if ( false === $split_lines ) {
+				$split_lines = array( $value );
+			}
 			// Keep anything before the first line break on the original line
 			$row[ $col ] = array_shift( $split_lines );
 		}
 
 		$rows[] = $row;
 
-		foreach ( $split_lines as $i => $line ) {
-			if ( ! isset( $rows[ $i + 1 ] ) ) {
-				$rows[ $i + 1 ] = array_fill_keys( array_keys( $row ), '' );
+		if ( null !== $col ) {
+			foreach ( $split_lines as $i => $line ) {
+				if ( ! isset( $rows[ $i + 1 ] ) ) {
+					$rows[ $i + 1 ] = array_fill_keys( array_keys( $row ), '' );
+				}
+				$rows[ $i + 1 ][ $col ] = $line;
 			}
-			$rows[ $i + 1 ][ $col ] = $line;
 		}
 
 		foreach ( $rows as $r ) {
-			$output .= implode( "\t", array_values( $r ) ) . PHP_EOL;
+			$output .= implode( "\t", $r ) . PHP_EOL;
 		}
 		return rtrim( $output, PHP_EOL );
 	}

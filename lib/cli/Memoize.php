@@ -13,8 +13,15 @@
 namespace cli;
 
 abstract class Memoize {
+	/** @var array<string, mixed> */
 	protected $_memoCache = array();
 
+	/**
+	 * Magic getter to retrieve memoized properties.
+	 *
+	 * @param string $name Property name.
+	 * @return mixed
+	 */
 	public function __get($name) {
 		if (isset($this->_memoCache[$name])) {
 			return $this->_memoCache[$name];
@@ -29,11 +36,16 @@ abstract class Memoize {
 			return ($this->_memoCache[$name] = null);
 		}
 
-		$method = array($this, $name);
-		($this->_memoCache[$name] = call_user_func($method));
+		($this->_memoCache[$name] = $this->$name());
 		return $this->_memoCache[$name];
 	}
 
+	/**
+	 * Unmemoize a property or all properties.
+	 *
+	 * @param string|bool $name Property name to unmemoize, or true to unmemoize all.
+	 * @return void
+	 */
 	protected function _unmemo($name) {
 		if ($name === true) {
 			$this->_memoCache = array();
