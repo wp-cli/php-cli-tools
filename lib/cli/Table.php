@@ -72,7 +72,11 @@ class Table {
 				$rows      = $headers;
 				$first_row = array_shift( $headers );
 				$keys      = is_array( $first_row ) ? array_keys( $first_row ) : array();
-				$headers   = array_map( $safe_strval, $keys );
+
+				$headers = array();
+				foreach ( $keys as $key ) {
+					$headers[ $key ] = $safe_strval( $key );
+				}
 			} else {
 				$headers = array_map( $safe_strval, $headers );
 			}
@@ -82,7 +86,11 @@ class Table {
 			$safe_rows = array();
 			foreach ( $rows as $row ) {
 				if ( is_array( $row ) ) {
-					$safe_rows[] = array_map( $safe_strval, $row );
+					$normalized_row = array();
+					foreach ( $headers as $key => $header_val ) {
+						$normalized_row[ $key ] = isset( $row[ $key ] ) ? $safe_strval( $row[ $key ] ) : '';
+					}
+					$safe_rows[] = $normalized_row;
 				}
 			}
 			$this->setRows( $safe_rows );

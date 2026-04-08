@@ -399,6 +399,48 @@ class Test_Table extends TestCase {
 		$this->assertGreaterThan( 0, count( $out ) );
 	}
 
+	public function test_shortcut_constructor_tabular() {
+		$headers = array(
+			array( 'Name' => 'Alice', 'Age' => '30' ),
+			array( 'Name' => 'Bob', 'Age' => '25' ),
+		);
+
+		$table = new cli\Table( $headers );
+		$table->setRenderer( new cli\Table\Tabular() );
+
+		$out = $table->getDisplayLines();
+
+		$expected = [
+			"Name\tAge",
+			"Alice\t30",
+			"Bob\t25",
+		];
+
+		$this->assertSame( $expected, $out );
+	}
+
+	public function test_shortcut_constructor_normalization() {
+		$headers = array(
+			array( 'Name' => 'Alice', 'Age' => '30' ),
+			array( 'Age' => '25', 'Name' => 'Bob' ), // Different order
+			array( 'Name' => 'Charlie' ), // Missing Age
+		);
+
+		$table = new cli\Table( $headers );
+		$table->setRenderer( new cli\Table\Tabular() );
+
+		$out = $table->getDisplayLines();
+
+		$expected = [
+			"Name\tAge",
+			"Alice\t30",
+			"Bob\t25", // Order should be normalized to match headers!
+			"Charlie\t", // Missing value should be empty string
+		];
+
+		$this->assertSame( $expected, $out );
+	}
+
 	public function test_displayRow_ascii() {
 		$mockFile = tempnam( sys_get_temp_dir(), 'temp' );
 		$resource = fopen( $mockFile, 'wb' );
