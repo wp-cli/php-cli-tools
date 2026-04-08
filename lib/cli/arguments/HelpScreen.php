@@ -81,6 +81,10 @@ class HelpScreen {
 		array_push( $help, $this->_renderFlags() );
 		array_push( $help, $this->_renderOptions() );
 
+		$help = array_filter( $help, function ( $v ) {
+			return $v !== null && $v !== '';
+		} );
+
 		return join( "\n\n", $help );
 	}
 

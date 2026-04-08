@@ -294,4 +294,29 @@ class Test_Arguments extends TestCase
     public function testParseWithNoOptionsWithDefault($cliParams, $expectedValues) {
         $this->_testParse($cliParams, $expectedValues);
     }
+
+	public function testHelpScreenRender() {
+		$args = new \cli\Arguments( $this->settings );
+		$help = $args->getHelpScreen();
+
+		$output = $help->render();
+
+		// It should contain Flags and Options sections
+		$this->assertStringContainsString( 'Flags', $output );
+		$this->assertStringContainsString( 'Options', $output );
+
+		// Now test with ONLY flags
+		$settings = array(
+			'flags' => $this->flags,
+		);
+		$args = new \cli\Arguments( $settings );
+		$help = $args->getHelpScreen();
+		$output = $help->render();
+
+		$this->assertStringContainsString( 'Flags', $output );
+		$this->assertStringNotContainsString( 'Options', $output );
+
+		// It should NOT have leading/trailing newlines or empty sections
+		$this->assertSame( trim( $output ), $output, 'Output should not have leading/trailing whitespace' );
+	}
 }
