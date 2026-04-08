@@ -57,6 +57,7 @@ function out_padded( $msg, ...$args ) {
  * more documentation.
  *
  * @param string $msg Message to print.
+ * @param mixed   ...$args Either scalar arguments or a single array argument.
  * @return void
  * @see cli\out()
  */
