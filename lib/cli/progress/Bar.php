@@ -82,7 +82,7 @@ class Bar extends Progress {
 		$total = $this->total();
 		$msg = Streams::render($this->_formatMessage, compact('msg', 'percent', 'current', 'total'));
 
-		$estimated = $this->formatTime($this->estimated());
+		$estimated = $this->formatTime((int)$this->estimated());
 		$elapsed   = str_pad($this->formatTime($this->elapsed()), strlen($estimated));
 		$timing    = Streams::render($this->_formatTiming, compact('elapsed', 'estimated', 'current', 'total', 'percent'));
 

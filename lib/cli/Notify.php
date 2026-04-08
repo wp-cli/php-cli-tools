@@ -104,7 +104,7 @@ abstract class Notify {
 	 * Calculates the speed (number of ticks per second) at which the Notifier
 	 * is being updated.
 	 *
-	 * @return int  The number of ticks performed in 1 second.
+	 * @return float|int  The number of ticks performed in 1 second.
 	 */
 	public function speed() {
 		if (!$this->_start) {
@@ -121,7 +121,7 @@ abstract class Notify {
 			$this->_speed = ($this->_current / $this->_iteration) / $span;
 		}
 
-		return (int) $this->_speed;
+		return $this->_speed;
 	}
 
 	/**

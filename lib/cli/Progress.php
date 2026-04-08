@@ -90,8 +90,8 @@ abstract class Progress extends \cli\Notify {
 	 * Calculates the estimated total time for the tick count to reach the
 	 * total ticks given.
 	 *
-	 * @return int  The estimated total number of seconds for all ticks to be
-	 *              completed. This is not the estimated time left, but total.
+	 * @return int|float The estimated total number of seconds for all ticks to be
+	 *                   completed. This is not the estimated time left, but total.
 	 * @see cli\Notify::speed()
 	 * @see cli\Notify::elapsed()
 	 */
@@ -102,7 +102,7 @@ abstract class Progress extends \cli\Notify {
 		}
 
 		$estimated = round($this->_total / $speed);
-		return (int)$estimated;
+		return $estimated;
 	}
 
 	/**
