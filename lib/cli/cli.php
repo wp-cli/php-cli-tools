@@ -61,7 +61,7 @@ function out_padded( $msg, ...$args ) {
  * @return void
  * @see cli\out()
  */
-function line( $msg = '' ) {
+function line( $msg = '', ...$args ) {
 	Streams::_call( 'line', func_get_args() );
 }
 
