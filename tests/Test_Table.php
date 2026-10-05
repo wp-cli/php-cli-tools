@@ -50,6 +50,32 @@ class Test_Table extends TestCase {
 		}
 	}
 
+	public function test_display_lines_keep_row_order_with_many_rows() {
+		$table    = new cli\Table();
+		$renderer = new cli\Table\Ascii();
+		$renderer->setConstraintWidth( 80 );
+		$table->setRenderer( $renderer );
+		$table->setHeaders( array( 'ID', 'Value' ) );
+
+		$rows = 5000;
+		for ( $i = 1; $i <= $rows; $i++ ) {
+			// Every 100th row contains a line break and renders as two lines.
+			$table->addRow( array( (string) $i, 0 === $i % 100 ? "first\nsecond" : 'value' ) );
+		}
+
+		$out = $table->getDisplayLines();
+
+		// Border, header, border, one line per row plus one extra line per multi-line row, border.
+		$this->assertCount( 3 + $rows + $rows / 100 + 1, $out );
+		$this->assertSame( '| 1    | value        |', $out[3] );
+		$this->assertSame( '| 100  | first        |', $out[102] );
+		$this->assertSame( '|      | second       |', $out[103] );
+		$this->assertSame( '| 101  | value        |', $out[104] );
+		$this->assertSame( '| 5000 | first        |', $out[ count( $out ) - 3 ] );
+		$this->assertSame( '|      | second       |', $out[ count( $out ) - 2 ] );
+		$this->assertSame( $out[0], $out[ count( $out ) - 1 ] );
+	}
+
 	public function test_column_value_too_long_with_multibytes() {
 
 		$constraint_width = 80;

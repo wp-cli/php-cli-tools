@@ -235,9 +235,10 @@ class Table {
 		}
 
 		foreach ( $this->_rows as $row ) {
-			$row = $this->_renderer->row( $row );
-			$row = explode( PHP_EOL, $row );
-			$out = array_merge( $out, $row );
+			// Append line by line; array_merge() in this loop copies $out for every row.
+			foreach ( explode( PHP_EOL, $this->_renderer->row( $row ) ) as $line ) {
+				$out[] = $line;
+			}
 		}
 
 		// Only add final border if there are rows
