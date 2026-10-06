@@ -185,14 +185,20 @@ function safe_strlen( $str, $encoding = false ) {
 			$encoding = mb_detect_encoding( $str, null, true /*strict*/ );
 		}
 		$length = is_string( $encoding ) ? mb_strlen( $str, $encoding ) : mb_strlen( $str ); // mbstring funcs can fail if given `$encoding` arg that evals to false.
-		if ( 'UTF-8' === $encoding ) {
-			// Subtract combining characters.
-			$m_regex = get_unicode_regexs( 'm' );
-			assert( is_string( $m_regex ) );
-			$length -= preg_match_all( $m_regex, $str, $dummy /*needed for PHP 5.3*/ );
-		}
-		if ( ! $test_safe_strlen || ( $test_safe_strlen & 4 ) ) {
-			return $length;
+		// `mb_strlen()` returns false on failure in PHP < 8, in which case fall back to `strlen()` (which also covers the empty string).
+		if ( $length ) {
+			if ( 'UTF-8' === $encoding ) {
+				// Subtract combining characters.
+				$m_regex = get_unicode_regexs( 'm' );
+				assert( is_string( $m_regex ) );
+				$combining_count = preg_match_all( $m_regex, $str, $dummy /*needed for PHP 5.3*/ );
+				if ( false !== $combining_count ) {
+					$length -= $combining_count;
+				}
+			}
+			if ( ! $test_safe_strlen || ( $test_safe_strlen & 4 ) ) {
+				return $length;
+			}
 		}
 	}
 	return strlen( $str );
