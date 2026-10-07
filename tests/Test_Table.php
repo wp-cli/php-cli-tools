@@ -612,4 +612,25 @@ class Test_Table extends TestCase {
 		// The first row is padded to the width of the second one.
 		$this->assertSame( '| a      |', $lines[3] );
 	}
+
+	public function test_display_rows_writes_the_display_lines() {
+		$mock_file = tempnam( sys_get_temp_dir(), 'temp' );
+		$resource  = fopen( $mock_file, 'wb' );
+
+		try {
+			\cli\Streams::setStream( 'out', $resource );
+
+			$table = new cli\Table();
+			$table->setRenderer( new cli\Table\Tabular() );
+			$table->setHeaders( [ 'Name', 'Age' ] );
+			$table->displayRows( new ArrayIterator( [ [ 'Alice', '30' ], [ 'Bob', '25' ] ] ) );
+
+			$this->assertSame( "Name\tAge\nAlice\t30\nBob\t25\n", file_get_contents( $mock_file ) );
+		} finally {
+			\cli\Streams::setStream( 'out', STDOUT );
+			if ( $mock_file && file_exists( $mock_file ) ) {
+				unlink( $mock_file );
+			}
+		}
+	}
 }

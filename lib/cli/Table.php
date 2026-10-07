@@ -246,7 +246,7 @@ class Table {
 	 * @param iterable<array<int, string>> $rows Rows to display after those of the table.
 	 * @return \Generator<int, string>
 	 */
-	public function getDisplayLinesFromRows( $rows ) {
+	public function getDisplayLinesFromRows( iterable $rows ) {
 		if ( $this->_renderer->needsWidths() ) {
 			foreach ( $rows as $row ) {
 				$this->addRow( $row );
@@ -288,7 +288,7 @@ class Table {
 	 * @param iterable<array<int, string>> $rows Rows to display after those of the table.
 	 * @return void
 	 */
-	public function displayRows( $rows ) {
+	public function displayRows( iterable $rows ) {
 		foreach ( $this->getDisplayLinesFromRows( $rows ) as $line ) {
 			Streams::line( $line );
 		}
