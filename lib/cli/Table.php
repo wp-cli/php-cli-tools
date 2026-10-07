@@ -220,6 +220,86 @@ class Table {
 	 * @return array<int, string>
 	 */
 	public function getDisplayLines() {
+		$out = $this->getHeaderLines();
+
+		foreach ( $this->_rows as $row ) {
+			// Append line by line; array_merge() in this loop copies $out for every row.
+			foreach ( $this->getRowLines( $row ) as $line ) {
+				$out[] = $line;
+			}
+		}
+
+		foreach ( $this->getFooterLines( ! empty( $this->_rows ) ) as $line ) {
+			$out[] = $line;
+		}
+		return $out;
+	}
+
+	/**
+	 * Get the table lines to output for the rows of the table followed by the given rows.
+	 *
+	 * The lines are the same as those of `getDisplayLines()` after adding the rows. If the
+	 * renderer doesn't need the column widths, as is the case for the tabular renderer used
+	 * when STDOUT is piped, the lines of each row are yielded as soon as the row is read, so
+	 * the rows don't all have to be held in memory. Otherwise, the rows are added first.
+	 *
+	 * @param iterable<array<int, string>> $rows Rows to display after those of the table.
+	 * @return \Generator<int, string>
+	 */
+	public function getDisplayLinesFromRows( $rows ) {
+		if ( $this->_renderer->needsWidths() ) {
+			foreach ( $rows as $row ) {
+				$this->addRow( $row );
+			}
+			foreach ( $this->getDisplayLines() as $line ) {
+				yield $line;
+			}
+			return;
+		}
+
+		foreach ( $this->getHeaderLines() as $line ) {
+			yield $line;
+		}
+
+		$has_rows = false;
+		foreach ( $this->_rows as $row ) {
+			$has_rows = true;
+			foreach ( $this->getRowLines( $row ) as $line ) {
+				yield $line;
+			}
+		}
+		foreach ( $rows as $row ) {
+			$has_rows = true;
+			foreach ( $this->getRowLines( $row ) as $line ) {
+				yield $line;
+			}
+		}
+
+		foreach ( $this->getFooterLines( $has_rows ) as $line ) {
+			yield $line;
+		}
+	}
+
+	/**
+	 * Output the table to `STDOUT` with the given rows added, without holding them all in memory if possible.
+	 *
+	 * @see cli\Table::getDisplayLinesFromRows()
+	 *
+	 * @param iterable<array<int, string>> $rows Rows to display after those of the table.
+	 * @return void
+	 */
+	public function displayRows( $rows ) {
+		foreach ( $this->getDisplayLinesFromRows( $rows ) as $line ) {
+			Streams::line( $line );
+		}
+	}
+
+	/**
+	 * Get the lines before the rows: the header row and its borders.
+	 *
+	 * @return array<int, string>
+	 */
+	private function getHeaderLines() {
 		$this->_renderer->setWidths( $this->_width, $fallback = true );
 		$this->_renderer->setHeaders( $this->_headers );
 		$this->_renderer->setAlignments( $this->_alignments );
@@ -233,16 +313,31 @@ class Table {
 		if ( isset( $border ) ) {
 			$out[] = $border;
 		}
+		return $out;
+	}
 
-		foreach ( $this->_rows as $row ) {
-			// Append line by line; array_merge() in this loop copies $out for every row.
-			foreach ( explode( PHP_EOL, $this->_renderer->row( $row ) ) as $line ) {
-				$out[] = $line;
-			}
-		}
+	/**
+	 * Get the lines of a row.
+	 *
+	 * @param array<int, string> $row The row.
+	 * @return array<int, string>
+	 */
+	private function getRowLines( array $row ) {
+		return explode( PHP_EOL, $this->_renderer->row( $row ) );
+	}
 
+	/**
+	 * Get the lines after the rows: the final border and the footer row.
+	 *
+	 * @param bool $has_rows Whether the table has rows.
+	 * @return array<int, string>
+	 */
+	private function getFooterLines( $has_rows ) {
+		$border = $this->_renderer->border();
+
+		$out = array();
 		// Only add final border if there are rows
-		if ( ! empty( $this->_rows ) && isset( $border ) ) {
+		if ( $has_rows && isset( $border ) ) {
 			$out[] = $border;
 		}
 

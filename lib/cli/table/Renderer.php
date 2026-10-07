@@ -43,6 +43,17 @@ abstract class Renderer {
 	}
 
 	/**
+	 * Whether the renderer needs the widths of the columns to render a row.
+	 *
+	 * If it doesn't, rows can be rendered as they are read, without knowing all of them.
+	 *
+	 * @return bool
+	 */
+	public function needsWidths() {
+		return true;
+	}
+
+	/**
 	 * Set the alignments of each column in the table.
 	 *
 	 * @param array<string|int, int> $alignments The alignments of the columns.

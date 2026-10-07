@@ -524,4 +524,92 @@ class Test_Table extends TestCase {
 			}
 		}
 	}
+
+	public function test_renderers_declare_whether_they_need_widths() {
+		$this->assertTrue( ( new cli\Table\Ascii() )->needsWidths() );
+		$this->assertFalse( ( new cli\Table\Tabular() )->needsWidths() );
+	}
+
+	/**
+	 * @return array<string, array{0: \cli\table\Renderer}>
+	 */
+	public static function data_renderers() {
+		return [
+			'ascii'   => [ new cli\Table\Ascii() ],
+			'tabular' => [ new cli\Table\Tabular() ],
+		];
+	}
+
+	/**
+	 * @dataProvider data_renderers
+	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'data_renderers' )] // phpcs:ignore PHPCompatibility.Attributes.NewAttributes.PHPUnitAttributeFound
+	public function test_display_lines_from_rows_match_display_lines( $renderer ) {
+		$rows = [
+			[ 'first', "multi\nline" ],
+			[ 'second', '' ],
+			[ 'third', 'a very long value' ],
+		];
+
+		foreach ( [ 'with footers' => true, 'without footers' => false ] as $case => $with_footers ) {
+			foreach ( [ 0, 1, 3 ] as $count ) {
+				// One row is already in the table, the others are passed as an iterator.
+				$build = function () use ( $renderer, $with_footers, $count, $rows ) {
+					$table = new cli\Table();
+					$table->setRenderer( clone $renderer );
+					$table->setHeaders( [ 'Name', 'Value' ] );
+					if ( $with_footers ) {
+						$table->setFooters( [ 'Total', (string) $count ] );
+					}
+					if ( $count > 0 ) {
+						$table->addRow( $rows[0] );
+					}
+					return $table;
+				};
+
+				$expected_table = $build();
+				for ( $i = 1; $i < $count; $i++ ) {
+					$expected_table->addRow( $rows[ $i ] );
+				}
+
+				$lines = iterator_to_array(
+					$build()->getDisplayLinesFromRows( new ArrayIterator( array_slice( $rows, 1, max( 0, $count - 1 ) ) ) ),
+					false
+				);
+
+				$this->assertSame( $expected_table->getDisplayLines(), $lines, "$case, $count rows" );
+			}
+		}
+	}
+
+	public function test_display_lines_from_rows_are_yielded_as_rows_are_read_with_tabular_renderer() {
+		$table = new cli\Table();
+		$table->setRenderer( new cli\Table\Tabular() );
+		$table->setHeaders( [ 'Name' ] );
+
+		$log  = [];
+		$rows = ( function () use ( &$log ) {
+			foreach ( [ 'a', 'b' ] as $name ) {
+				$log[] = "read $name";
+				yield [ $name ];
+			}
+		} )();
+
+		foreach ( $table->getDisplayLinesFromRows( $rows ) as $line ) {
+			$log[] = "line $line";
+		}
+
+		$this->assertSame( [ 'line Name', 'read a', 'line a', 'read b', 'line b' ], $log );
+	}
+
+	public function test_display_lines_from_rows_are_aligned_with_ascii_renderer() {
+		$table = new cli\Table();
+		$table->setRenderer( new cli\Table\Ascii() );
+		$table->setHeaders( [ 'Name' ] );
+
+		$lines = iterator_to_array( $table->getDisplayLinesFromRows( new ArrayIterator( [ [ 'a' ], [ 'longer' ] ] ) ), false );
+
+		// The first row is padded to the width of the second one.
+		$this->assertSame( '| a      |', $lines[3] );
+	}
 }
