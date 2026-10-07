@@ -17,6 +17,15 @@ namespace cli\table;
  */
 class Tabular extends Renderer {
 	/**
+	 * The tabular renderer doesn't align the columns, so it doesn't need their widths.
+	 *
+	 * @return bool
+	 */
+	public function needsWidths() {
+		return false;
+	}
+
+	/**
 	 * Renders a row for output.
 	 *
 	 * @param array<int, mixed> $row The table row.
