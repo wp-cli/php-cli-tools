@@ -21,7 +21,6 @@
         "php": ">= 7.2.24"
     },
     "require-dev": {
-        "roave/security-advisories": "dev-latest",
         "wp-cli/wp-cli-tests": "^5"
     },
     "extra": {
